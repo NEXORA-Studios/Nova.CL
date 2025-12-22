@@ -1,0 +1,273 @@
+{
+    "Header": {
+        "Download": {
+            "Minecraft": "Minecraft",
+            "Installer": "Installer",
+            "Mod": "Mod",
+            "Modpack": "Modpack",
+            "Datapack": "Datapack",
+            "Resourcepack": "Resourcepack",
+            "Shader": "Shader",
+            "Map": "World",
+            "Stared": "Stared"
+        },
+        "More": {
+            "About": "About",
+            "Tools": "Tools"
+        }
+    },
+    "Aside": {
+        "MenuButton": {
+            "Home": "Home",
+            "Download": "Download",
+            "Settings": "Settings",
+            "More": "More"
+        },
+        "AccountType": {
+            "0": "Online",
+            "1": "Offline",
+            "2": "3rd Party (Nide)",
+            "3": "3rd Party"
+        }
+    },
+    "Main": {
+        "Home": {
+            "Cards": {
+                "1": "Switch Instances",
+                "2": "Manage Resources",
+                "3": "Adjust Accounts",
+                "News": {
+                    "Title": "Minecraft Update News",
+                    "Description": "Discover all the new features, bug fixes, and improvements in the latest game update.",
+                    "Description2": "Version: {version}",
+                    "Button": "Read More"
+                }
+            }
+        },
+        "r/Account": {
+            "TopButtons": {
+                "AddAccount": "Add Account",
+                "ImportAccount": "Import Account",
+                "ExportAccount": "Export Account"
+            },
+            "TableHeader": {
+                "Name": "Name",
+                "LoginMethod": "Login Method"
+            },
+            "Modal": {
+                "Add": {
+                    "Title": "Add New Account",
+                    "Description": "Select Account Type",
+                    "MsLogin": "Login with Microsoft",
+                    "Offline": "Create Offline Account",
+                    "TrdParty": "Login to 3rd Party Account",
+                    "Cancel": "Cancel"
+                }
+            }
+        },
+        "Download/Minecraft": {
+            "GlobalSearchPlaceholder": "",
+            "Cards": {
+                "Newest": "Newest Versions",
+                "Release": "Release",
+                "Snapshot": "Snapshot",
+                "Old": "Old",
+                "AprilFools": "April Fools",
+                "Filtered": "Filtered Versions",
+                "FilteredVersions": "Filtered Versions"
+            },
+            "Types": {
+                "Release": "Release",
+                "Snapshot": "Snapshot",
+                "Old_beta": "Beta",
+                "Old_alpha": "Alpha"
+            },
+            "PublishAt": "Publish at {time}"
+        },
+        "Download/Public": {
+            "Versions": {
+                "__Title__": "Versions",
+                "__SearchPlaceholder__": "Search versions",
+                "__ShowAll__": "Show all versions"
+            },
+            "Categories": {
+                "__Title__": "Categories",
+                "Adventure": "Adventure",
+                "Cursed": "Cursed",
+                "Decoration": "Decoration",
+                "Economy": "Economy",
+                "Equipment": "Equipment",
+                "Food": "Food",
+                "GameMechanics": "Game Mechanics",
+                "Library": "Library",
+                "Magic": "Magic",
+                "Management": "Management",
+                "Minigame": "Minigame",
+                "Mobs": "Mobs",
+                "Optimization": "Optimization",
+                "Social": "Social",
+                "Storage": "Storage",
+                "Technology": "Technology",
+                "Transportation": "Transportation",
+                "Utility": "Utility",
+                "Worldgen": "World Generation",
+                "Challenging": "Challenging",
+                "Combat": "Combat",
+                "KitchenSink": "Kitchen Sink",
+                "Lightweight": "Lightweight",
+                "Multiplayer": "Multiplayer",
+                "Quests": "Quests",
+                "Modded": "Modded",
+                "Realistic": "Realistic",
+                "Simplistic": "Simplistic",
+                "Themed": "Themed",
+                "Tweaks": "Tweaks",
+                "VanillaLike": "Vanilla-like",
+                "Audio": "Audio",
+                "Blocks": "Blocks",
+                "CoreShaders": "Core Shaders",
+                "Entities": "Entities",
+                "Environment": "Environment",
+                "Fonts": "Fonts",
+                "Gui": "GUI",
+                "Items": "Items",
+                "Locale": "Locale",
+                "Models": "Models",
+                "8x": "8x or lower",
+                "16x": "16x",
+                "32x": "32x",
+                "48x": "48x",
+                "64x": "64x",
+                "128x": "128x",
+                "256x": "256x",
+                "512x+": "512x or higher",
+                "Cartoon": "Cartoon",
+                "Fantasy": "Fantasy",
+                "SemiRealistic": "Semi-realistic",
+                "Atmosphere": "Atmosphere",
+                "Bloom": "Bloom",
+                "ColoredLighting": "Colored Lighting",
+                "Foliage": "Foliage",
+                "PathTracing": "Path Tracing",
+                "Pbr": "PBR",
+                "Reflections": "Reflections",
+                "Shadows": "Shadows",
+                "High": "High",
+                "Low": "Low",
+                "Medium": "Medium",
+                "Potato": "Potato",
+                "Screenshot": "Screenshot"
+            },
+            "Loaders": {
+                "__Title__": "Loaders",
+                "__ShowAll__": "Show all loaders",
+                "Babric": "Babric",
+                "BtaBabric": "BTA Babric",
+                "Bukkit": "Bukkit",
+                "Datapack": "Datapack",
+                "Fabric": "Fabric",
+                "Forge": "Forge",
+                "Iris": "Iris",
+                "JavaAgent": "Java Agent",
+                "LegacyFabric": "Legacy Fabric",
+                "Liteloader": "Liteloader",
+                "Modloader": "Risugami's ML",
+                "Neoforge": "Neoforge",
+                "Nilloader": "Nilloader",
+                "Optifine": "Optifine",
+                "Ornithe": "Ornithe",
+                "Quilt": "Quilt",
+                "Rift": "Rift"
+            },
+            "Result": {
+                "NoResult": "No Results",
+                "Loading": "Loading..."
+            },
+            "Page": "Page {offset} / {maximum}",
+            "Resolution": {
+                "__Title__": "Resolution"
+            },
+            "Features": {
+                "__Title__": "Features"
+            },
+            "PerformanceImpact": {
+                "__Title__": "Performance Impact"
+            }
+        },
+        "Download/Mod": {
+            "GlobalSearchPlaceholder": "Search a Mod"
+        },
+        "More/About": {
+            "Version": {
+                "Title": "Version",
+                "Button": "Check Update"
+            },
+            "UpdateChannel": {
+                "Title": "Update Channel",
+                "Channels": {
+                    "Overworld": "🌍 Overworld",
+                    "Nether": "🌋 Nether",
+                    "Ender": "🌆 Ender",
+                    "Unknown": "⚠️ Unknown"
+                },
+                "Suffix": " Channel",
+                "Button": "Switch"
+            },
+            "BuildInfo": {
+                "Title": "Build Info",
+                "LocalBuild": "Local Build",
+                "FromCommit": "From Commit: "
+            }
+        },
+        "More/Tools": {
+            "SkinDownload": {
+                "Title": "Skin Download",
+                "Desp": "Download other's skin from API Services",
+                "SelectSource": "Pick a source",
+                "SelectType": {
+                    "SourceFirst": "Pick a source first!",
+                    "Select": "Pick a type"
+                },
+                "Types": {
+                    "Skin": "Skin",
+                    "Cape": "Cape",
+                    "Avatar": "Avatar",
+                    "Head": "Head",
+                    "Helm": "Avatar with Helm",
+                    "Isometric": "Isomatric Head",
+                    "Body": "Body",
+                    "Bust": "Bust"
+                }
+            }
+        },
+        "Download/Modpack": {
+            "GlobalSearchPlaceholder": "Search a Modpack"
+        },
+        "Download/Datapack": {
+            "GlobalSearchPlaceholder": "Search a Datapack"
+        }
+    },
+    "Footer": {
+        "LaunchGame": "LAUNCH GAME",
+        "Status": {
+            "0": "Downloading",
+            "1": "Ready to Play",
+            "2": "Launching",
+            "3": "Launched",
+            "4": "Failed"
+        },
+        "Tooltip": {
+            "KillAllMCInstance": "Kill all the running Minecraft process",
+            "Music": {
+                "Template": "Music is {status}: {name}. Click to {flip_status}. Right-click to skip.",
+                "Pause": "paused",
+                "Play": "playing"
+            }
+        }
+    },
+    "InsiderWarning": {
+        "Line1": "Nova.CL · {Channel} · {Version}",
+        "Line2": "Current version is for UI/UX evaluation, not final quality."
+    },
+    "ExtendVersionDescription": "Abyssal Threshold"
+}

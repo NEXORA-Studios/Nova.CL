@@ -1,0 +1,285 @@
+{
+    "Header": {
+        "Download": {
+            "Minecraft": "自动安装",
+            "Installer": "手动安装包",
+            "Mod": "Mod",
+            "Modpack": "整合包",
+            "Datapack": "数据包",
+            "Resourcepack": "资源包",
+            "Shader": "光影",
+            "Map": "世界",
+            "Stared": "收藏"
+        },
+        "More": {
+            "About": "关于",
+            "Tools": "百宝箱"
+        }
+    },
+    "Aside": {
+        "MenuButton": {
+            "Home": "主页",
+            "Download": "资源下载",
+            "Settings": "设置",
+            "More": "更多"
+        },
+        "AccountType": {
+            "0": "正版登录",
+            "1": "离线登录",
+            "2": "统一通行证",
+            "3": "皮肤站"
+        }
+    },
+    "Main": {
+        "Home": {
+            "Cards": {
+                "1": "切换实例",
+                "2": "管理资源",
+                "3": "调整账号",
+                "News": {
+                    "Title": "Minecraft 更新提示",
+                    "Description": "全新版本震撼发布：全面呈现本次更新中的全新特性、深度优化与关键修复，带你一览游戏进化的每一处跃迁。",
+                    "Description2": "版本: {version}",
+                    "Button": "阅读更多"
+                }
+            }
+        },
+        "r/Account": {
+            "TopButtons": {
+                "AddAccount": "添加账号",
+                "ImportAccount": "导入账号",
+                "ExportAccount": "导出账号"
+            },
+            "TableHeader": {
+                "Name": "账号名称",
+                "LoginMethod": "登录方式"
+            },
+            "Modal": {
+                "Add": {
+                    "Title": "添加新账号",
+                    "Description": "选择账号类型",
+                    "MsLogin": "使用 Microsoft 登录",
+                    "Offline": "创建离线账号",
+                    "TrdParty": "登录第三方账号",
+                    "Cancel": "取消"
+                }
+            }
+        },
+        "Download/Minecraft": {
+            "GlobalSearchPlaceholder": "搜索 Minecraft 版本",
+            "Cards": {
+                "Newest": "最新版本",
+                "Release": "正式版",
+                "Snapshot": "快照版",
+                "Old": "远古版",
+                "AprilFools": "愚人节版",
+                "Filtered": "筛选结果",
+                "FilteredVersions": "搜索结果"
+            },
+            "Types": {
+                "Release": "正式",
+                "Snapshot": "快照",
+                "Old_beta": "远古 Beta",
+                "Old_alpha": "远古 Alpha"
+            },
+            "PublishAt": "发布于 {time}"
+        },
+        "Download/Public": {
+            "Versions": {
+                "__Title__": "MC 版本",
+                "__SearchPlaceholder__": "搜索版本",
+                "__ShowAll__": "显示所有版本"
+            },
+            "Categories": {
+                "__Title__": "分类",
+                "Adventure": "冒险",
+                "Cursed": "诅咒",
+                "Decoration": "装饰",
+                "Economy": "经济",
+                "Equipment": "装备与工具",
+                "Food": "食物与烹饪",
+                "GameMechanics": "游戏机制",
+                "Library": "支持库",
+                "Magic": "魔法",
+                "Management": "管理",
+                "Minigame": "小型游戏",
+                "Mobs": "生物",
+                "Optimization": "性能优化",
+                "Social": "社交",
+                "Storage": "仓储",
+                "Technology": "科技",
+                "Transportation": "运输",
+                "Utility": "实用",
+                "Worldgen": "世界元素",
+                "Challenging": "挑战性",
+                "Combat": "战斗",
+                "KitchenSink": "水槽包",
+                "Lightweight": "轻量级",
+                "Multiplayer": "多人",
+                "Quests": "任务",
+                "Modded": "模组化",
+                "Realistic": "真实",
+                "Simplistic": "简单",
+                "Themed": "主题",
+                "Tweaks": "调整",
+                "VanillaLike": "原版风",
+                "Audio": "音效",
+                "Blocks": "方块",
+                "CoreShaders": "核心光影",
+                "Entities": "实体",
+                "Environment": "环境",
+                "Fonts": "字体",
+                "Gui": "GUI",
+                "Items": "物品",
+                "Locale": "本地化",
+                "Models": "模型",
+                "8x": "8x 或更低",
+                "16x": "16x",
+                "32x": "32x",
+                "48x": "48x",
+                "64x": "64x",
+                "128x": "128x",
+                "256x": "256x",
+                "512x+": "512x 或更高",
+                "Cartoon": "卡通",
+                "Fantasy": "幻想",
+                "SemiRealistic": "半真实",
+                "Atmosphere": "大气",
+                "Bloom": "辉光",
+                "ColoredLighting": "彩色照明",
+                "Foliage": " 树林",
+                "PathTracing": "路径追踪",
+                "Pbr": "PBR",
+                "Reflections": "反射",
+                "Shadows": "阴影",
+                "High": "高",
+                "Low": "低",
+                "Medium": "中",
+                "Potato": " 土豆",
+                "Screenshot": "截图"
+            },
+            "Loaders": {
+                "__Title__": "加载器",
+                "__ShowAll__": "显示所有加载器",
+                "Babric": "Babric",
+                "BtaBabric": "BTA Babric",
+                "Bukkit": "Bukkit",
+                "Bungeecord": "Bungeecord",
+                "Canvas": "Canvas",
+                "Datapack": "Datapack",
+                "Fabric": "Fabric",
+                "Folia": "Folia",
+                "Forge": "Forge",
+                "Geyser": "Geyser",
+                "Iris": "Iris",
+                "JavaAgent": "Java Agent",
+                "LegacyFabric": "Legacy Fabric",
+                "Liteloader": "Liteloader",
+                "Minecraft": "Minecraft",
+                "Modloader": "Risugami's ML",
+                "Neoforge": "Neoforge",
+                "Nilloader": "Nilloader",
+                "Optifine": "Optifine",
+                "Ornithe": "Ornithe",
+                "Paper": "Paper",
+                "Purpur": "Purpur",
+                "Quilt": "Quilt",
+                "Rift": "Rift",
+                "Spigot": "Spigot",
+                "Sponge": "Sponge",
+                "Vanilla": "Vanilla",
+                "Velocity": "Velocity",
+                "Waterfall": "Waterfall"
+            },
+            "Result": {
+                "NoResult": "没有结果",
+                "Loading": "加载中..."
+            },
+            "Page": "第 {offset} / {maximum} 页",
+            "Resolution": {
+                "__Title__": "分辨率"
+            },
+            "Features": {
+                "__Title__": "特性"
+            },
+            "PerformanceImpact": {
+                "__Title__": "性能影响"
+            }
+        },
+        "Download/Mod": {
+            "GlobalSearchPlaceholder": "搜索 Mod"
+        },
+        "More/About": {
+            "Version": {
+                "Title": "版本",
+                "Button": "检查更新"
+            },
+            "UpdateChannel": {
+                "Title": "更新通道",
+                "Channels": {
+                    "Overworld": "🌍 主世界",
+                    "Nether": "🌋 下界",
+                    "Ender": "🌆 末地",
+                    "Unknown": "⚠️ 未知"
+                },
+                "Suffix": " 更新通道",
+                "Button": "切换更新通道"
+            },
+            "BuildInfo": {
+                "Title": "构建信息",
+                "LocalBuild": "本地构建",
+                "FromCommit": "来自提交："
+            }
+        },
+        "More/Tools": {
+            "SkinDownload": {
+                "Title": "皮肤下载",
+                "Desp": "从 API 下载其他玩家的皮肤",
+                "SelectSource": "选择来源",
+                "SelectType": {
+                    "SourceFirst": "请先选择来源",
+                    "Select": "选择类型"
+                },
+                "Types": {
+                    "Skin": "皮肤",
+                    "Cape": "披风",
+                    "Avatar": "头像",
+                    "Head": "立体头颅",
+                    "Helm": "多层头像",
+                    "Isometric": "立体头颅",
+                    "Body": "全身",
+                    "Bust": "上身"
+                }
+            }
+        },
+        "Download/Modpack": {
+            "GlobalSearchPlaceholder": "搜索整合包"
+        },
+        "Download/Datapack": {
+            "GlobalSearchPlaceholder": "搜索数据包"
+        }
+    },
+    "Footer": {
+        "LaunchGame": "启动游戏",
+        "Status": {
+            "0": "下载中",
+            "1": "准备好开始游戏",
+            "2": "启动中",
+            "3": "游戏已启动",
+            "4": "发生错误"
+        },
+        "Tooltip": {
+            "KillAllMCInstance": "关闭所有运行中的 MC 实例",
+            "Music": {
+                "Template": "音乐状态：{status}，当前播放：{name}。点击切换状态，右键下一曲。",
+                "Pause": "已暂停",
+                "Play": "正在播放"
+            }
+        }
+    },
+    "InsiderWarning": {
+        "Line1": "Nova.CL · {Channel} · {Version}",
+        "Line2": "当前版本为 UI/UX 评估测试，不代表最终品质"
+    },
+    "ExtendVersionDescription": "「深渊初界」"
+}

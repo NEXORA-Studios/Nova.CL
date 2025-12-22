@@ -1,0 +1,42 @@
+{
+    "name": "novacl",
+    "private": true,
+    "version": "0.1.0",
+    "type": "module",
+    "scripts": {
+        "dev": "vite",
+        "build": "vue-tsc --noEmit && vite build",
+        "preview": "vite preview",
+        "tauri": "tauri"
+    },
+    "dependencies": {
+        "@tauri-apps/api": "^2",
+        "@tauri-apps/plugin-opener": "^2",
+        "@tauri-apps/plugin-updater": "~2",
+        "@tauri-apps/plugin-window-state": "~2",
+        "vue": "^3.5.13"
+    },
+    "devDependencies": {
+        "@iconify-json/mdi": "^1.2.3",
+        "@iconify-json/meteor-icons": "^1.2.1",
+        "@iconify-json/octicon": "^1.2.5",
+        "@iconify-json/simple-icons": "^1.2.33",
+        "@iconify/tailwind4": "^1.0.6",
+        "@tailwindcss/vite": "^4.1.4",
+        "@tauri-apps/cli": "^2",
+        "@vitejs/plugin-vue": "^5.2.1",
+        "@vueuse/core": "^14.1.0",
+        "daisyui": "^5.0.27",
+        "pinia": "^3.0.2",
+        "sass-embedded": "^1.87.0",
+        "tailwindcss": "^4.1.4",
+        "typescript": "~5.8.3",
+        "vite": "^6.3.4",
+        "vue-router": "^4.5.1",
+        "vue-tsc": "^2.1.10"
+    },
+    "trustedDependencies": [
+        "@parcel/watcher",
+        "esbuild"
+    ]
+}

@@ -1,0 +1,44 @@
+name: "Build App for Development"
+
+on:
+    workflow_dispatch:
+
+jobs:
+    build-app:
+        runs-on: windows-latest
+        steps:
+            - uses: actions/checkout@v4
+
+            - name: setup node
+              uses: actions/setup-node@v4
+              with:
+                  node-version: lts/*
+
+            - name: install Rust Stable
+              uses: dtolnay/rust-toolchain@stable
+
+            - name: install frontend dependencies
+              run: |
+                  npm install -g bun
+                  bun install
+
+            - name: build
+              shell: bash
+              run: |
+                  export TAURI_SIGNING_PRIVATE_KEY=${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
+                  export TAURI_SIGNING_PRIVATE_KEY_PASSWORD=${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
+                  bun tauri build
+
+            - name: upload
+              uses: actions/upload-artifact@v4
+              with:
+                  name: Windows Embedded App
+                  path: src-tauri/target/release/novacl.exe
+                  retention-days: 14
+
+            - name: upload
+              uses: actions/upload-artifact@v4
+              with:
+                  name: Windows Bundled Installer
+                  path: src-tauri/target/release/bundle/
+                  retention-days: 14
