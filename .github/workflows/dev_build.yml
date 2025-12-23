@@ -46,8 +46,8 @@ jobs:
 
             - name: install frontend dependencies
               run: |
-                  npm install -g pnpm
-                  pnpm install
+                  npm install -g bun
+                  bun install
 
             - name: Set environment variables
               run: |
