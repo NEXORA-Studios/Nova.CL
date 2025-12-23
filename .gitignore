@@ -29,3 +29,6 @@ dist-ssr
 # Private Key & Password
 .tauri/novacl.key
 .tauri/novacl.password
+.env
+.env.*
+!.env.example

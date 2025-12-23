@@ -1,6 +1,9 @@
 <script setup lang="ts">
     import { computed, ref, watch } from "vue";
+    import { useI18n } from "vue-i18n";
     import { ToolsSkinDownloader } from "@/modules";
+
+    const { t } = useI18n();
 
     const selectSource = ref<string>("None");
     const selectType = ref<string>("None");
@@ -61,12 +64,12 @@
     <div class="w-full h-full p-6">
         <div class="card card-sm w-full bg-base-100 outline outline-base-content/25">
             <div class="card-body">
-                <h2 class="card-title">{{ $t("Main.More/Tools.SkinDownload.Title") }}</h2>
-                <p>{{ $t("Main.More/Tools.SkinDownload.Desp") }}</p>
+                <h2 class="card-title">{{ t("Main.More/Tools.SkinDownload.Title") }}</h2>
+                <p>{{ t("Main.More/Tools.SkinDownload.Desp") }}</p>
                 <div class="join w-full">
                     <select class="join-item select outline-0! w-1/5" v-model="selectSource">
                         <option value="None" disabled selected>
-                            {{ $t("Main.More/Tools.SkinDownload.SelectSource") }}
+                            {{ t("Main.More/Tools.SkinDownload.SelectSource") }}
                         </option>
                         <option value="mojang">Mojang</option>
                         <!-- <option value="crafatar">Crafatar</option> -->
@@ -76,15 +79,15 @@
                         <option value="None" disabled selected>
                             {{
                                 selectSource === "None"
-                                    ? $t("Main.More/Tools.SkinDownload.SelectType.SourceFirst")
-                                    : $t("Main.More/Tools.SkinDownload.SelectType.Select")
+                                    ? t("Main.More/Tools.SkinDownload.SelectType.SourceFirst")
+                                    : t("Main.More/Tools.SkinDownload.SelectType.Select")
                             }}
                         </option>
                         <option
                             v-for="([key, value], index) in Object.entries(availableTypeBind)"
                             :key="index"
                             :value="key">
-                            {{ $t(value) }}
+                            {{ t(value) }}
                         </option>
                     </select>
                     <input

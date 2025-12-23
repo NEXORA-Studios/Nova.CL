@@ -4,3 +4,5 @@ export type { IMrFilterItem } from "./CompMrSearch";
 
 export * as IMrApi from "./MrApi";
 export * as IOjngApi from "./OjngAPI";
+
+export * as ITauriTypes from "./tauri/";

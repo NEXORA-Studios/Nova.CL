@@ -11,6 +11,11 @@
             "Map": "世界",
             "Stared": "收藏"
         },
+        "Setting": {
+            "Launch": "启动",
+            "Customize": "个性化",
+            "Other": "其他"
+        },
         "More": {
             "About": "关于",
             "Tools": "百宝箱"
@@ -34,8 +39,8 @@
         "Home": {
             "Cards": {
                 "1": "切换实例",
-                "2": "管理资源",
-                "3": "调整账号",
+                "2": "管理实例",
+                "3": "切换账号",
                 "News": {
                     "Title": "Minecraft 更新提示",
                     "Description": "全新版本震撼发布：全面呈现本次更新中的全新特性、深度优化与关键修复，带你一览游戏进化的每一处跃迁。",
@@ -209,6 +214,18 @@
         "Download/Mod": {
             "GlobalSearchPlaceholder": "搜索 Mod"
         },
+        "Download/Modpack": {
+            "GlobalSearchPlaceholder": "搜索整合包"
+        },
+        "Download/Datapack": {
+            "GlobalSearchPlaceholder": "搜索数据包"
+        },
+        "Download/Resourcepack": {
+            "GlobalSearchPlaceholder": "搜索资源包"
+        },
+        "Download/Shader": {
+            "GlobalSearchPlaceholder": "搜索光影包"
+        },
         "More/About": {
             "Version": {
                 "Title": "版本",
@@ -252,11 +269,181 @@
                 }
             }
         },
-        "Download/Modpack": {
-            "GlobalSearchPlaceholder": "搜索整合包"
+        "Setting/Launch": {
+            "Basic": {
+                "__Title__": "基本配置",
+                "VersionIndie": {
+                    "__Name__": "版本隔离",
+                    "Disabled": "禁用",
+                    "Modded": "仅隔离可安装 Mod 的实例",
+                    "Snapshot": "仅隔离快照版实例",
+                    "ModdedOrSnapshot": "仅隔离可安装 Mod 或快照版实例",
+                    "All": "隔离所有实例"
+                },
+                "LauncherVisibility": {
+                    "__Name__": "启动器可见性",
+                    "ImmediatelyQuit": "游戏启动后立即关闭",
+                    "HideThenQuit": "游戏启动后隐藏，游戏退出后自动关闭",
+                    "HideThenShow": "游戏启动后隐藏，游戏退出后重新打开",
+                    "Minimize": "游戏启动后最小化",
+                    "Constant": "游戏启动后保持可见"
+                },
+                "PreferIPStack": {
+                    "__Name__": "IP 协议偏好",
+                    "IPv4": "IPv4 优先 (添加 -Djava.net.preferIPv4Stack=true 参数)",
+                    "IPv6": "IPv6 优先 (添加 -Djava.net.preferIPv6Stack=true 参数)",
+                    "Auto": "Java 默认 (不添加额外参数)"
+                },
+                "Java": {
+                    "__Name__": "游戏 Java",
+                    "GotoJavaManager": "前往 Java 管理"
+                }
+            },
+            "RAM": {
+                "__Title__": "游戏内存",
+                "Auto": "自动配置",
+                "Custom": "自定义",
+                "PreSwap": "启动游戏前进行内存优化"
+            },
+            "Advanced": {
+                "__Title__": "高级启动选项",
+                "Renderer": {
+                    "__Name__": "渲染器",
+                    "Default": "游戏默认",
+                    "LLVMPipe": "软渲染 (llvmpipe)",
+                    "D3D12": "DirectX12 (D3D12)",
+                    "Zink": "Vulkan (Zink)"
+                },
+                "JvmArgs": {
+                    "__Name__": "JVM 参数头部"
+                },
+                "GameArgs": {
+                    "__Name__": "游戏参数尾部"
+                },
+                "PreCommand": {
+                    "__Name__": "启动前执行命令"
+                },
+                "DisableRetrowrapper": "禁用 RetroWrapper",
+                "UseDiscreteGPU": "要求 Java 使用高性能显卡",
+                "UseJavaExe": "使用 java.exe 而不是 javaw.exe"
+            }
         },
-        "Download/Datapack": {
-            "GlobalSearchPlaceholder": "搜索数据包"
+        "Setting/Customize": {
+            "Basic": {
+                "__Title__": "个性化"
+            },
+            "Theme": {
+                "__Name__": "主题",
+                "Auto": "自动（更随系统）",
+                "Light": "亮色",
+                "Dark": "暗色"
+            },
+            "Language": {
+                "__Name__": "语言"
+            }
+        },
+        "Setting/Other": {
+            "Download": {
+                "__Title__": "下载",
+                "DownloadSource": {
+                    "__Name__": "文件下载源",
+                    "Offical": "尽量使用官方源",
+                    "Mirror": "尽量使用镜像源",
+                    "Balance": "优先使用官方源，在加载缓慢时换用镜像源"
+                },
+                "VersionSource": {
+                    "__Name__": "版本列表源",
+                    "Offical": "尽量使用官方源",
+                    "Mirror": "尽量使用镜像源（可能缺失刚更新的版本）",
+                    "Balance": "优先使用官方源，在加载缓慢时换用镜像源"
+                },
+                "MaxConcurrent": {
+                    "__Name__": "最大线程数"
+                },
+                "MaxBandwidth": {
+                    "__Name__": "速度限制"
+                },
+                "InstallBehavior": {
+                    "__Name__": "安装行为",
+                    "PostSelectInstance": "安装新实例后自动选定该实例",
+                    "UpdateAuthlib": "升级部分版本的 Authlib"
+                }
+            },
+            "Comp": {
+                "DownloadSource": {
+                    "__Name__": "下载源",
+                    "Mirror": "尽量使用镜像源",
+                    "Offical": "尽量使用官方源",
+                    "Balance": "仅在官方源加载缓慢的时候改用镜像源"
+                },
+                "IgnoreQuilt": "在显示 Mod 加载器时忽略 Quilt",
+                "DetectClipboard": "自动识别剪贴板中的资源链接"
+            },
+            "Accessibility": {
+                "__Title__": "辅助功能",
+                "GameUpdateNote": {
+                    "__Name__": "游戏更新提示",
+                    "Release": "正式版更新提示",
+                    "Snapshot": "快照版更新提示"
+                },
+                "GameLanguage": {
+                    "__Name__": "游戏语言",
+                    "AutoChinese": "自动设置为中文"
+                }
+            },
+            "Launcher": {
+                "__Title__": "启动器",
+                "UpdateMethod": {
+                    "__Name__": "启动器更新",
+                    "Auto": "自动下载并安装",
+                    "Notice": "当有新版本时显示提示",
+                    "MajorNotice": "仅当有重大漏洞更新时显示提示",
+                    "Disable": "禁用自动更新"
+                },
+                "Channel": {
+                    "__Name__": "更新渠道"
+                },
+                "Notification": {
+                    "__Name__": "通知",
+                    "Auto": "显示所有公告",
+                    "Major": "仅当有重大公告时显示",
+                    "Disable": "关闭所有公告"
+                },
+                "CacheDir": {
+                    "__Name__": "缓存文件夹",
+                    "Placeholder": "默认"
+                },
+                "Buttons": {
+                    "CheckUpdate": "检查更新",
+                    "ExportConfig": "导出设置",
+                    "ImportConfig": "导入设置"
+                }
+            },
+            "Network": {
+                "__Title__": "网络",
+                "UseDoH": "使用 DoH 解析地址",
+                "Proxy": {
+                    "__Name__": "HTTP 代理",
+                    "Disable": "不使用代理",
+                    "System": "使用系统代理",
+                    "Custom": {
+                        "__Name__": "自定义代理",
+                        "Placeholder": "例如 http://127.0.0.1:7897/",
+                        "Username": {
+                            "__Name__": "账号",
+                            "Placeholder": "如有"
+                        },
+                        "Password": {
+                            "__Name__": "密码",
+                            "Placeholder": "如有"
+                        }
+                    }
+                }
+            },
+            "Debug": {
+                "__Title__": "调试选项",
+                "DebugMode": "调试模式"
+            }
         }
     },
     "Footer": {

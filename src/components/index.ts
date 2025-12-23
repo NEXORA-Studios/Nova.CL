@@ -7,3 +7,5 @@ export { default as ModrinthSearchPage } from "./ModrinthSearchPage.vue";
 export { default as DownloadVersionEntry } from "./DownloadVersionEntry.vue";
 export { default as VirtualDownloadVersionEntryList } from "./VirtualDownloadVersionEntryList.vue";
 export { default as ModrinthProjectItem } from "./ModrinthProjectItem.vue";
+
+export { default as ThemeController } from "./ThemeController.vue";

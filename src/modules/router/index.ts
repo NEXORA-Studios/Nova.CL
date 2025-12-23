@@ -23,6 +23,10 @@ const router = createRouter({
         RouteItem("/download/datapack", Pages.DownloadDatapack),
         RouteItem("/download/resourcepack", Pages.DownloadResourcepack),
         RouteItem("/download/shader", Pages.DownloadShader),
+        // 设置子页面
+        RouteItem("/setting/launch", Pages.SettingLaunch),
+        RouteItem("/setting/customize", Pages.SettingCustomize),
+        RouteItem("/setting/other", Pages.SettingOther),
         // 更多子页面
         RouteItem("/more/about", Pages.MoreAbout),
         RouteItem("/more/tools", Pages.MoreTools),

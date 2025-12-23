@@ -1,9 +1,12 @@
 <script setup lang="ts">
     import { onMounted, ref } from "vue";
+    import { useI18n } from "vue-i18n";
     import { modrinthApiAdapter } from "@/modules";
     import { ModrinthProjectItem, ModrinthSearchFilter, ModrinthSearchPage, SearchInput } from "@/components";
     import { useResourceFilters } from "@/composables";
     import { IMrApi } from "@/types";
+
+    const { t } = useI18n();
 
     // ---------- 滚动到顶部 ----------
     const scrollContainer = ref<HTMLDivElement | null>(null);
@@ -62,7 +65,7 @@
     <div class="w-full h-full p-6 overflow-hidden">
         <SearchInput
             v-model="searchString"
-            :placeholder="$t('Main.Download/Mod.GlobalSearchPlaceholder')"
+            :placeholder="t('Main.Download/Mod.GlobalSearchPlaceholder')"
             @click="onSearch" />
 
         <div
@@ -71,13 +74,13 @@
                 <!-- Game Versions -->
                 <ModrinthSearchFilter
                     :is-open="false"
-                    :title="$t('Main.Download/Public.Versions.__Title__')"
+                    :title="t('Main.Download/Public.Versions.__Title__')"
                     :items="VersionsFilter.filtered.value">
                     <template #before>
                         <input
                             type="text"
                             class="input input-sm outline-none mb-3 w-full"
-                            :placeholder="$t('Main.Download/Public.Versions.__SearchPlaceholder__')"
+                            :placeholder="t('Main.Download/Public.Versions.__SearchPlaceholder__')"
                             v-model="VersionsFilter.search.value" />
                     </template>
                     <template #after>
@@ -88,7 +91,7 @@
                                 class="checkbox checkbox-sm rounded-md"
                                 v-model="VersionsFilter.showAll.value" />
                             <label for="modversion-checkbox" class="text-sm">
-                                {{ $t("Main.Download/Public.Versions.__ShowAll__") }}
+                                {{ t("Main.Download/Public.Versions.__ShowAll__") }}
                             </label>
                         </div>
                     </template>
@@ -97,13 +100,13 @@
                 <!-- Categories -->
                 <ModrinthSearchFilter
                     :is-open="true"
-                    :title="$t('Main.Download/Public.Categories.__Title__')"
+                    :title="t('Main.Download/Public.Categories.__Title__')"
                     :items="ModCategoriesFilter.filtered.value" />
 
                 <!-- Loader -->
                 <ModrinthSearchFilter
                     :is-open="true"
-                    :title="$t('Main.Download/Public.Loaders.__Title__')"
+                    :title="t('Main.Download/Public.Loaders.__Title__')"
                     :items="ModLoadersFilter.filtered.value">
                     <template #after>
                         <div class="flex items-center gap-2 mt-2">
@@ -113,7 +116,7 @@
                                 class="checkbox checkbox-sm rounded-md"
                                 v-model="ModLoadersFilter.showAll.value" />
                             <label for="modloader-checkbox" class="text-sm">{{
-                                $t("Main.Download/Public.Loaders.__ShowAll__")
+                                t("Main.Download/Public.Loaders.__ShowAll__")
                             }}</label>
                         </div>
                     </template>
@@ -132,11 +135,11 @@
                 <div class="card w-96 h-32 bg-base-100 card-md shadow-sm" v-if="isLoading">
                     <div class="card-body flex items-center justify-center">
                         <span class="loading loading-dots loading-xl"></span>
-                        <span class="text-lg">{{ $t("Main.Download/Public.Result.Loading") }}</span>
+                        <span class="text-lg">{{ t("Main.Download/Public.Result.Loading") }}</span>
                     </div>
                 </div>
                 <div v-if="hits.length === 0 && !isLoading" class="text-center text-sm text-gray-400">
-                    {{ $t("Main.Download/Public.Result.NoResult") }}
+                    {{ t("Main.Download/Public.Result.NoResult") }}
                 </div>
                 <ul class="list bg-base-100 rounded-box shadow-md w-full" v-if="hits.length > 0 && !isLoading">
                     <ModrinthProjectItem v-for="item in hits" :key="item.project_id" :data="item" />
@@ -145,10 +148,3 @@
         </div>
     </div>
 </template>
-
-<style lang="scss" scoped>
-    .beautiful-scrollbar {
-        scrollbar-color: color-mix(in srgb, var(--color-base-content), transparent 70%)
-            color-mix(in srgb, var(--color-base-200), transparent 70%);
-    }
-</style>

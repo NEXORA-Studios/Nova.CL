@@ -1,9 +1,11 @@
 <script setup lang="ts">
+    import { onMounted, ref } from "vue";
+    import { useI18n } from "vue-i18n";
     import { useTimer } from "@/composables";
     import { getCurrentWindow } from "@tauri-apps/api/window";
-    import { onMounted, ref } from "vue";
 
     const $app = getCurrentWindow();
+    const { t } = useI18n();
 
     const timer = useTimer();
     const isMaxiMized = ref(false);
@@ -20,6 +22,11 @@
             // { display: "Header.Download.Map", to: "/download/map" },
             {},
             { display: "Header.Download.Stared", to: "/download/stared" },
+        ],
+        setting: [
+            { display: "Header.Setting.Launch", to: "/setting/launch" },
+            { display: "Header.Setting.Customize", to: "/setting/customize" },
+            { display: "Header.Setting.Other", to: "/setting/other" },
         ],
         more: [
             { display: "Header.More.About", to: "/more/about" },
@@ -57,7 +64,7 @@
                             v-if="item.to && item.display"
                             @click="$router.push(item.to)"
                             @dblclick="null">
-                            {{ $t(item.display) }}
+                            {{ t(item.display) }}
                         </button>
                         <div v-else class="divider divider-horizontal mx-0"></div>
                     </template>

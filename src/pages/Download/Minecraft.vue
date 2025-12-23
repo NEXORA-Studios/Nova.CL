@@ -1,8 +1,11 @@
 <script setup lang="ts">
     import { computed, onMounted, ref } from "vue";
+    import { useI18n } from "vue-i18n";
     import { SearchInput, DownloadVersionEntry, VirtualDownloadVersionEntryList } from "@/components";
     import { Requester } from "@/modules";
     import { IOjngApi } from "@/types";
+
+    const { t } = useI18n();
 
     const versions = ref<IOjngApi.VersionManifest["versions"]>([]);
     const openedTypes = ref<Record<string, boolean>>({});
@@ -67,7 +70,7 @@
 
 <template>
     <div class="w-full h-full p-6">
-        <SearchInput :placeholder="$t('Main.Download/Minecraft.GlobalSearchPlaceholder')" v-model="searchInput" />
+        <SearchInput :placeholder="t('Main.Download/Minecraft.GlobalSearchPlaceholder')" v-model="searchInput" />
 
         <div class="w-full mt-4 max-h-[calc(100vh-128px-var(--spacing)*29)] rounded-md overflow-y-auto pr-2">
             <!-- 最新 -->
@@ -75,7 +78,7 @@
                 v-if="searchInput.length === 0"
                 class="collapse collapse-open bg-base-100 border-base-300 border w-full mb-2">
                 <div class="collapse-title font-semibold">
-                    {{ $t("Main.Download/Minecraft.Cards.Newest") }}
+                    {{ t("Main.Download/Minecraft.Cards.Newest") }}
                 </div>
                 <div class="collapse-content text-sm">
                     <ul class="list bg-base-100 rounded-box shadow-md">
@@ -101,7 +104,7 @@
                 class="collapse collapse-arrow bg-base-100 border-base-300 border w-full mb-2">
                 <input type="checkbox" @change="onToggle(type)" />
 
-                <div class="collapse-title font-semibold">{{ $t(type) }} ({{ list.length }})</div>
+                <div class="collapse-title font-semibold">{{ t(type) }} ({{ list.length }})</div>
 
                 <div class="collapse-content text-sm">
                     <VirtualDownloadVersionEntryList v-if="openedTypes[type]" :items="list" />
@@ -111,7 +114,7 @@
             <!-- 搜索结果 -->
             <div v-else class="collapse collapse-open bg-base-100 border-base-300 border w-full mb-2">
                 <div class="collapse-title font-semibold">
-                    {{ $t("Main.Download/Minecraft.Cards.FilteredVersions") }}
+                    {{ t("Main.Download/Minecraft.Cards.FilteredVersions") }}
                     ({{ searchVersions.length }})
                 </div>
 

@@ -1,5 +1,7 @@
 // 具体事件映射
-interface AppEventMap {}
+interface AppEventMap {
+    "theme:change": string;
+}
 
 // 事件处理器类型
 type EventHandler<T = unknown> = (payload: T) => void;

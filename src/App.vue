@@ -1,8 +1,11 @@
 <script setup lang="ts">
     import { NovaAside, NovaFooter, NovaHeader, WindowFrame } from "@/layout";
     import { channelWrapper } from "@/utils";
+    import { useI18n } from "vue-i18n";
+    import { ThemeController } from "@/components";
 
     const $meta = import.meta.env;
+    const { t } = useI18n();
 </script>
 
 <template>
@@ -18,21 +21,22 @@
                     <div class="text-right absolute bottom-4 right-4 opacity-50 text-xs z-999">
                         <p>
                             {{
-                                $t("InsiderWarning.Line1", {
+                                t("InsiderWarning.Line1", {
                                     Channel:
-                                        $t(channelWrapper($meta.NOVA_CHANNEL)) +
-                                        $t("Main.More/About.UpdateChannel.Suffix"),
-                                    Version: $t("Main.More/About.Version.Title") + " " + $meta.NOVA_VERSION,
+                                        t(channelWrapper($meta.NOVA_CHANNEL)) +
+                                        t("Main.More/About.UpdateChannel.Suffix"),
+                                    Version: t("Main.More/About.Version.Title") + " " + $meta.NOVA_VERSION,
                                 })
                             }}
                         </p>
-                        <p>{{ $t("InsiderWarning.Line2") }}</p>
+                        <p>{{ t("InsiderWarning.Line2") }}</p>
                     </div>
                 </RouterView>
             </div>
         </main>
         <NovaFooter />
     </WindowFrame>
+    <ThemeController />
 </template>
 
 <style scoped>

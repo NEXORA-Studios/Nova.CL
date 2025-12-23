@@ -1,9 +1,11 @@
 <script setup lang="ts">
+    import { useI18n } from "vue-i18n";
+    import { Avatar } from "@/components";
     import { useAccountStore } from "@/modules";
     import { RuntimeCache } from "@/utils";
-    import { Avatar } from "@/components";
 
     const accountStore = useAccountStore();
+    const { t } = useI18n();
 </script>
 
 <template>
@@ -22,28 +24,28 @@
                 :class="{ 'btn-ghost btn-soft': $route.path !== '/' }"
                 @click="$router.push('/')">
                 <i class="icon-[material-symbols--home-outline-rounded] size-5"></i>
-                <span class="font-medium">{{ $t("Aside.MenuButton.Home") }}</span>
+                <span class="font-medium">{{ t("Aside.MenuButton.Home") }}</span>
             </button>
             <button
                 class="flex justify-start items-center btn btn-primary"
                 :class="{ 'btn-ghost btn-soft': !$route.path.startsWith('/download') }"
                 @click="$router.push(RuntimeCache.GetWithDefault('aside.download.path', '/download/minecraft'))">
                 <i class="icon-[material-symbols--box-add-outline-rounded] size-5"></i>
-                <span class="font-medium">{{ $t("Aside.MenuButton.Download") }}</span>
+                <span class="font-medium">{{ t("Aside.MenuButton.Download") }}</span>
             </button>
             <button
                 class="flex justify-start items-center btn btn-primary"
-                :class="{ 'btn-ghost btn-soft': !$route.path.startsWith('/settings') }"
-                @click="$router.push(RuntimeCache.GetWithDefault('aside.settings.path', '/settings/game'))">
+                :class="{ 'btn-ghost btn-soft': !$route.path.startsWith('/setting') }"
+                @click="$router.push(RuntimeCache.GetWithDefault('aside.setting.path', '/setting/launch'))">
                 <i class="icon-[material-symbols--settings-outline-rounded] size-5"></i>
-                <span class="font-medium">{{ $t("Aside.MenuButton.Settings") }}</span>
+                <span class="font-medium">{{ t("Aside.MenuButton.Settings") }}</span>
             </button>
             <button
                 class="flex justify-start items-center btn btn-primary"
                 :class="{ 'btn-ghost btn-soft': !$route.path.startsWith('/more') }"
                 @click="$router.push(RuntimeCache.GetWithDefault('aside.more.path', '/more/about'))">
                 <i class="icon-[material-symbols--grid-view-outline-rounded] size-5"></i>
-                <span class="font-medium">{{ $t("Aside.MenuButton.More") }}</span>
+                <span class="font-medium">{{ t("Aside.MenuButton.More") }}</span>
             </button>
         </section>
         <section class="h-14 mt-auto mb-4 -mx-2 px-2 flex items-center gap-4">
@@ -52,9 +54,7 @@
                 <span class="opacity-90">{{ accountStore.AccountName }}</span>
                 <span class="text-xs opacity-50">
                     {{
-                        accountStore.AccountType !== undefined
-                            ? $t(`Aside.AccountType.${accountStore.AccountType}`)
-                            : ""
+                        accountStore.AccountType !== undefined ? t(`Aside.AccountType.${accountStore.AccountType}`) : ""
                     }}
                 </span>
             </div>

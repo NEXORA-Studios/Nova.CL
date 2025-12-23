@@ -1,7 +1,10 @@
 <script setup lang="ts">
+    import { ref } from "vue";
+    import { useI18n } from "vue-i18n";
     import { Avatar } from "@/components";
     import { useAccountStore } from "@/modules";
-    import { ref } from "vue";
+
+    const { t } = useI18n();
 
     const modal = ref<HTMLDialogElement>();
     const accountStore = useAccountStore();
@@ -17,15 +20,15 @@
             <div class="card-body p-2! flex flex-row">
                 <button class="btn btn-sm btn-soft btn-ghost" @click="openModal">
                     <i class="icon-[material-symbols--add-circle-outline-rounded] size-5 -ml-1 mr-1"></i>
-                    <span class="text-sm">{{ $t("Main.r/Account.TopButtons.AddAccount") }}</span>
+                    <span class="text-sm">{{ t("Main.r/Account.TopButtons.AddAccount") }}</span>
                 </button>
                 <button class="btn btn-sm btn-soft btn-ghost">
                     <i class="icon-[material-symbols--drive-file-move-outline-rounded] size-5 -ml-1 mr-1"></i>
-                    <span class="text-sm">{{ $t("Main.r/Account.TopButtons.ImportAccount") }}</span>
+                    <span class="text-sm">{{ t("Main.r/Account.TopButtons.ImportAccount") }}</span>
                 </button>
                 <button class="btn btn-sm btn-soft btn-ghost">
                     <i class="icon-[material-symbols--drive-file-move-rtl-outline-rounded] size-5 -ml-1 mr-1"></i>
-                    <span class="text-sm">{{ $t("Main.r/Account.TopButtons.ExportAccount") }}</span>
+                    <span class="text-sm">{{ t("Main.r/Account.TopButtons.ExportAccount") }}</span>
                 </button>
                 <button
                     class="btn btn-sm btn-soft btn-ghost btn-accent ml-auto"
@@ -42,8 +45,8 @@
                             <tr>
                                 <th class="w-0"></th>
                                 <th class="w-12"></th>
-                                <th class="w-1/2">{{ $t("Main.r/Account.TableHeader.Name") }}</th>
-                                <th class="w-1/2">{{ $t("Main.r/Account.TableHeader.LoginMethod") }}</th>
+                                <th class="w-1/2">{{ t("Main.r/Account.TableHeader.Name") }}</th>
+                                <th class="w-1/2">{{ t("Main.r/Account.TableHeader.LoginMethod") }}</th>
                                 <th></th>
                             </tr>
                         </thead>
@@ -62,7 +65,8 @@
                                 <td>Microsoft</td>
                                 <td class="flex justify-end gap-2">
                                     <button class="btn btn-sm btn-soft btn-success aspect-square">
-                                        <i class="icon-[material-symbols--motion-play-outline-rounded] size-5 -mx-2"></i>
+                                        <i
+                                            class="icon-[material-symbols--motion-play-outline-rounded] size-5 -mx-2"></i>
                                     </button>
                                     <button class="btn btn-sm btn-soft btn-info aspect-square" disabled>
                                         <i class="icon-[material-symbols--visibility-outline-rounded] size-5 -mx-2"></i>
@@ -84,8 +88,8 @@
 
         <dialog ref="modal" class="modal">
             <div class="modal-box flex flex-col items-center gap-2">
-                <h3 class="text-xl font-bold">{{ $t("Main.r/Account.Modal.Add.Title") }}</h3>
-                <p class="text-sm opacity-50">{{ $t("Main.r/Account.Modal.Add.Description") }}</p>
+                <h3 class="text-xl font-bold">{{ t("Main.r/Account.Modal.Add.Title") }}</h3>
+                <p class="text-sm opacity-50">{{ t("Main.r/Account.Modal.Add.Description") }}</p>
                 <div class="divider w-76 mx-auto my-0"></div>
                 <button class="btn bg-[#2F2F2F] text-white border-black w-66">
                     <svg
@@ -99,19 +103,19 @@
                         <path d="M96 265H247V416H96" fill="#3ca4ef"></path>
                         <path d="M265 265H416V416H265" fill="#f9ba00"></path>
                     </svg>
-                    <span class="text-sm">{{ $t("Main.r/Account.Modal.Add.MsLogin") }}</span>
+                    <span class="text-sm">{{ t("Main.r/Account.Modal.Add.MsLogin") }}</span>
                 </button>
                 <button class="btn w-66">
                     <i class="icon-[material-symbols--safety-check-off-outline-rounded] size-6 mr-1"></i>
-                    <span class="text-sm">{{ $t("Main.r/Account.Modal.Add.Offline") }}</span>
+                    <span class="text-sm">{{ t("Main.r/Account.Modal.Add.Offline") }}</span>
                 </button>
                 <button class="btn w-66">
                     <i class="icon-[material-symbols--assured-workload-outline-rounded] size-6 mr-1"></i>
-                    <span class="text-sm">{{ $t("Main.r/Account.Modal.Add.TrdParty") }}</span>
+                    <span class="text-sm">{{ t("Main.r/Account.Modal.Add.TrdParty") }}</span>
                 </button>
                 <div class="divider w-76 mx-auto my-0"></div>
                 <form method="dialog" class="w-66">
-                    <button class="btn w-full">{{ $t("Main.r/Account.Modal.Add.Cancel") }}</button>
+                    <button class="btn w-full">{{ t("Main.r/Account.Modal.Add.Cancel") }}</button>
                 </form>
             </div>
         </dialog>

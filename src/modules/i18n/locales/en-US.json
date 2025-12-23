@@ -11,6 +11,11 @@
             "Map": "World",
             "Stared": "Stared"
         },
+        "Setting": {
+            "Launch": "Launch",
+            "Customize": "Personalization",
+            "Other": "Other"
+        },
         "More": {
             "About": "About",
             "Tools": "Tools"
@@ -34,8 +39,8 @@
         "Home": {
             "Cards": {
                 "1": "Switch Instances",
-                "2": "Manage Resources",
-                "3": "Adjust Accounts",
+                "2": "Manage Instance",
+                "3": "Switch Acconut",
                 "News": {
                     "Title": "Minecraft Update News",
                     "Description": "Discover all the new features, bug fixes, and improvements in the latest game update.",
@@ -197,6 +202,18 @@
         "Download/Mod": {
             "GlobalSearchPlaceholder": "Search a Mod"
         },
+        "Download/Modpack": {
+            "GlobalSearchPlaceholder": "Search a Modpack"
+        },
+        "Download/Datapack": {
+            "GlobalSearchPlaceholder": "Search a Datapack"
+        },
+        "Download/Resourcepack": {
+            "GlobalSearchPlaceholder": "Search a Resourcepack"
+        },
+        "Download/Shader": {
+            "GlobalSearchPlaceholder": "Search a Shader"
+        },
         "More/About": {
             "Version": {
                 "Title": "Version",
@@ -240,11 +257,180 @@
                 }
             }
         },
-        "Download/Modpack": {
-            "GlobalSearchPlaceholder": "Search a Modpack"
+        "Setting/Launch": {
+            "Basic": {
+                "__Title__": "Basic Config",
+                "VersionIndie": {
+                    "__Name__": "Version Indie",
+                    "Disabled": "Disabled",
+                    "Modded": "Modded",
+                    "Snapshot": "Snapshot",
+                    "ModdedOrSnapshot": "Modded or Snapshot",
+                    "All": "All"
+                },
+                "LauncherVisibility": {
+                    "__Name__": "Launcher Visibility",
+                    "ImmediatelyQuit": "Immediately Quit after Launch",
+                    "HideThenQuit": "Hide after Launch, Quit after Game Exit",
+                    "HideThenShow": "Hide after Launch, Show after Game Exit",
+                    "Minimize": "Minimize after Launch",
+                    "Constant": "Keep Visible after Launch"
+                },
+                "PreferIPStack": {
+                    "__Name__": "Prefer IP Version",
+                    "IPv4": "IPv4 first (add -Djava.net.preferIPv4Stack=true parameter)",
+                    "IPv6": "IPv6 First (add -Djava.net.preferIPv6Stack=true parameter)",
+                    "Auto": "Default to Java (No Extra Parameter)"
+                },
+                "Java": {
+                    "__Name__": "Game Java",
+                    "GotoJavaManager": "Go to Java Management"
+                }
+            },
+            "RAM": {
+                "__Title__": "Game RAM Config",
+                "Auto": "Auto Configure",
+                "Custom": "Customize",
+                "PreSwap": "Perform Memory Optimization before Launching the Game"
+            },
+            "Advanced": {
+                "__Title__": "Advanced Launch Options",
+                "Renderer": {
+                    "__Name__": "Renderer",
+                    "LLVMPipe": "Software Rendering (llvmpipe)",
+                    "D3D12": "DirectX12 (D3D12)",
+                    "Zink": "Vulkan (Zink)",
+                    "Default": "Default"
+                },
+                "JvmArgs": {
+                    "__Name__": "JVM Parameters"
+                },
+                "GameArgs": {
+                    "__Name__": "Game Parameters"
+                },
+                "PreCommand": {
+                    "__Name__": "Pre-Launch Command"
+                },
+                "DisableRetrowrapper": "Disable RetroWrapper",
+                "UseDiscreteGPU": "Requires Java to Use a Discrete GPU",
+                "UseJavaExe": "Use java.exe Instead Of javaw.exe"
+            }
         },
-        "Download/Datapack": {
-            "GlobalSearchPlaceholder": "Search a Datapack"
+        "Setting/Customize": {
+            "Basic": {
+                "__Title__": "Personalization"
+            },
+            "Theme": {
+                "__Name__": "Theme",
+                "Auto": "Auto (Systme)",
+                "Light": "Light",
+                "Dark": "Dark"
+            },
+            "Language": {
+                "__Name__": "Language"
+            }
+        },
+        "Setting/Other": {
+            "Download": {
+                "__Title__": "Download",
+                "DownloadSource": {
+                    "__Name__": "Download Source",
+                    "Offical": "Try to use official sources",
+                    "Mirror": "Try to Use Mirror Sources",
+                    "Balance": "Prioritize Using Official Sources, Switch to Mirror Sources when Loading is Slow"
+                },
+                "VersionSource": {
+                    "__Name__": "Version List Source",
+                    "Offical": "Try to use official sources",
+                    "Mirror": "Try to Use Mirror Sources (May Not Update to Date)",
+                    "Balance": "Prioritize Using Official Sources, Switch to Mirror Sources when Loading is Slow"
+                },
+                "MaxConcurrent": {
+                    "__Name__": "Max Concurrent Thread"
+                },
+                "MaxBandwidth": {
+                    "__Name__": "Max Bandwidth"
+                },
+                "InstallBehavior": {
+                    "__Name__": "Installation Behavior",
+                    "PostSelectInstance": "Automatically Select a New Instance after Installing It",
+                    "UpdateAuthlib": "Update Authlib for Some Version"
+                }
+            },
+            "Comp": {
+                "DownloadSource": {
+                    "__Name__": "Download Source",
+                    "Mirror": "Try to Use Mirror Sources",
+                    "Offical": "Try to Use Offical Sources",
+                    "Balance": "Only Use Mirror Sources If the Official Source Is Slow to Load"
+                },
+                "IgnoreQuilt": "Ignore Quilt When Displaying Modloader",
+                "DetectClipboard": "Automatically Detect Resource Links In the Clipboard"
+            },
+            "Accessibility": {
+                "__Title__": "Accessibility",
+                "GameUpdateNote": {
+                    "__Name__": "Game Update Notes",
+                    "Release": "Release Update Notes",
+                    "Snapshot": "Snapshot Update Notes"
+                },
+                "GameLanguage": {
+                    "__Name__": "Game Language",
+                    "AutoChinese": "Automatically Set to Chinese"
+                }
+            },
+            "Launcher": {
+                "__Title__": "Launcher",
+                "UpdateMethod": {
+                    "__Name__": "Launcher Update",
+                    "Auto": "Auto Download and Install",
+                    "Notice": "Notice When a New Version is Available",
+                    "MajorNotice": "Notice Only for a Major Issue Update is Available",
+                    "Disable": "Disable Auto Update"
+                },
+                "Channel": {
+                    "__Name__": "Update Channel"
+                },
+                "Notification": {
+                    "__Name__": "Announcement",
+                    "Auto": "All Announcements",
+                    "Major": "Major Announcements Only",
+                    "Disable": "Disable Announcement"
+                },
+                "CacheDir": {
+                    "__Name__": "Cache Folder"
+                },
+                "Buttons": {
+                    "CheckUpdate": "Check Update",
+                    "ExportConfig": "Export Config",
+                    "ImportConfig": "Import Config"
+                }
+            },
+            "Network": {
+                "__Title__": "Network",
+                "UseDoH": "Using DoH to Resolve Addresses",
+                "Proxy": {
+                    "__Name__": "HTTP Proxy",
+                    "Disable": "Disabled",
+                    "System": "Use System Proxy",
+                    "Custom": {
+                        "__Name__": "Use Custom Proxy",
+                        "Placeholder": "For example, http://127.0.0.1:7897/",
+                        "Username": {
+                            "__Name__": "Username",
+                            "Placeholder": "If Necessary"
+                        },
+                        "Password": {
+                            "__Name__": "Password",
+                            "Placeholder": "If Necessary"
+                        }
+                    }
+                }
+            },
+            "Debug": {
+                "__Title__": "Debug Options",
+                "DebugMode": "Debug Mode"
+            }
         }
     },
     "Footer": {

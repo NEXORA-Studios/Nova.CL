@@ -31,8 +31,8 @@ jobs:
               with:
                   node-version: lts/*
 
-            - name: install Rust Nightly
-              uses: dtolnay/rust-toolchain@nightly
+            - name: install Rust Stable
+              uses: dtolnay/rust-toolchain@stable
               with:
                   # Those targets are only used on macos runners so it's in an `if` to slightly speed up windows and linux builds.
                   targets: ${{ matrix.platform == 'macos-latest' && 'aarch64-apple-darwin,x86_64-apple-darwin' || '' }}
@@ -49,15 +49,27 @@ jobs:
                   npm install -g pnpm
                   pnpm install
 
+            - name: Set environment variables
+              run: |
+                  echo "NOVA_GIT_HASH=$(git rev-parse --short HEAD)" >> $GITHUB_ENV
+                  echo "NOVA_BUILD_TIME=$(date -u +"%Y-%m-%dT%H:%M:%SZ")" >> $GITHUB_ENV
+
             - uses: tauri-apps/tauri-action@dev
               env:
                   GITHUB_TOKEN: ${{ secrets.BOT_TOKEN }}
                   TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
                   TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
+                  APP_ENCRYPTION_KEY: ${{ secrets.APP_ENCRYPTION_KEY }}
+                  NOVA_VERSION: ${{ vars.NOVA_VERSION }}
+                  NOVA_CHANNEL: ${{ vars.NOVA_CHANNEL }}
+                  NOVA_GIT_HASH: ${{ env.NOVA_GIT_HASH }}
+                  NOVA_BUILD_TIME: ${{ env.NOVA_BUILD_TIME }}
               with:
                   tagName: __VERSION__ # the action automatically replaces \_\_VERSION\_\_ with the app version.
                   releaseName: __VERSION__
                   releaseBody: "See the assets to download this version and install."
                   releaseDraft: true
-                  prerelease: false
+                  prerelease: true
+                  uploadUpdaterJson: true
+                  releaseAssetNamePattern: "[name]-[arch]_[platform][setup][ext]"
                   args: ${{ matrix.args }}

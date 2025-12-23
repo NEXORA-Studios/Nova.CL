@@ -19,4 +19,5 @@ export { Requester } from "./service/Requster";
 // Pinia Stores
 export { useAccountStore } from "./stores/AccountStore";
 // Tauri
-export { http as TauriHTTP } from "./tauri/http";
+export { http as TauriHTTP } from "./tauri/Http";
+export { toml as TauriTOML } from "./tauri/Toml";
