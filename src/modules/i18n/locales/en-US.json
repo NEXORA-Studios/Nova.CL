@@ -71,7 +71,7 @@
             }
         },
         "Download/Minecraft": {
-            "GlobalSearchPlaceholder": "",
+            "GlobalSearchPlaceholder": "Search a Minecraft Version",
             "Cards": {
                 "Newest": "Newest Versions",
                 "Release": "Release",
@@ -87,7 +87,7 @@
                 "Old_beta": "Beta",
                 "Old_alpha": "Alpha"
             },
-            "PublishAt": "Publish at {time}"
+            "PublishAt": "Published at {time}"
         },
         "Download/Public": {
             "Versions": {
@@ -184,10 +184,7 @@
                 "Quilt": "Quilt",
                 "Rift": "Rift"
             },
-            "Result": {
-                "NoResult": "No Results",
-                "Loading": "Loading..."
-            },
+
             "Page": "Page {offset} / {maximum}",
             "Resolution": {
                 "__Title__": "Resolution"
@@ -197,7 +194,8 @@
             },
             "PerformanceImpact": {
                 "__Title__": "Performance Impact"
-            }
+            },
+            "__Hint__": "Currently Only Support Modrinth Source"
         },
         "Download/Mod": {
             "GlobalSearchPlaceholder": "Search a Mod"
@@ -322,7 +320,7 @@
             },
             "Theme": {
                 "__Name__": "Theme",
-                "Auto": "Auto (Systme)",
+                "Auto": "Auto (System)",
                 "Light": "Light",
                 "Dark": "Dark"
             },
@@ -346,15 +344,16 @@
                     "Balance": "Prioritize Using Official Sources, Switch to Mirror Sources when Loading is Slow"
                 },
                 "MaxConcurrent": {
-                    "__Name__": "Max Concurrent Thread"
+                    "__Name__": "Max Thread"
                 },
                 "MaxBandwidth": {
-                    "__Name__": "Max Bandwidth"
+                    "__Name__": "Max Bandwidth",
+                    "Unlimited": "Unlimited"
                 },
                 "InstallBehavior": {
-                    "__Name__": "Installation Behavior",
-                    "PostSelectInstance": "Automatically Select a New Instance after Installing It",
-                    "UpdateAuthlib": "Update Authlib for Some Version"
+                    "__Name__": "Behavior",
+                    "PostSelectInstance": "Automatically Select after Installation",
+                    "UpdateAuthlib": "Update Authlib"
                 }
             },
             "Comp": {
@@ -365,12 +364,12 @@
                     "Balance": "Only Use Mirror Sources If the Official Source Is Slow to Load"
                 },
                 "IgnoreQuilt": "Ignore Quilt When Displaying Modloader",
-                "DetectClipboard": "Automatically Detect Resource Links In the Clipboard"
+                "DetectClipboard": "Automatically Detecting Links in Clipboard"
             },
             "Accessibility": {
                 "__Title__": "Accessibility",
                 "GameUpdateNote": {
-                    "__Name__": "Game Update Notes",
+                    "__Name__": "Update Notes",
                     "Release": "Release Update Notes",
                     "Snapshot": "Snapshot Update Notes"
                 },
@@ -389,7 +388,8 @@
                     "Disable": "Disable Auto Update"
                 },
                 "Channel": {
-                    "__Name__": "Update Channel"
+                    "__Name__": "Update Channel",
+                    "__NotAllowed__": "*Unable to Return to This Channel, Please Wait for the Next General Update"
                 },
                 "Notification": {
                     "__Name__": "Announcement",
@@ -398,7 +398,8 @@
                     "Disable": "Disable Announcement"
                 },
                 "CacheDir": {
-                    "__Name__": "Cache Folder"
+                    "__Name__": "Cache Folder",
+                    "Placeholder": "Default"
                 },
                 "Buttons": {
                     "CheckUpdate": "Check Update",
@@ -412,9 +413,9 @@
                 "Proxy": {
                     "__Name__": "HTTP Proxy",
                     "Disable": "Disabled",
-                    "System": "Use System Proxy",
+                    "System": "System",
                     "Custom": {
-                        "__Name__": "Use Custom Proxy",
+                        "__Name__": "Custom",
                         "Placeholder": "For example, http://127.0.0.1:7897/",
                         "Username": {
                             "__Name__": "Username",
@@ -430,6 +431,15 @@
             "Debug": {
                 "__Title__": "Debug Options",
                 "DebugMode": "Debug Mode"
+            }
+        },
+        "Setting": {
+            "Launch": {
+                "RAM": {
+                    "Used/Installed": "Used RAM / Installed RAM",
+                    "Distribute": "Allocation for Game",
+                    "Available": " ({available} GB Available)"
+                }
             }
         }
     },
@@ -449,6 +459,22 @@
                 "Pause": "paused",
                 "Play": "playing"
             }
+        }
+    },
+    "Components": {
+        "ModrinthProjectItem": {
+            "YearsBefore": "{years} Yr",
+            "MonthsBefore": "{months} Mo",
+            "DaysBefore": "{days} Days",
+            "HoursBefore": "{hours} Hr",
+            "JustNow": "Just Now",
+            "FullVersion": "Full Version"
+        },
+        "Loading": {
+            "Loading": "Loading..."
+        },
+        "LoadingNoResult": {
+            "NoResult": "No Result"
         }
     },
     "InsiderWarning": {

@@ -1,8 +1,10 @@
 mod http;
 mod toml;
+mod system;
 
 use crate::http::command::*;
 use crate::toml::command::*;
+use crate::system::command::*;
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
@@ -32,6 +34,7 @@ pub fn run() {
             list_instance_configs_cmd,
             decrypt_string_cmd,
             encrypt_string_cmd,
+            get_ram_info,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

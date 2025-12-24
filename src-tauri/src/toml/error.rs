@@ -9,6 +9,7 @@ pub enum ConfigError {
 
     /// 配置文件写入错误
     #[error("Failed to write config file: {0}")]
+    #[allow(dead_code)]
     WriteError(std::io::Error),
 
     /// 配置解析错误
@@ -29,14 +30,17 @@ pub enum ConfigError {
 
     /// 配置项缺失错误
     #[error("Missing required config field: {0}")]
+    #[allow(dead_code)]
     MissingField(String),
 
     /// 配置项无效错误
     #[error("Invalid config value for field {0}: {1}")]
+    #[allow(dead_code)]
     InvalidValue(String, String),
 
     /// 配置版本不兼容错误
     #[error("Config version mismatch: expected {0}, got {1}")]
+    #[allow(dead_code)]
     VersionMismatch(u32, u32),
 
     /// 加密错误
@@ -61,10 +65,12 @@ pub enum ConfigError {
 
     /// 配置类型不支持错误
     #[error("Unsupported config type: {0}")]
+    #[allow(dead_code)]
     UnsupportedType(String),
 
     /// 其他配置错误
     #[error("Other config error: {0}")]
+    #[allow(dead_code)]
     Other(String),
 }
 
@@ -114,6 +120,7 @@ pub enum GlobalConfigError {
 
     /// 特定于全局配置的错误
     #[error("Invalid global config: {0}")]
+    #[allow(dead_code)]
     InvalidConfig(String),
 }
 
@@ -126,14 +133,17 @@ pub enum ProfileConfigError {
 
     /// 账户不存在错误
     #[error("Profile not found: {0}")]
+    #[allow(dead_code)]
     ProfileNotFound(String),
 
     /// 无效的账户类型错误
     #[error("Invalid profile type: {0}")]
+    #[allow(dead_code)]
     InvalidProfileType(String),
 
     /// 账户已存在错误
     #[error("Profile already exists: {0}")]
+    #[allow(dead_code)]
     ProfileExists(String),
 }
 
@@ -150,9 +160,11 @@ pub enum InstanceConfigError {
 
     /// 无效的实例配置错误
     #[error("Invalid instance config: {0}")]
+    #[allow(dead_code)]
     InvalidInstanceConfig(String),
 
     /// 实例已存在错误
     #[error("Instance already exists: {0}")]
+    #[allow(dead_code)]
     InstanceExists(String),
 }

@@ -2,8 +2,15 @@
     import { onMounted, ref, watch } from "vue";
     import { useI18n } from "vue-i18n";
     import { ITauriTypes } from "@/types";
-    import { TauriTOML } from "@/modules";
+    import { TauriSystem, TauriTOML } from "@/modules";
+    import { useTimer } from "@/composables";
+    import { DoubleStateProgress } from "@/components";
     const { t } = useI18n();
+
+    const { onMediumInterval } = useTimer();
+    const MaxRam = ref<number>();
+    const CurrentRam = ref<number>();
+    const AvailableRam = ref<number>();
 
     const VersionIndie = ref<ITauriTypes.TOML.BasicLaunchConfig["version_indie_type"]>("disabled");
     const LauncherVisibility = ref<ITauriTypes.TOML.BasicLaunchConfig["launcher_visibility"]>("immediately_quit");
@@ -21,7 +28,16 @@
     const UseDiscreteGpu = ref<ITauriTypes.TOML.AdvancedLaunchConfig["use_discrete_gpu"]>(false);
     const UseJavaExe = ref<ITauriTypes.TOML.AdvancedLaunchConfig["use_java_exe"]>(false);
 
+    async function updateRamInfo() {
+        const ram_info = await TauriSystem.getRamInfo();
+        const { total, used, available } = ram_info;
+        MaxRam.value = Math.round((total / 1024 / 1024 / 1024 / 1024) * 100) / 100;
+        CurrentRam.value = Math.round((used / 1024 / 1024 / 1024 / 1024) * 100) / 100;
+        AvailableRam.value = Math.round((available / 1024 / 1024 / 1024 / 1024) * 100) / 100;
+    }
+
     onMounted(async () => {
+        await updateRamInfo();
         const config = await TauriTOML.getGlobalConfig();
         const launch_config = config.launch;
         VersionIndie.value = launch_config.basic.version_indie_type;
@@ -38,6 +54,8 @@
         UseDiscreteGpu.value = launch_config.advanced.use_discrete_gpu;
         UseJavaExe.value = launch_config.advanced.use_java_exe;
     });
+
+    onMediumInterval(updateRamInfo);
 
     watch(
         [
@@ -90,7 +108,7 @@
 </script>
 
 <template>
-    <main class="p-6 pr-8 max-h-[calc(100vh-128px-var(--spacing)*4)] rounded-box overflow-auto beautiful-scrollbar">
+    <main class="p-6 pr-8 max-h-[calc(100vh-128px-var(--spacing)*1)] rounded-box overflow-auto beautiful-scrollbar">
         <div class="card bg-base-100 outline outline-base-content/25 w-full">
             <div class="card-body px-4 py-3 pb-4">
                 <h1 class="card-title">{{ t("Main.Setting/Launch.Basic.__Title__") }}</h1>
@@ -152,52 +170,59 @@
             <div class="card-body px-4 py-3 pb-5">
                 <h1 class="card-title">{{ t("Main.Setting/Launch.RAM.__Title__") }}</h1>
 
-                <div class="flex gap-2 items-center pl-4 mt-2">
-                    <input
-                        type="radio"
-                        name="radio-1"
-                        id="radio-1-1"
-                        class="radio radio-primary radio-sm"
-                        v-model="AutoRam"
-                        :value="true" />
-                    <label for="radio-1-1" class="text-sm -translate-y-px">
-                        {{ t("Main.Setting/Launch.RAM.Auto") }}
-                    </label>
-                </div>
-                <div class="grid grid-cols-[144px_1fr] gap-x-8 items-center pl-4">
-                    <div class="flex gap-2">
+                <section class="pl-4 flex flex-col gap-2">
+                    <div class="flex gap-2 items-center mt-2">
                         <input
                             type="radio"
                             name="radio-1"
-                            id="radio-1-2"
+                            id="radio-1-1"
                             class="radio radio-primary radio-sm"
                             v-model="AutoRam"
-                            :value="false" />
-                        <label for="radio-1-2" class="text-sm -translate-y-px">
-                            {{ t("Main.Setting/Launch.RAM.Custom") }}
+                            :value="true" />
+                        <label for="radio-1-1" class="text-sm -translate-y-px">
+                            {{ t("Main.Setting/Launch.RAM.Auto") }}
                         </label>
                     </div>
-                    <label class="input input-sm outline-none w-full">
+                    <div class="grid grid-cols-[144px_1fr] gap-x-8 items-center">
+                        <div class="flex gap-2">
+                            <input
+                                type="radio"
+                                name="radio-1"
+                                id="radio-1-2"
+                                class="radio radio-primary radio-sm"
+                                v-model="AutoRam"
+                                :value="false" />
+                            <label for="radio-1-2" class="text-sm -translate-y-px">
+                                {{ t("Main.Setting/Launch.RAM.Custom") }}
+                            </label>
+                        </div>
                         <input
-                            type="number"
-                            :disabled="AutoRam"
-                            :max="30 * 1024"
+                            type="range"
                             :min="1024"
+                            :max="(MaxRam || 8) * 1024"
                             :step="512"
-                            v-model="CustomRam" />
-                        <span class="badge badge-neutral badge-sm">MB</span>
-                    </label>
-                </div>
-                <div class="flex gap-2 items-center pl-4 mt-1">
-                    <input
-                        type="checkbox"
-                        id="pre-swap"
-                        class="checkbox checkbox-primary checkbox-sm"
-                        v-model="PreSwap" />
-                    <label for="pre-swap" class="text-sm -translate-y-px">
-                        {{ t("Main.Setting/Launch.RAM.PreSwap") }}
-                    </label>
-                </div>
+                            :disabled="AutoRam"
+                            v-model.number="CustomRam"
+                            v-if="MaxRam"
+                            class="range range-xs range-primary w-full" />
+                    </div>
+                    <div class="flex gap-2 items-center mt-1">
+                        <input
+                            type="checkbox"
+                            id="pre-swap"
+                            class="checkbox checkbox-primary checkbox-sm"
+                            v-model="PreSwap" />
+                        <label for="pre-swap" class="text-sm -translate-y-px">
+                            {{ t("Main.Setting/Launch.RAM.PreSwap") }}
+                        </label>
+                    </div>
+                    <DoubleStateProgress
+                        v-if="CurrentRam"
+                        :current="CurrentRam || 0"
+                        :use="AutoRam ? 1024 * 6 : CustomRam || 0"
+                        :max="MaxRam || 0"
+                        class="mt-2" />
+                </section>
             </div>
         </div>
 

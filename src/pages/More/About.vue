@@ -28,7 +28,7 @@
                 <div class="stat-title">{{ t("Main.More/About.UpdateChannel.Title") }}</div>
                 <div class="stat-value">{{ t(METADATA.channel) }}{{ t("Main.More/About.UpdateChannel.Suffix") }}</div>
                 <div class="stat-actions h-6.5">
-                    <button class="btn btn-xs btn-primary btn-outline">
+                    <button class="btn btn-xs btn-primary btn-outline" @click="$router.push('/setting/other?focus=updateChannel')">
                         {{ t("Main.More/About.UpdateChannel.Button") }}
                     </button>
                 </div>

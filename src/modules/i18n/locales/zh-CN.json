@@ -196,10 +196,6 @@
                 "Velocity": "Velocity",
                 "Waterfall": "Waterfall"
             },
-            "Result": {
-                "NoResult": "没有结果",
-                "Loading": "加载中..."
-            },
             "Page": "第 {offset} / {maximum} 页",
             "Resolution": {
                 "__Title__": "分辨率"
@@ -209,7 +205,8 @@
             },
             "PerformanceImpact": {
                 "__Title__": "性能影响"
-            }
+            },
+            "__Hint__": "目前仅支持 Modrinth 搜索源"
         },
         "Download/Mod": {
             "GlobalSearchPlaceholder": "搜索 Mod"
@@ -361,7 +358,8 @@
                     "__Name__": "最大线程数"
                 },
                 "MaxBandwidth": {
-                    "__Name__": "速度限制"
+                    "__Name__": "速度限制",
+                    "Unlimited": "无限制"
                 },
                 "InstallBehavior": {
                     "__Name__": "安装行为",
@@ -401,7 +399,8 @@
                     "Disable": "禁用自动更新"
                 },
                 "Channel": {
-                    "__Name__": "更新渠道"
+                    "__Name__": "更新渠道",
+                    "__NotAllowed__": "*无法回退至该渠道，请等待下一次通用更新"
                 },
                 "Notification": {
                     "__Name__": "通知",
@@ -444,6 +443,15 @@
                 "__Title__": "调试选项",
                 "DebugMode": "调试模式"
             }
+        },
+        "Setting": {
+            "Launch": {
+                "RAM": {
+                    "Used/Installed": "已使用内存 / 已安装内存",
+                    "Distribute": "游戏分配",
+                    "Available": "（可用 {available} GB）"
+                }
+            }
         }
     },
     "Footer": {
@@ -462,6 +470,22 @@
                 "Pause": "已暂停",
                 "Play": "正在播放"
             }
+        }
+    },
+    "Components": {
+        "ModrinthProjectItem": {
+            "YearsBefore": "{years} 年前",
+            "MonthsBefore": "{months} 个月前",
+            "DaysBefore": "{days} 天前",
+            "HoursBefore": "{hours} 小时前",
+            "JustNow": "刚刚",
+            "FullVersion": "全版本"
+        },
+        "Loading": {
+            "Loading": "加载中..."
+        },
+        "LoadingNoResult": {
+            "NoResult": "没有结果"
         }
     },
     "InsiderWarning": {

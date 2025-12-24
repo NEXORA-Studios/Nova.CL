@@ -43,7 +43,7 @@
                         {{ $t(`Main.Download/Minecraft.Types.${unifyString(version_type)}`) }}
                     </span>
                 </div>
-                <div class="text-xs uppercase opacity-60">
+                <div class="text-xs opacity-60">
                     {{ $t("Main.Download/Minecraft.PublishAt", { time: new Date(date).toLocaleString() }) }}
                 </div>
             </div>

@@ -67,4 +67,5 @@ jobs:
               with:
                   releaseId: 272485423
                   releaseAssetNamePattern: "[name]-[arch]_[platform][setup][ext]"
+                  uploadUpdaterJson: true
                   args: ${{ matrix.args }}

@@ -1,7 +1,15 @@
 <script setup lang="ts">
     import { onMounted, ref } from "vue";
     import { useI18n } from "vue-i18n";
-    import { ModrinthProjectItem, ModrinthSearchFilter, ModrinthSearchPage, SearchInput } from "@/components";
+    import {
+        Hint,
+        ModrinthProjectItem,
+        ModrinthSearchFilter,
+        ModrinthSearchPage,
+        SearchInput,
+        Loading,
+        LoadingNoResult,
+    } from "@/components";
     import { useResourceFilters } from "@/composables";
     import { modrinthApiAdapter } from "@/modules";
     import { IMrApi } from "@/types";
@@ -68,8 +76,12 @@
             @click="onSearch" />
 
         <div
-            class="w-full grid grid-cols-3 gap-2 mt-4 max-h-[calc(100vh-128px-var(--spacing)*29)] rounded-box overflow-auto pr-2 beautiful-scrollbar"
+            class="w-full grid grid-cols-3 grid-rows-[auto_1fr] gap-2 mt-4 max-h-[calc(100vh-128px-var(--spacing)*29)] rounded-box overflow-auto pr-2 beautiful-scrollbar"
             ref="scrollContainer">
+            <Hint type="warning" class="col-span-3">
+                {{ t("Main.Download/Public.__Hint__") }}
+            </Hint>
+
             <section class="flex flex-col gap-2">
                 <!-- Categories -->
                 <ModrinthSearchFilter
@@ -120,16 +132,9 @@
 
             <!-- 结果 -->
             <div class="w-full col-span-2 flex justify-center">
-                <div class="card w-96 h-32 bg-base-100 card-md shadow-sm" v-if="isLoading">
-                    <div class="card-body flex items-center justify-center">
-                        <span class="loading loading-dots loading-xl"></span>
-                        <span class="text-lg">{{ t("Main.Download/Public.Result.Loading") }}</span>
-                    </div>
-                </div>
-                <div v-if="hits.length === 0 && !isLoading" class="text-center text-sm text-gray-400">
-                    {{ t("Main.Download/Public.Result.NoResult") }}
-                </div>
-                <ul class="list bg-base-100 rounded-box shadow-md w-full" v-if="hits.length > 0 && !isLoading">
+                <Loading v-if="isLoading" />
+                <LoadingNoResult v-if="!hits || (hits.length === 0 && !isLoading)" />
+                <ul class="list bg-base-100 rounded-box shadow-md w-full" v-if="hits && hits.length > 0 && !isLoading">
                     <ModrinthProjectItem v-for="item in hits" :key="item.project_id" :data="item" />
                 </ul>
             </div>

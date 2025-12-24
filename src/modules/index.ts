@@ -21,3 +21,4 @@ export { useAccountStore } from "./stores/AccountStore";
 // Tauri
 export { http as TauriHTTP } from "./tauri/Http";
 export { toml as TauriTOML } from "./tauri/Toml";
+export { system as TauriSystem } from "./tauri/System";

@@ -108,7 +108,7 @@ class ModrinthApiAdapter {
         const versionParams = this.makeSearchModParams("versions", versionFilter.value);
         const categoryParams = this.makeSearchModParams("categories", categoryFilter.value);
         const performanceImpactParams = this.makeSearchModParams("categories", performanceImpactFilter.value);
-        const loaderParams = this.makeSearchModParams("loaders", loaderFilter.value);
+        const loaderParams = this.makeSearchModParams("categories", loaderFilter.value);
         const facets = `[${versionParams}${categoryParams}${performanceImpactParams}${loaderParams}${staticParams}]`;
         const params = `query=${query}&limit=${limit}&offset=${offset}&facets=${facets}`;
         return (await this.requester.get<IMrApi.ProjectSearchResult>(`/search?${params}`)).data;

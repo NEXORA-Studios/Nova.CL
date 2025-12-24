@@ -1,15 +1,17 @@
 <script setup lang="ts">
     import { computed, onMounted, ref } from "vue";
     import { useI18n } from "vue-i18n";
-    import { SearchInput, DownloadVersionEntry, VirtualDownloadVersionEntryList } from "@/components";
+    import { SearchInput, DownloadVersionEntry, VirtualDownloadVersionEntryList, Loading } from "@/components";
     import { Requester } from "@/modules";
     import { IOjngApi } from "@/types";
+    import LoadingNoResult from "@/components/LoadingNoResult.vue";
 
     const { t } = useI18n();
 
     const versions = ref<IOjngApi.VersionManifest["versions"]>([]);
     const openedTypes = ref<Record<string, boolean>>({});
-    const searchInput = ref("");
+    const searchInput = ref<string>("");
+    const isLoading = ref<boolean>();
 
     // ---------- 数据分类 ----------
     const normalVersions = computed(() =>
@@ -59,12 +61,14 @@
 
     // ---------- 挂载 ----------
     onMounted(async () => {
+        isLoading.value = true;
         const requester = new Requester();
         versions.value = (
             await requester.get<IOjngApi.VersionManifest>(
                 "https://launchermeta.mojang.com/mc/game/version_manifest_v2.json"
             )
         ).data.versions;
+        isLoading.value = false;
     });
 </script>
 
@@ -72,7 +76,9 @@
     <div class="w-full h-full p-6">
         <SearchInput :placeholder="t('Main.Download/Minecraft.GlobalSearchPlaceholder')" v-model="searchInput" />
 
-        <div class="w-full mt-4 max-h-[calc(100vh-128px-var(--spacing)*29)] rounded-md overflow-y-auto pr-2">
+        <Loading class="mt-4 mx-auto" v-if="isLoading" />
+
+        <div class="w-full mt-4 max-h-[calc(100vh-128px-var(--spacing)*29)] rounded-md overflow-y-auto pr-2" v-else>
             <!-- 最新 -->
             <div
                 v-if="searchInput.length === 0"
@@ -117,10 +123,10 @@
                     {{ t("Main.Download/Minecraft.Cards.FilteredVersions") }}
                     ({{ searchVersions.length }})
                 </div>
-
                 <div class="collapse-content text-sm">
                     <VirtualDownloadVersionEntryList :items="searchVersions" :maxHeight="680" />
                 </div>
+                <LoadingNoResult v-if="!searchVersions || (searchVersions.length === 0 && !isLoading)" class="-translate-y-4" />
             </div>
         </div>
     </div>

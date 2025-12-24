@@ -17,15 +17,20 @@ pub mod types;
 pub mod utils;
 
 // 重新导出常用类型和函数
+#[allow(unused_imports)]
 pub use error::{ConfigError, GlobalConfigError, InstanceConfigError, ProfileConfigError};
+#[allow(unused_imports)]
 pub use manager::{
     delete_instance_config, get_global_config, get_instance_config, get_profile_config,
     list_instance_configs, save_global_config, save_instance_config, save_profile_config,
     ConfigManager,
 };
 #[cfg(debug_assertions)]
+#[allow(unused_imports)]
 pub use test::test_config_system;
+#[allow(unused_imports)]
 pub use types::{GlobalConfig, InstanceConfig, Profile, ProfileConfig};
+#[allow(unused_imports)]
 pub use utils::{
     backup_config_file, generate_instance_id, restore_config_backup, validate_channel,
     validate_download_source, validate_java_path, validate_language, validate_loader_type,
