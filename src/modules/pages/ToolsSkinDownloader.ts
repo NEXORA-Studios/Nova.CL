@@ -1,4 +1,4 @@
-import { TauriHTTP } from "..";
+import { TauriHTTPClient } from "..";
 
 // interface MojangSessionProfile {
 //     id: string;
@@ -36,7 +36,9 @@ export class ToolsSkinDownloader {
         // return { uuid: response.data.uuid, skin_url: response.data.skin_url };
 
         const response = (
-            await TauriHTTP.get(`https://uapis.cn/api/v1/game/minecraft/userinfo?username=${this.inputUsername}`)
+            await TauriHTTPClient.get<{ uuid: string; skin_url: string }>(
+                `https://uapis.cn/api/v1/game/minecraft/userinfo?username=${this.inputUsername}`
+            )
         ).body;
         return { uuid: response.uuid, skin_url: response.skin_url };
     }

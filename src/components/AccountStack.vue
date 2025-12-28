@@ -1,7 +1,7 @@
 <script setup lang="ts">
     import type { PanInfo } from "motion-v";
     import { Motion, useMotionValue, useTransform } from "motion-v";
-    import { onBeforeMount, ref, watch } from "vue";
+    import { onBeforeMount, ref } from "vue";
     import { ITauriTypes } from "@/types";
 
     interface StackProps {
