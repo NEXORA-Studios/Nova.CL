@@ -200,15 +200,43 @@ pub struct ProfileConfig {
 /// 单个账户
 #[derive(Deserialize, Serialize, Debug, Clone)]
 pub struct Profile {
+    /// 唯一存储 ID
+    pub guid: String,
+
     /// 账户类型
-    pub r#type: String, // msa | legacy
+    pub r#type: String, // msa | legacy | yggdrasil
+    /// 玩家 UUID
+    pub uuid: String,
+    /// 玩家名称
+    pub name: String,
+    /// 是否正在使用
+    pub picked: bool,
+
+    /// 微软登录相关（MSA）
+    /// 访问令牌（加密存储）
+    /// 设计需要，无法 Option<String>，如果非 msa 则留空
+    #[serde(with = "encrypted_field")]
+    pub access_token: String,
     /// 刷新令牌（加密存储）
+    /// 设计需要，无法 Option<String>，如果非 msa 则留空
     #[serde(with = "encrypted_field")]
     pub refresh_token: String,
-    /// 用户 UUID
-    pub uuid: String,
-    /// 账户名称（仅 legacy 类型）
-    pub id: Option<String>,
+    /// MSA 令牌过期时间（Unix 时间戳）
+    pub msa_expires_at: Option<u64>,
+    /// MC 令牌过期时间（Unix 时间戳）
+    pub mc_expires_at: Option<u64>,
+    /// 皮肤下载 Url
+    pub skin_info: Option<String>,
+    /// 披风下载 Url
+    pub cape_info: Option<String>,
+
+    /// 皮肤站登录相关（Yggdrasil）
+    /// 登录皮肤站
+    pub yggdrasil_site: Option<String>,
+    /// 注册链接
+    pub yggdrasil_register: Option<String>,
+    /// 皮肤站名称
+    pub yggdrasil_site_name: Option<String>,
 }
 
 // ---------------------- Instance Config ----------------------
@@ -223,19 +251,37 @@ pub struct InstanceConfig {
     /// Minecraft 版本
     pub mc_version: String,
     /// 加载器类型
-    pub loader_type: String, // forge | fabric | quilt | vanilla
+    pub loader_type: String, // neoforge | forge | fabric | quilt | vanilla
     /// 加载器版本
     pub loader_version: String,
     /// 启动次数
     pub launch_count: u32,
     /// 分类
     pub category: u8,
-    /// 实例路径
-    pub path: Option<String>,
     /// 图标路径
     pub icon: Option<String>,
     /// 上次启动时间
     pub last_launch: Option<String>,
+}
+
+// ---------------------- Collection Config ----------------------
+
+/// 文件夹配置
+#[derive(Deserialize, Serialize, Debug, Clone)]
+pub struct FolderConfig {
+    /// .minecraft 文件夹所处位置
+    pub path: String,
+    /// 启动器内显示的名称
+    pub name: String,
+    /// 启动器内显示的相对顺序，越小越靠前
+    pub order: u32,
+}
+
+/// 集合配置
+#[derive(Deserialize, Serialize, Debug, Clone)]
+pub struct CollectionConfig {
+    /// 文件夹列表
+    pub folders: Vec<FolderConfig>,
 }
 
 // ---------------------- Default Implementations ----------------------
@@ -329,9 +375,16 @@ impl Default for InstanceConfig {
             loader_version: "".to_string(),
             launch_count: 0,
             category: 0,
-            path: None,
             icon: None,
             last_launch: None,
+        }
+    }
+}
+
+impl Default for CollectionConfig {
+    fn default() -> Self {
+        Self {
+            folders: Vec::new(),
         }
     }
 }

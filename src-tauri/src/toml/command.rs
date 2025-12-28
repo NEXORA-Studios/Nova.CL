@@ -2,11 +2,11 @@ use tauri::command;
 
 use crate::toml::crypto::{decrypt_string, encrypt_string};
 use crate::toml::manager::{
-    delete_instance_config, get_global_config, get_instance_config, get_profile_config,
-    list_instance_configs, save_global_config, save_instance_config, save_profile_config,
+    delete_instance_config, get_collection_config, get_global_config, get_instance_config,
+    get_profile_config, save_collection_config, save_global_config, save_instance_config,
+    save_profile_config,
 };
-use crate::toml::types::{GlobalConfig, InstanceConfig, ProfileConfig};
-use crate::toml::utils::generate_instance_id;
+use crate::toml::types::{CollectionConfig, GlobalConfig, InstanceConfig, ProfileConfig};
 
 /// 获取全局配置
 #[command]
@@ -32,37 +32,39 @@ pub fn save_profile_config_cmd(config: ProfileConfig) -> Result<(), String> {
     save_profile_config(&config).map_err(|e| format!("Failed to save profile config: {}", e))
 }
 
+/// 获取集合配置
+#[command]
+pub fn get_collection_config_cmd() -> Result<CollectionConfig, String> {
+    get_collection_config().map_err(|e| format!("Failed to get collection config: {}", e))
+}
+
+/// 保存集合配置
+#[command]
+pub fn save_collection_config_cmd(config: CollectionConfig) -> Result<(), String> {
+    save_collection_config(&config).map_err(|e| format!("Failed to save collection config: {}", e))
+}
+
 /// 获取实例配置
 #[command]
-pub fn get_instance_config_cmd(instance_id: String) -> Result<InstanceConfig, String> {
-    get_instance_config(&instance_id).map_err(|e| format!("Failed to get instance config: {}", e))
+pub fn get_instance_config_cmd(instance_path: String) -> Result<InstanceConfig, String> {
+    get_instance_config(&instance_path).map_err(|e| format!("Failed to get instance config: {}", e))
 }
 
 /// 保存实例配置
 #[command]
 pub fn save_instance_config_cmd(
-    instance_id: Option<String>,
+    instance_path: String,
     config: InstanceConfig,
-) -> Result<String, String> {
-    // 如果没有提供实例 ID，生成一个新的
-    let instance_id = instance_id.unwrap_or_else(generate_instance_id);
-
-    save_instance_config(&instance_id, &config)
-        .map(|_| instance_id)
+) -> Result<(), String> {
+    save_instance_config(&instance_path, &config)
         .map_err(|e| format!("Failed to save instance config: {}", e))
 }
 
 /// 删除实例配置
 #[command]
-pub fn delete_instance_config_cmd(instance_id: String) -> Result<(), String> {
-    delete_instance_config(&instance_id)
+pub fn delete_instance_config_cmd(instance_path: String) -> Result<(), String> {
+    delete_instance_config(&instance_path)
         .map_err(|e| format!("Failed to delete instance config: {}", e))
-}
-
-/// 列出所有实例配置
-#[command]
-pub fn list_instance_configs_cmd() -> Result<Vec<String>, String> {
-    list_instance_configs().map_err(|e| format!("Failed to list instance configs: {}", e))
 }
 
 /// 解密字符串

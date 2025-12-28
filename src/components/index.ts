@@ -1,4 +1,7 @@
+export { default as AccountCard } from "./AccountCard.vue";
+export { default as AccountStack } from "./AccountStack.vue";
 export { default as Avatar } from "./Avatar.vue";
+export { default as BankCard } from "./BankCard.vue";
 export { default as DoubleStateProgress } from "./DoubleStateProgress.vue";
 export { default as DownloadVersionEntry } from "./DownloadVersionEntry.vue";
 export { default as GraphicalButton } from "./GraphicalButton.vue";

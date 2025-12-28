@@ -8,7 +8,9 @@ pub struct HttpClient {
 
 impl HttpClient {
     pub fn new() -> Self {
-        let client = ReqwestClient::new();
+        let client = ReqwestClient::builder()
+            .build()
+            .expect("Failed to create HTTP client");
         HttpClient { client }
     }
 
@@ -63,7 +65,32 @@ impl HttpClient {
         }
 
         if let Some(body) = &req.body {
-            request_builder = request_builder.json(body);
+            // 检查Content-Type头，决定如何处理请求体
+            let content_type = req
+                .headers
+                .as_ref()
+                .and_then(|h| h.get("Content-Type"))
+                .map(|v| v.to_lowercase());
+
+            match content_type.as_deref() {
+                Some("application/x-www-form-urlencoded") => {
+                    // 如果是表单类型，尝试将body转换为表单数据
+                    if let Some(obj) = body.as_object() {
+                        let mut form = HashMap::new();
+                        for (key, value) in obj {
+                            form.insert(key.clone(), value.as_str().unwrap_or("").to_string());
+                        }
+                        request_builder = request_builder.form(&form);
+                    } else {
+                        // 如果body不是对象，仍然使用json
+                        request_builder = request_builder.json(body);
+                    }
+                }
+                _ => {
+                    // 默认使用json
+                    request_builder = request_builder.json(body);
+                }
+            }
         }
 
         let response = request_builder.send().await?;

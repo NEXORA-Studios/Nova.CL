@@ -22,6 +22,7 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+.trae
 
 # Not-In-Use Issue Template
 .github/ISSUE_TEMPLATE/*.disabled
@@ -32,3 +33,6 @@ dist-ssr
 .env
 .env.*
 !.env.example
+
+# Contents for MS Store
+msstore/

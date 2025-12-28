@@ -1,24 +1,28 @@
-import { EAccountType } from "@/utils"
-import { defineStore } from "pinia"
-import { ref } from "vue"
+import { ITauriTypes } from "@/types";
+import { defineStore } from "pinia";
+import { ref } from "vue";
 
 export const useAccountStore = defineStore("Account", () => {
-    const AccountName = ref<string | undefined>("LingyunAwA")
-    const AccountType = ref<EAccountType | undefined>(EAccountType.Online)
+    const AccountName = ref<string | undefined>();
+    const AccountType = ref<ITauriTypes.TOML.ProfileType | undefined>();
+    const HasAccount = ref<boolean>();
 
-    function setAccountState(name: string, type: EAccountType) {
-        AccountName.value = name
-        AccountType.value = type
+    function setAccountState(name: string, type: ITauriTypes.TOML.ProfileType) {
+        AccountName.value = name;
+        AccountType.value = type;
+        HasAccount.value = !!name && !!type;
     }
 
     function clearAccountState() {
-        AccountName.value = AccountType.value = undefined
+        AccountName.value = AccountType.value = undefined;
+        HasAccount.value = false;
     }
 
     return {
         AccountName,
         AccountType,
+        HasAccount,
         setAccountState,
         clearAccountState,
-    }
-})
+    };
+});

@@ -47,9 +47,11 @@ pub fn test_config_system() {
     // 测试 4: 测试实例配置
     println!("4. Testing instance config...");
 
-    // 生成随机实例 ID
-    let instance_id = generate_instance_id();
-    println!("   - Generated instance ID: {}", instance_id);
+    // 创建临时实例目录作为测试路径
+    let temp_dir = std::env::temp_dir().join("NovaCLTestInstance");
+    std::fs::create_dir_all(&temp_dir).unwrap();
+    let instance_path = temp_dir.to_str().unwrap();
+    println!("   - Using test instance path: {}", instance_path);
 
     // 创建实例配置
     let instance_config = InstanceConfig {
@@ -60,30 +62,26 @@ pub fn test_config_system() {
         loader_version: "".to_string(),
         launch_count: 0,
         category: 0,
-        path: None,
         icon: None,
         last_launch: None,
     };
 
     // 保存实例配置
-    match save_instance_config(&instance_id, &instance_config) {
+    match save_instance_config(instance_path, &instance_config) {
         Ok(_) => println!("   ✓ Instance config saved successfully"),
         Err(e) => {
             println!("   ✗ Failed to save instance config: {}", e);
         }
     }
 
-    // 列出所有实例
-    match list_instance_configs() {
-        Ok(ids) => {
-            println!("   ✓ Instance list retrieved successfully");
-            println!("   - Number of instances: {}", ids.len());
-            for id in ids {
-                println!("     * {}", id);
-            }
+    // 测试读取实例配置
+    match get_instance_config(instance_path) {
+        Ok(loaded_config) => {
+            println!("   ✓ Instance config loaded successfully");
+            println!("   - Loaded instance name: {}", loaded_config.name);
         }
         Err(e) => {
-            println!("   ✗ Failed to list instances: {}", e);
+            println!("   ✗ Failed to load instance config: {}", e);
         }
     }
 
@@ -92,10 +90,20 @@ pub fn test_config_system() {
 
     // 创建测试账户
     let test_profile = Profile {
+        guid: "bf24da30-1f3d-4c3f-84e6-0f08d58c8375".to_string(),
         r#type: "msa".to_string(),
-        refresh_token: "test_refresh_token_12345".to_string(),
-        uuid: "test-uuid-12345".to_string(),
-        id: None,
+        uuid: "aa2e9f5f-5349-4bab-b0ac-d9b658845263".to_string(),
+        name: "Test User".to_string(),
+        access_token: "".to_string(),
+        refresh_token: "".to_string(),
+        yggdrasil_site: None,
+        yggdrasil_register: None,
+        yggdrasil_site_name: None,
+        picked: true,
+        msa_expires_at: Some(0),
+        mc_expires_at: Some(0),
+        skin_info: Some("".to_string()),
+        cape_info: Some("".to_string()),
     };
 
     let mut profile_config = ProfileConfig::default();
@@ -128,12 +136,16 @@ pub fn test_config_system() {
     // 测试 6: 清理测试实例
     println!("6. Testing instance deletion...");
 
-    match delete_instance_config(&instance_id) {
-        Ok(_) => println!("   ✓ Test instance deleted successfully"),
+    match delete_instance_config(instance_path) {
+        Ok(_) => println!("   ✓ Test instance config deleted successfully"),
         Err(e) => {
-            println!("   ✗ Failed to delete test instance: {}", e);
+            println!("   ✗ Failed to delete test instance config: {}", e);
         }
     }
+
+    // 删除临时目录
+    std::fs::remove_dir_all(&temp_dir).unwrap();
+    println!("   ✓ Test instance directory deleted successfully");
 
     println!("\nConfig system tests completed!");
 }

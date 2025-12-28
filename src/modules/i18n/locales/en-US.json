@@ -1,5 +1,6 @@
 {
     "Header": {
+        "Back": "Back",
         "Download": {
             "Minecraft": "Minecraft",
             "Installer": "Installer",
@@ -29,10 +30,13 @@
             "More": "More"
         },
         "AccountType": {
-            "0": "Online",
-            "1": "Offline",
-            "2": "3rd Party (Nide)",
-            "3": "3rd Party"
+            "legacy": "Offline",
+            "msa": "Microsoft",
+            "yggdrasil": "Yggdrasil"
+        },
+        "NoProfile": {
+            "__Title__": "No Profile",
+            "__Hint__": "Create a profile first"
         }
     },
     "Main": {
@@ -40,7 +44,7 @@
             "Cards": {
                 "1": "Switch Instances",
                 "2": "Manage Instance",
-                "3": "Switch Acconut",
+                "3": "Select Profile",
                 "News": {
                     "Title": "Minecraft Update News",
                     "Description": "Discover all the new features, bug fixes, and improvements in the latest game update.",
@@ -49,25 +53,90 @@
                 }
             }
         },
-        "r/Account": {
+        "r/Profile": {
             "TopButtons": {
-                "AddAccount": "Add Account",
-                "ImportAccount": "Import Account",
-                "ExportAccount": "Export Account"
+                "AddProfile": "Add Profile",
+                "ImportProfile": "Import Profile",
+                "ExportProfile": "Export Profile",
+                "SwitchProfileNext": "Switch to Next Profile",
+                "Logout": "Sign out"
             },
             "TableHeader": {
-                "Name": "Name",
+                "Name": "Profile Name",
                 "LoginMethod": "Login Method"
             },
             "Modal": {
                 "Add": {
-                    "Title": "Add New Account",
-                    "Description": "Select Account Type",
+                    "Title": "Add New Profile",
+                    "Description": "Select Profile Type",
                     "MsLogin": "Login with Microsoft",
-                    "Offline": "Create Offline Account",
-                    "TrdParty": "Login to 3rd Party Account",
-                    "Cancel": "Cancel"
+                    "Offline": "Create Offline Profile",
+                    "TrdParty": "Login to Yggdrasil Services",
+                    "Cancel": "Cancel",
+                    "Create": "Create",
+                    "Back": "Back"
+                },
+                "Step2": {
+                    "Offline": {
+                        "Username": "Player Name",
+                        "Uuid": {
+                            "Input": "Custom UUID",
+                            "Select": {
+                                "PickOne": "Choose a UUID Generation Mode",
+                                "Standrad": "Standrad",
+                                "Custom": "Custom"
+                            }
+                        }
+                    },
+                    "Msa": {
+                        "Waiting": "Please complete the login in the window that opens",
+                        "Details": "Details: ",
+                        "Process": {
+                            "Step1": {
+                                "Processing": "Processing: MSA Login 1/6: Get Login Token",
+                                "Error": "Error: MSA Login | Step 1/6"
+                            },
+                            "Step2": {
+                                "Processing": "Processing: MSA Login 2/6: Get XBL Token",
+                                "Error": "Error: MSA Login | Step 2/6"
+                            },
+                            "Step3": {
+                                "Processing": "Processing: MSA Login 3/6: Get XSTS Token",
+                                "Error": "Error: MSA Login | Step 3/6"
+                            },
+                            "Step4": {
+                                "Processing": "Processing: MSA Login 4/6: Get Minecraft Token",
+                                "Error": "Error: MSA Login | Step 4/6"
+                            },
+                            "Step5": {
+                                "Processing": "Processing: MSA Login 5/6: Validate",
+                                "Error": "Error: MSA Login | Step 5/6"
+                            },
+                            "Step6": {
+                                "Processing": "Processing: MSA Login 6/6: Get Profile",
+                                "Error": "Error: MSA Login | Step 6/6"
+                            }
+                        }
+                    }
+                },
+                "Remove": {
+                    "Title": "Confirm Signout/Remove",
+                    "Content": {
+                        "Line1": "Are you sure you want to signout/delete this account?",
+                        "Line2": "Player {name} · Type {type}"
+                    },
+                    "Cancel": "Cancel",
+                    "Perform": "Signout/Remove"
                 }
+            },
+            "Profiles": {
+                "NoProfile": "No Profile"
+            },
+            "ActionButtons": {
+                "__Title__": "Profile Action",
+                "SwitchProfileNext": "Switch to Next Profile",
+                "Remove": "Remove Profile",
+                "Logout": "Signout"
             }
         },
         "Download/Minecraft": {
@@ -184,7 +253,6 @@
                 "Quilt": "Quilt",
                 "Rift": "Rift"
             },
-
             "Page": "Page {offset} / {maximum}",
             "Resolution": {
                 "__Title__": "Resolution"
@@ -195,7 +263,7 @@
             "PerformanceImpact": {
                 "__Title__": "Performance Impact"
             },
-            "__Hint__": "Currently Only Support Modrinth Source"
+            "__Hint__": "Currently Only Support Modrinth"
         },
         "Download/Mod": {
             "GlobalSearchPlaceholder": "Search a Mod"
@@ -456,9 +524,10 @@
             "KillAllMCInstance": "Kill all the running Minecraft process",
             "Music": {
                 "Template": "Music is {status}: {name}. Click to {flip_status}. Right-click to skip.",
-                "Pause": "paused",
-                "Play": "playing"
-            }
+                "Pause": "Paused",
+                "Play": "Playing"
+            },
+            "DownloadManager": "Manage Download Tasks"
         }
     },
     "Components": {
@@ -475,6 +544,15 @@
         },
         "LoadingNoResult": {
             "NoResult": "No Result"
+        },
+        "AccountCard": {
+            "Player": "PLAYER",
+            "AccountType": {
+                "Msa": "Microsoft Account",
+                "Legacy": "Offline Account",
+                "Yggdrasil": "Yggdrasil Account"
+            },
+            "Expire": "Valid Until"
         }
     },
     "InsiderWarning": {

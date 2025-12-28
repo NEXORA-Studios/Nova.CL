@@ -1,7 +1,7 @@
 export enum EAccountType {
     Online = 0,
     Offline = 1,
-    Nide = 2,
+    // Nide = 2,
     Authlib = 3,
 }
 

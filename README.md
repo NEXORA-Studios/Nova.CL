@@ -143,7 +143,17 @@ Nova.CL/
 
 ## 📄 许可证
 
+### 项目开源许可证
+
 本项目采用 AGPL 3.0 许可证 - 查看 [LICENSE](LICENSE) 文件了解详情。
+
+### 最终用户许可协议 (EULA)
+
+使用 NovaCL 应用程序即表示您同意遵守我们的 [最终用户许可协议](docs/EULA.md)。
+
+### 隐私政策
+
+我们重视您的隐私，详情请查看 [隐私政策](docs/PRIVACY_POLICY.md)。
 
 ## 📞 联系方式
 
@@ -161,3 +171,4 @@ Nova.CL/
   <br>
   <p>Made with ❤️ for Minecraft players</p>
 </div>
+

@@ -153,6 +153,7 @@ pub fn cleanup_old_backups(directory: &Path, max_backups: usize) -> Result<(), C
 }
 
 /// 生成随机的实例 ID
+#[allow(dead_code)]
 pub fn generate_instance_id() -> String {
     use rand::Rng;
 

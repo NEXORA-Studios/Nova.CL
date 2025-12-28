@@ -50,11 +50,34 @@ export class TomlClient {
     }
 
     /**
+     * 获取集合配置
+     */
+    static async getCollectionConfig(): Promise<ITauriTypes.TOML.CollectionConfig> {
+        try {
+            const config = await invoke<ITauriTypes.TOML.CollectionConfig>("get_collection_config_cmd");
+            return config;
+        } catch (error) {
+            throw error as ITauriTypes.TOML.ConfigError;
+        }
+    }
+
+    /**
+     * 保存集合配置
+     */
+    static async saveCollectionConfig(config: ITauriTypes.TOML.CollectionConfig): Promise<void> {
+        try {
+            await invoke<void>("save_collection_config_cmd", { config });
+        } catch (error) {
+            throw error as ITauriTypes.TOML.ConfigError;
+        }
+    }
+
+    /**
      * 获取指定实例配置
      */
-    static async getInstanceConfig(instanceId: string): Promise<ITauriTypes.TOML.InstanceConfig> {
+    static async getInstanceConfig(instancePath: string): Promise<ITauriTypes.TOML.InstanceConfig> {
         try {
-            const config = await invoke<ITauriTypes.TOML.InstanceConfig>("get_instance_config_cmd", { instanceId });
+            const config = await invoke<ITauriTypes.TOML.InstanceConfig>("get_instance_config_cmd", { instancePath });
             return config;
         } catch (error) {
             throw error as ITauriTypes.TOML.ConfigError;
@@ -63,17 +86,12 @@ export class TomlClient {
 
     /**
      * 保存实例配置
-     * @param instanceId 实例ID，不提供则自动生成
+     * @param instancePath 实例路径
      * @param config 实例配置
-     * @returns 实例ID
      */
-    static async saveInstanceConfig(
-        instanceId: string | undefined,
-        config: ITauriTypes.TOML.InstanceConfig
-    ): Promise<string> {
+    static async saveInstanceConfig(instancePath: string, config: ITauriTypes.TOML.InstanceConfig): Promise<void> {
         try {
-            const id = await invoke<string>("save_instance_config_cmd", { instanceId, config });
-            return id;
+            await invoke<void>("save_instance_config_cmd", { instancePath, config });
         } catch (error) {
             throw error as ITauriTypes.TOML.ConfigError;
         }
@@ -82,9 +100,9 @@ export class TomlClient {
     /**
      * 删除实例配置
      */
-    static async deleteInstanceConfig(instanceId: string): Promise<void> {
+    static async deleteInstanceConfig(instancePath: string): Promise<void> {
         try {
-            await invoke<void>("delete_instance_config_cmd", { instanceId });
+            await invoke<void>("delete_instance_config_cmd", { instancePath });
         } catch (error) {
             throw error as ITauriTypes.TOML.ConfigError;
         }
@@ -133,6 +151,8 @@ export const toml = {
     saveGlobalConfig: TomlClient.saveGlobalConfig,
     getProfileConfig: TomlClient.getProfileConfig,
     saveProfileConfig: TomlClient.saveProfileConfig,
+    getCollectionConfig: TomlClient.getCollectionConfig,
+    saveCollectionConfig: TomlClient.saveCollectionConfig,
     getInstanceConfig: TomlClient.getInstanceConfig,
     saveInstanceConfig: TomlClient.saveInstanceConfig,
     deleteInstanceConfig: TomlClient.deleteInstanceConfig,

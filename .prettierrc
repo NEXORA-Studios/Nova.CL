@@ -1,0 +1,9 @@
+{
+    "tabWidth": 4,
+    "bracketSameLine": true,
+    "documentSelectors": ["**/*.svg"],
+    "endOfLine": "crlf",
+    "printWidth": 144,
+    "vueIndentScriptAndStyle": true,
+    "trailingComma": "es5"
+}

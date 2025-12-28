@@ -1,4 +1,4 @@
-import { createRouter, createWebHashHistory } from "vue-router";
+import { createRouter, createWebHistory } from "vue-router";
 import * as Pages from "@/pages";
 
 function RouteItem(path: string, component: any, ...options: any) {
@@ -10,12 +10,12 @@ function RouteItem(path: string, component: any, ...options: any) {
 }
 
 const router = createRouter({
-    history: createWebHashHistory(import.meta.env.BASE_URL),
+    history: createWebHistory(import.meta.env.BASE_URL),
     routes: [
         // 主页
         RouteItem("/", Pages.HomeIndex),
         // 独立子页面
-        RouteItem("/account", Pages.HomeAccount),
+        RouteItem("/profile", Pages.HomeProfile),
         // 下载子页面
         RouteItem("/download/minecraft", Pages.DownloadMinecraft),
         RouteItem("/download/mod", Pages.DownloadMod),
@@ -34,3 +34,4 @@ const router = createRouter({
 });
 
 export default router;
+

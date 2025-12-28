@@ -6,3 +6,4 @@ export * as IMrApi from "./MrApi";
 export * as IOjngApi from "./OjngAPI";
 
 export * as ITauriTypes from "./tauri/";
+export * as IMinecraftTypes from "./minecraft";

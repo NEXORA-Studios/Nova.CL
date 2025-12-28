@@ -70,6 +70,7 @@
                 font-size: var(--text-xs);
                 line-height: var(--tw-leading, var(--text-xs--line-height));
                 font-family: "Embedded Maple Mono";
+                width: calc(var(--spacing) * 60);
             }
             &::after {
                 content: attr(data-content-bottom);
@@ -90,9 +91,23 @@
         .progressbar__state2 {
             background-color: color-mix(in srgb, var(--color-primary), var(--color-base-300) 50%);
             border-radius: 0 var(--radius-box) var(--radius-box) 0;
-            &::before,
-            &::after {
-                left: 1px;
+
+            &:not(.progressbar__state2_max) {
+                &::before,
+                &::after {
+                    left: 1px;
+                }
+            }
+
+            &.progressbar__state2_max {
+                &::before {
+                    right: 1px;
+                    text-align: right;
+                }
+                &:after {
+                    right: calc(var(--spacing) * -2.5);
+                    text-align: right;
+                }
             }
         }
     }

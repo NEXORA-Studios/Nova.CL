@@ -1,5 +1,9 @@
 <script setup lang="ts">
+    import { useTheme } from "@/composables";
+
     defineProps<{ type: "info" | "success" | "warning" | "error" }>();
+
+    const { matchTheme } = useTheme();
 </script>
 
 <template>
@@ -7,12 +11,9 @@
         <div
             role="alert"
             class="alert alert-info text-[color-mix(in_srgb,var(--color-info)_70%,var(--color-base-content))] bg-[color-mix(in_srgb,var(--color-info)_30%,var(--color-base-300))] border-0 border-l-3 rounded-box"
+            :class="{ 'text-[color-mix(in_srgb,var(--color-info)_60%,var(--color-base-content))]!': matchTheme('dark') }"
             v-if="type === 'info'">
-            <svg
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 24 24"
-                class="h-6 w-6 shrink-0 stroke-current">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="h-6 w-6 shrink-0 stroke-current">
                 <path
                     stroke-linecap="round"
                     stroke-linejoin="round"
@@ -25,18 +26,10 @@
         </div>
         <div
             role="alert"
-            class="alert alert-success text-success bg-[color-mix(in_srgb,var(--color-success)_30%,var(--color-base-300))] border-0 border-l-3 rounded-box"
+            class="alert alert-success text-[color-mix(in_srgb,var(--color-success)_65%,var(--color-base-content))] bg-[color-mix(in_srgb,var(--color-success)_30%,var(--color-base-300))] border-0 border-l-3 rounded-box"
             v-if="type === 'success'">
-            <svg
-                xmlns="http://www.w3.org/2000/svg"
-                class="h-6 w-6 shrink-0 stroke-current"
-                fill="none"
-                viewBox="0 0 24 24">
-                <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                    d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 shrink-0 stroke-current" fill="none" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
             <div class="-translate-y-[0.75px]">
                 <slot></slot>
@@ -44,13 +37,12 @@
         </div>
         <div
             role="alert"
-            class="alert alert-warning text-warning bg-[color-mix(in_srgb,var(--color-warning)_30%,var(--color-base-300))] border-0 border-l-3 rounded-box"
+            class="alert alert-warning text-[color-mix(in_srgb,var(--color-warning)_70%,var(--color-base-content))] bg-[color-mix(in_srgb,var(--color-warning)_30%,var(--color-base-300))] border-0 border-l-3 rounded-box"
+            :class="{
+                'text-warning!': matchTheme('dark'),
+            }"
             v-if="type === 'warning'">
-            <svg
-                xmlns="http://www.w3.org/2000/svg"
-                class="h-6 w-6 shrink-0 stroke-current"
-                fill="none"
-                viewBox="0 0 24 24">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 shrink-0 stroke-current" fill="none" viewBox="0 0 24 24">
                 <path
                     stroke-linecap="round"
                     stroke-linejoin="round"
@@ -63,13 +55,12 @@
         </div>
         <div
             role="alert"
-            class="alert alert-error text-error bg-[color-mix(in_srgb,var(--color-error)_30%,var(--color-base-300))] border-0 border-l-3 rounded-box"
+            class="alert alert-error text-[color-mix(in_srgb,var(--color-error)_70%,var(--color-base-content))] bg-[color-mix(in_srgb,var(--color-error)_20%,var(--color-base-300))] border-0 border-l-3 rounded-box"
+            :class="{
+                'bg-[color-mix(in_srgb,var(--color-error)_25%,var(--color-base-300))]!': matchTheme('dark'),
+            }"
             v-if="type === 'error'">
-            <svg
-                xmlns="http://www.w3.org/2000/svg"
-                class="h-6 w-6 shrink-0 stroke-current"
-                fill="none"
-                viewBox="0 0 24 24">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 shrink-0 stroke-current" fill="none" viewBox="0 0 24 24">
                 <path
                     stroke-linecap="round"
                     stroke-linejoin="round"

@@ -4,12 +4,7 @@ export { modrinthApiAdapter } from "./adapter/ModrinthApi";
 export { i18nModule } from "./i18n";
 // Page-Specifics
 export { ToolsSkinDownloader } from "./pages/ToolsSkinDownloader";
-export {
-    CategoryFilterModule,
-    VersionFilterModule,
-    LoaderFilterModule,
-    OffsetFilterModule,
-} from "./pages/ResourceComp";
+export { CategoryFilterModule, VersionFilterModule, LoaderFilterModule, OffsetFilterModule } from "./pages/ResourceComp";
 // Routers
 export { default as router } from "./router";
 // Services
@@ -19,6 +14,15 @@ export { Requester } from "./service/Requster";
 // Pinia Stores
 export { useAccountStore } from "./stores/AccountStore";
 // Tauri
-export { http as TauriHTTP } from "./tauri/Http";
+export {
+    /** @deprecated */
+    httpClient as TauriHTTP,
+    httpClient as TauriHTTPClient,
+    httpServer as TauriHttpServer,
+} from "./tauri/Http";
 export { toml as TauriTOML } from "./tauri/Toml";
 export { system as TauriSystem } from "./tauri/System";
+export { logging as TauriLogging } from "./tauri/Logging";
+// Minecraft
+export { uuid as McUuid } from "./minecraft/Uuid";
+export * as McMsa from "./minecraft/Msa";

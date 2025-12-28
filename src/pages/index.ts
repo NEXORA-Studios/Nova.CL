@@ -1,5 +1,5 @@
 export { default as HomeIndex } from "./Home/index.vue";
-export { default as HomeAccount } from "./Home/Account.vue";
+export { default as HomeProfile } from "./Home/Profile/index.vue";
 
 export { default as DownloadMinecraft } from "./Download/Minecraft.vue";
 export { default as DownloadMod } from "./Download/Mod.vue";

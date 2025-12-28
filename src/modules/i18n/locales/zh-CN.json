@@ -1,5 +1,6 @@
 {
     "Header": {
+        "Back": "返回",
         "Download": {
             "Minecraft": "自动安装",
             "Installer": "手动安装包",
@@ -29,10 +30,13 @@
             "More": "更多"
         },
         "AccountType": {
-            "0": "正版登录",
-            "1": "离线登录",
-            "2": "统一通行证",
-            "3": "皮肤站"
+            "legacy": "离线账户",
+            "msa": "微软账户",
+            "yggdrasil": "皮肤站账户"
+        },
+        "NoProfile": {
+            "__Title__": "没有档案",
+            "__Hint__": "请先创建档案"
         }
     },
     "Main": {
@@ -40,7 +44,7 @@
             "Cards": {
                 "1": "切换实例",
                 "2": "管理实例",
-                "3": "切换账号",
+                "3": "选择档案",
                 "News": {
                     "Title": "Minecraft 更新提示",
                     "Description": "全新版本震撼发布：全面呈现本次更新中的全新特性、深度优化与关键修复，带你一览游戏进化的每一处跃迁。",
@@ -49,25 +53,88 @@
                 }
             }
         },
-        "r/Account": {
+        "r/Profile": {
             "TopButtons": {
-                "AddAccount": "添加账号",
-                "ImportAccount": "导入账号",
-                "ExportAccount": "导出账号"
+                "AddProfile": "添加档案",
+                "ImportProfile": "导入档案",
+                "ExportProfile": "导出档案"
             },
             "TableHeader": {
-                "Name": "账号名称",
+                "Name": "档案名称",
                 "LoginMethod": "登录方式"
             },
             "Modal": {
                 "Add": {
-                    "Title": "添加新账号",
-                    "Description": "选择账号类型",
+                    "Title": "添加新档案",
+                    "Description": "选择档案类型",
                     "MsLogin": "使用 Microsoft 登录",
-                    "Offline": "创建离线账号",
-                    "TrdParty": "登录第三方账号",
-                    "Cancel": "取消"
+                    "Offline": "创建离线档案",
+                    "TrdParty": "登录第三方皮肤站",
+                    "Cancel": "取消",
+                    "Create": "创建",
+                    "Back": "返回"
+                },
+                "Step2": {
+                    "Offline": {
+                        "Username": "玩家名",
+                        "Uuid": {
+                            "Input": "自定义 UUID",
+                            "Select": {
+                                "PickOne": "选择一种 UUID 生成模式",
+                                "Standrad": "行业规范",
+                                "Custom": "自定义"
+                            }
+                        }
+                    },
+                    "Msa": {
+                        "Waiting": "请在打开的窗口中完成登录",
+                        "Details": "详情: ",
+                        "Process": {
+                            "Step1": {
+                                "Processing": "正在处理: 微软登录 1/6: 获取登录令牌",
+                                "Error": "微软登录错误 | 步骤 1/6"
+                            },
+                            "Step2": {
+                                "Processing": "正在处理: 微软登录 2/6: 获取 XBL 令牌",
+                                "Error": "微软登录错误 | 步骤 2/6"
+                            },
+                            "Step3": {
+                                "Processing": "正在处理: 微软登录 3/6: 获取 XSTS 令牌",
+                                "Error": "微软登录错误 | 步骤 3/6"
+                            },
+                            "Step4": {
+                                "Processing": "正在处理: 微软登录 4/6: 获取 Minecraft 令牌",
+                                "Error": "微软登录错误 | 步骤 4/6"
+                            },
+                            "Step5": {
+                                "Processing": "正在处理: 微软登录 5/6: 验证",
+                                "Error": "微软登录错误 | 步骤 5/6"
+                            },
+                            "Step6": {
+                                "Processing": "正在处理: 微软登录 6/6: 获取档案",
+                                "Error": "微软登录错误 | 步骤 6/6"
+                            }
+                        }
+                    }
+                },
+                "Remove": {
+                    "Title": "注销/删除确认",
+                    "Content": {
+                        "Line1": "你是否确认要注销/删除该账号？",
+                        "Line2": "玩家名 {name} · 类型 {type}"
+                    },
+                    "Cancel": "取消",
+                    "Perform": "注销/删除"
                 }
+            },
+            "Profiles": {
+                "NoProfile": "没有档案"
+            },
+            "ActionButtons": {
+                "__Title__": "档案操作",
+                "SwitchProfileNext": "换一个账户",
+                "Remove": "移除档案",
+                "Logout": "注销登录"
             }
         },
         "Download/Minecraft": {
@@ -469,7 +536,8 @@
                 "Template": "音乐状态：{status}，当前播放：{name}。点击切换状态，右键下一曲。",
                 "Pause": "已暂停",
                 "Play": "正在播放"
-            }
+            },
+            "DownloadManager": "管理下载任务"
         }
     },
     "Components": {
@@ -486,6 +554,15 @@
         },
         "LoadingNoResult": {
             "NoResult": "没有结果"
+        },
+        "AccountCard": {
+            "Player": "玩家",
+            "AccountType": {
+                "Msa": "微软账户",
+                "Legacy": "离线账户",
+                "Yggdrasil": "皮肤站账户"
+            },
+            "Expire": "有效期"
         }
     },
     "InsiderWarning": {

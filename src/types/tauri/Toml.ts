@@ -116,13 +116,59 @@ export interface GlobalConfig {
 
 // ---------------------- Profile Config ----------------------
 
-/** 单个账户 */
-export interface Profile {
-    type: "msa" | "legacy";
-    refresh_token: string;
+export type ProfileType = "msa" | "legacy" | "yggdrasil";
+
+/** 通用账户类型 */
+interface BaseProfile {
+    /** 唯一存储 ID */
+    guid: string;
+    /** 账户类型 */
+    type: ProfileType;
+    /** 玩家 UUID */
     uuid: string;
-    id?: string;
+    /** 玩家名称 */
+    name: string;
+    /** 是否正在使用 */
+    picked: boolean;
+    /** 访问令牌（加密存储） */
+    access_token: string;
+    /** 刷新令牌（加密存储） */
+    refresh_token: string;
 }
+
+/** MSA 账户 */
+export interface MsaProfile extends BaseProfile {
+    /** 账户类型 */
+    type: "msa";
+    /** MSA 令牌过期时间（Unix 时间戳） */
+    msa_expires_at: number;
+    /** MC 令牌过期时间（Unix 时间戳） */
+    mc_expires_at: number;
+    /** 皮肤下载 Url */
+    skin_info: string;
+    /** 披风下载 Url */
+    cape_info: string;
+}
+
+/** Legacy 账户 */
+export interface LegacyProfile extends BaseProfile {
+    /** 账户类型 */
+    type: "legacy";
+}
+
+/** Yggdrasil 账户 */
+export interface YggdrasilProfile extends BaseProfile {
+    /** 账户类型 */
+    type: "yggdrasil";
+    /** 登录皮肤站 */
+    yggdrasil_site?: string;
+    /** 注册链接 */
+    yggdrasil_register?: string;
+    /** 皮肤站名称 */
+    yggdrasil_site_name?: string;
+}
+
+export type Profile = MsaProfile | LegacyProfile | YggdrasilProfile;
 
 /** 账户配置 */
 export interface ProfileConfig {
@@ -136,13 +182,28 @@ export interface InstanceConfig {
     name: string;
     description: string;
     mc_version: string;
-    loader_type: "forge" | "fabric" | "quilt" | "vanilla";
+    loader_type: "neoforge" | "forge" | "fabric" | "quilt" | "vanilla";
     loader_version: string;
     launch_count: number;
     category: number;
-    path?: string;
     icon?: string;
     last_launch?: string;
+}
+
+/** 文件夹配置 */
+export interface FolderConfig {
+    /** .minecraft 文件夹所处位置 */
+    path: string;
+    /** 启动器内显示的名称 */
+    name: string;
+    /** 启动器内显示的相对顺序，越小越靠前 */
+    order: number;
+}
+
+/** 集合配置 */
+export interface CollectionConfig {
+    /** 文件夹列表 */
+    folders: FolderConfig[];
 }
 
 /** 配置错误 */

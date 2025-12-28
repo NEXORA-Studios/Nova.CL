@@ -6,9 +6,9 @@ export class HttpClient {
     /**
      * 通用请求方法
      */
-    static async request(req: ITauriTypes.HTTP.HttpRequest): Promise<ITauriTypes.HTTP.HttpResponse> {
+    static async request<T>(req: ITauriTypes.HTTP.HttpRequest): Promise<ITauriTypes.HTTP.HttpResponse<T>> {
         try {
-            const response = await invoke<ITauriTypes.HTTP.HttpResponse>("http_request", { req });
+            const response = await invoke<ITauriTypes.HTTP.HttpResponse<T>>("http_request", { req });
             return response;
         } catch (error) {
             throw error as ITauriTypes.HTTP.HttpError;
@@ -18,9 +18,9 @@ export class HttpClient {
     /**
      * GET 请求
      */
-    static async get(url: string, headers?: Record<string, string>): Promise<ITauriTypes.HTTP.HttpResponse> {
+    static async get<T>(url: string, headers?: Record<string, string>): Promise<ITauriTypes.HTTP.HttpResponse<T>> {
         try {
-            const response = await invoke<ITauriTypes.HTTP.HttpResponse>("http_get", { url, headers });
+            const response = await invoke<ITauriTypes.HTTP.HttpResponse<T>>("http_get", { url, headers });
             return response;
         } catch (error) {
             throw error as ITauriTypes.HTTP.HttpError;
@@ -30,13 +30,9 @@ export class HttpClient {
     /**
      * POST 请求
      */
-    static async post(
-        url: string,
-        headers?: Record<string, string>,
-        body?: any
-    ): Promise<ITauriTypes.HTTP.HttpResponse> {
+    static async post<T>(url: string, headers?: Record<string, string>, body?: any): Promise<ITauriTypes.HTTP.HttpResponse<T>> {
         try {
-            const response = await invoke<ITauriTypes.HTTP.HttpResponse>("http_post", { url, headers, body });
+            const response = await invoke<ITauriTypes.HTTP.HttpResponse<T>>("http_post", { url, headers, body });
             return response;
         } catch (error) {
             throw error as ITauriTypes.HTTP.HttpError;
@@ -46,13 +42,9 @@ export class HttpClient {
     /**
      * PUT 请求
      */
-    static async put(
-        url: string,
-        headers?: Record<string, string>,
-        body?: any
-    ): Promise<ITauriTypes.HTTP.HttpResponse> {
+    static async put<T>(url: string, headers?: Record<string, string>, body?: any): Promise<ITauriTypes.HTTP.HttpResponse<T>> {
         try {
-            const response = await invoke<ITauriTypes.HTTP.HttpResponse>("http_put", { url, headers, body });
+            const response = await invoke<ITauriTypes.HTTP.HttpResponse<T>>("http_put", { url, headers, body });
             return response;
         } catch (error) {
             throw error as ITauriTypes.HTTP.HttpError;
@@ -62,7 +54,7 @@ export class HttpClient {
     /**
      * DELETE 请求
      */
-    static async delete(url: string, headers?: Record<string, string>): Promise<ITauriTypes.HTTP.HttpResponse> {
+    static async delete<T>(url: string, headers?: Record<string, string>): Promise<ITauriTypes.HTTP.HttpResponse<T>> {
         try {
             const response = await invoke<ITauriTypes.HTTP.HttpResponse>("http_delete", { url, headers });
             return response;
@@ -74,13 +66,9 @@ export class HttpClient {
     /**
      * PATCH 请求
      */
-    static async patch(
-        url: string,
-        headers?: Record<string, string>,
-        body?: any
-    ): Promise<ITauriTypes.HTTP.HttpResponse> {
+    static async patch<T>(url: string, headers?: Record<string, string>, body?: any): Promise<ITauriTypes.HTTP.HttpResponse<T>> {
         try {
-            const response = await invoke<ITauriTypes.HTTP.HttpResponse>("http_patch", { url, headers, body });
+            const response = await invoke<ITauriTypes.HTTP.HttpResponse<T>>("http_patch", { url, headers, body });
             return response;
         } catch (error) {
             throw error as ITauriTypes.HTTP.HttpError;
@@ -88,12 +76,58 @@ export class HttpClient {
     }
 }
 
+// HTTP 服务器类
+export class HttpServer {
+    /**
+     * 启动 HTTP 服务器，用于 OAuth 授权代码流
+     */
+    static async start(port: number): Promise<ITauriTypes.HTTP.HttpServerStartResult> {
+        try {
+            const response = await invoke<ITauriTypes.HTTP.HttpServerStartResult>("http_server_start", { port });
+            return response;
+        } catch (error) {
+            throw error as Error;
+        }
+    }
+
+    /**
+     * 停止 HTTP 服务器
+     */
+    static async stop(): Promise<ITauriTypes.HTTP.HttpServerStopResult> {
+        try {
+            const response = await invoke<ITauriTypes.HTTP.HttpServerStopResult>("http_server_stop");
+            return response;
+        } catch (error) {
+            throw error as Error;
+        }
+    }
+
+    /**
+     * 获取 HTTP 服务器状态
+     */
+    static async getStatus(): Promise<ITauriTypes.HTTP.HttpServerStatusResult> {
+        try {
+            const response = await invoke<ITauriTypes.HTTP.HttpServerStatusResult>("http_server_status");
+            return response;
+        } catch (error) {
+            throw error as Error;
+        }
+    }
+}
+
 // 导出便捷的请求方法
-export const http = {
+export const httpClient = {
     request: HttpClient.request,
     get: HttpClient.get,
     post: HttpClient.post,
     put: HttpClient.put,
     delete: HttpClient.delete,
     patch: HttpClient.patch,
+};
+
+// 导出便捷的服务器方法
+export const httpServer = {
+    start: HttpServer.start,
+    stop: HttpServer.stop,
+    getStatus: HttpServer.getStatus,
 };

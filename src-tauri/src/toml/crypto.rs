@@ -5,6 +5,7 @@ use chacha20poly1305::{aead::Aead, ChaCha20Poly1305, Key, KeyInit, Nonce};
 use rand::{thread_rng, Rng};
 use serde::{Deserializer, Serializer};
 
+use crate::env::command::get_env_var;
 use crate::toml::error::ConfigError;
 
 /// 加密密钥长度
@@ -19,8 +20,10 @@ static ENCRYPTION_KEY: OnceLock<Key> = OnceLock::new();
 
 /// 初始化加密密钥
 pub fn init_encryption_key() -> Result<(), ConfigError> {
-    let key_hex = std::env::var("APP_ENCRYPTION_KEY")
-        .map_err(|_| ConfigError::KeyGenerationError("Missing APP_ENCRYPTION_KEY".into()))?;
+    // 尝试先从 .env 读取，如果没有再回落到系统环境变量
+    let key_hex = get_env_var("APP_ENCRYPTION_KEY")
+        .or_else(|| std::env::var("APP_ENCRYPTION_KEY").ok())
+        .ok_or_else(|| ConfigError::KeyGenerationError("Missing APP_ENCRYPTION_KEY".into()))?;
 
     let raw = hex::decode(key_hex)
         .map_err(|_| ConfigError::KeyGenerationError("Invalid hex key".into()))?;

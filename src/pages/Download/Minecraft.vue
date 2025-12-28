@@ -16,10 +16,7 @@
     // ---------- 数据分类 ----------
     const normalVersions = computed(() =>
         versions.value.filter(
-            (it) =>
-                new Date(it.releaseTime).getMonth() !== 3 ||
-                new Date(it.releaseTime).getDate() !== 1 ||
-                it.id === "15w14a"
+            (it) => new Date(it.releaseTime).getMonth() !== 3 || new Date(it.releaseTime).getDate() !== 1 || it.id === "15w14a"
         )
     );
 
@@ -27,16 +24,11 @@
 
     const snapshotVersions = computed(() => normalVersions.value.filter((it) => it.type === "snapshot"));
 
-    const oldVersions = computed(() =>
-        normalVersions.value.filter((it) => ["old_beta", "old_alpha"].includes(it.type))
-    );
+    const oldVersions = computed(() => normalVersions.value.filter((it) => ["old_beta", "old_alpha"].includes(it.type)));
 
     const aprilfoolsVersions = computed(() =>
         versions.value.filter(
-            (it) =>
-                new Date(it.releaseTime).getMonth() === 3 &&
-                new Date(it.releaseTime).getDate() === 1 &&
-                it.id !== "15w14a"
+            (it) => new Date(it.releaseTime).getMonth() === 3 && new Date(it.releaseTime).getDate() === 1 && it.id !== "15w14a"
         )
     );
 
@@ -64,9 +56,7 @@
         isLoading.value = true;
         const requester = new Requester();
         versions.value = (
-            await requester.get<IOjngApi.VersionManifest>(
-                "https://launchermeta.mojang.com/mc/game/version_manifest_v2.json"
-            )
+            await requester.get<IOjngApi.VersionManifest>("https://launchermeta.mojang.com/mc/game/version_manifest_v2.json")
         ).data.versions;
         isLoading.value = false;
     });
@@ -80,9 +70,7 @@
 
         <div class="w-full mt-4 max-h-[calc(100vh-128px-var(--spacing)*29)] rounded-md overflow-y-auto pr-2" v-else>
             <!-- 最新 -->
-            <div
-                v-if="searchInput.length === 0"
-                class="collapse collapse-open bg-base-100 border-base-300 border w-full mb-2">
+            <div v-if="searchInput.length === 0" class="collapse collapse-open bg-base-100 border-base-300 border w-full mb-2 outline-none">
                 <div class="collapse-title font-semibold">
                     {{ t("Main.Download/Minecraft.Cards.Newest") }}
                 </div>
@@ -107,7 +95,7 @@
                 v-if="searchInput.length === 0"
                 v-for="(list, type) in allVersions"
                 :key="type"
-                class="collapse collapse-arrow bg-base-100 border-base-300 border w-full mb-2">
+                class="collapse collapse-arrow bg-base-100 border-base-300 border w-full mb-2 outline-none">
                 <input type="checkbox" @change="onToggle(type)" />
 
                 <div class="collapse-title font-semibold">{{ t(type) }} ({{ list.length }})</div>
@@ -118,7 +106,7 @@
             </div>
 
             <!-- 搜索结果 -->
-            <div v-else class="collapse collapse-open bg-base-100 border-base-300 border w-full mb-2">
+            <div v-else class="collapse collapse-open bg-base-100 border-base-300 border w-full mb-2 outline-none">
                 <div class="collapse-title font-semibold">
                     {{ t("Main.Download/Minecraft.Cards.FilteredVersions") }}
                     ({{ searchVersions.length }})

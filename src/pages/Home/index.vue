@@ -33,7 +33,7 @@
                 {{ t("Main.Home.Cards.2") }}
             </GraphicalButton>
             <GraphicalButton
-                @click="$router.push('/account')"
+                @click="$router.push('/profile')"
                 style="
                     --nova-background-image: url(&quot;/images/MainCard_Background_3.webp&quot;);
                     --nova-background-posY: -24px;

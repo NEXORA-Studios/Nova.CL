@@ -22,8 +22,7 @@ pub use error::{ConfigError, GlobalConfigError, InstanceConfigError, ProfileConf
 #[allow(unused_imports)]
 pub use manager::{
     delete_instance_config, get_global_config, get_instance_config, get_profile_config,
-    list_instance_configs, save_global_config, save_instance_config, save_profile_config,
-    ConfigManager,
+    save_global_config, save_instance_config, save_profile_config, ConfigManager,
 };
 #[cfg(debug_assertions)]
 #[allow(unused_imports)]

@@ -1,4 +1,8 @@
 <script setup lang="ts">
+    import { useTheme } from "@/composables";
+
+    const { matchTheme } = useTheme();
+
     defineProps<{
         ignorable?: boolean;
     }>();
@@ -30,12 +34,11 @@
         <button
             class="btn btn-sm rounded-full justify-start! group transition-all outline-none"
             :class="{
-                'dark:btn-neutral dark:bg-neutral/10 dark:hover:bg-neutral/35 dark:text-base-content':
-                    !checked && !ignored,
-                'bg-success/15 dark:bg-success/10 hover:bg-success/25 dark:hover:bg-success/35 border-success/50 dark:border-success/25':
-                    checked,
-                'bg-error/15 dark:bg-error/10 hover:bg-error/25 dark:hover:bg-error/35 border-error/50 dark:border-error/25':
-                    ignored,
+                'btn-neutral bg-neutral/10 hover:bg-neutral/35 text-base-content': !checked && !ignored && matchTheme('dark'),
+                'bg-success/15 hover:bg-success/25  border-success/50 ': checked,
+                'bg-success/10 hover:bg-success/35 border-success/25': checked && matchTheme('dark'),
+                'bg-error/15  hover:bg-error/25 border-error/50': ignored,
+                'bg-error/10 hover:bg-error/35 border-error/25': ignored && matchTheme('dark'),
                 'col-span-2': checked || ignored || !$props.ignorable,
             }"
             @click="toggleMain">
@@ -50,7 +53,8 @@
                 viewBox="0 0 24 24"
                 class="check-icon ml-auto size-4 stroke-success -mr-1"
                 :class="{
-                    'transition-opacity dark:opacity-10 group-hover:opacity-100': !(checked || ignored),
+                    'transition-opacity  group-hover:opacity-100': !(checked || ignored),
+                    'opacity-10': !(checked || ignored) && matchTheme('dark'),
                 }"
                 aria-hidden="true">
                 <path d="M20 6 9 17l-5-5"></path>
@@ -64,7 +68,8 @@
                 stroke-width="2"
                 class="size-4 -mx-1 stroke-error"
                 :class="{
-                    'transition-opacity opacity-50 dark:opacity-10 group-hover:opacity-100': !(checked || ignored),
+                    'transition-opacity opacity-50 group-hover:opacity-100': !(checked || ignored),
+                    'opacity-10': !(checked || ignored) && matchTheme('dark'),
                     'ml-auto': ignored,
                 }"
                 viewBox="0 0 24 24"
@@ -74,7 +79,10 @@
             </svg>
         </button>
         <button
-            class="btn btn-sm w-full rounded-full justify-start! group transition-all dark:btn-neutral dark:bg-neutral/10 dark:hover:bg-neutral/35 outline-none"
+            class="btn btn-sm w-full rounded-full justify-start! group transition-all outline-none"
+            :class="{
+                'btn-neutral bg-neutral/10 hover:bg-neutral/35': matchTheme('dark'),
+            }"
             @click="toggleIgnore"
             v-if="!(checked || ignored) && $props.ignorable">
             <svg
@@ -83,7 +91,10 @@
                 stroke-linecap="round"
                 stroke-linejoin="round"
                 stroke-width="2"
-                class="size-4 -mx-1 stroke-error transition-opacity dark:opacity-10 group-hover:opacity-100"
+                class="size-4 -mx-1 stroke-error transition-opacity group-hover:opacity-100"
+                :class="{
+                    'opacity-10': matchTheme('dark'),
+                }"
                 viewBox="0 0 24 24"
                 aria-hidden="true">
                 <circle cx="12" cy="12" r="10"></circle>

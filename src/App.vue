@@ -3,9 +3,17 @@
     import { channelWrapper } from "@/utils";
     import { useI18n } from "vue-i18n";
     import { ThemeController } from "@/components";
+    import { useTimer } from "./composables";
 
     const $meta = import.meta.env;
     const { t } = useI18n();
+    const { onShortInterval } = useTimer();
+
+    onShortInterval(() => {
+        document.querySelectorAll(".btn:not(.has-tabindex)").forEach((button) => {
+            button.setAttribute("tabindex", "-1");
+        });
+    });
 </script>
 
 <template>
@@ -22,9 +30,7 @@
                         <p>
                             {{
                                 t("InsiderWarning.Line1", {
-                                    Channel:
-                                        t(channelWrapper($meta.NOVA_CHANNEL)) +
-                                        t("Main.More/About.UpdateChannel.Suffix"),
+                                    Channel: t(channelWrapper($meta.NOVA_CHANNEL)) + t("Main.More/About.UpdateChannel.Suffix"),
                                     Version: t("Main.More/About.Version.Title") + " " + $meta.NOVA_VERSION,
                                 })
                             }}
@@ -55,3 +61,4 @@
         transform: translateX(20px);
     }
 </style>
+

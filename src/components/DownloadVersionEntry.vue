@@ -3,7 +3,7 @@
     import { useI18n } from "vue-i18n";
     import type { IOjngApi } from "@/types";
     import { unifyString } from "@/utils";
-    import { openUrl } from "@tauri-apps/plugin-opener"
+    import { openUrl } from "@tauri-apps/plugin-opener";
 
     const { locale } = useI18n();
 
@@ -49,8 +49,9 @@
             </div>
         </div>
         <i
-            class="icon-[material-symbols--dashboard-customize-outline-rounded] size-5 ml-auto cursor-pointer transition-all hover:text-primary active:translate-y-0.5" />
+            class="icon-[material-symbols--dashboard-customize-outline-rounded] size-5 ml-auto cursor-pointer transition-all hover:text-primary active:translate-y-0.5"></i>
         <i
-            class="icon-[material-symbols--info-outline-rounded] size-5.5 cursor-pointer transition-all hover:text-primary active:translate-y-0.5" @click="openUrl(infoLink)" />
+            class="icon-[material-symbols--info-outline-rounded] size-5.5 cursor-pointer transition-all hover:text-primary active:translate-y-0.5"
+            @click="openUrl(infoLink)"></i>
     </li>
 </template>
