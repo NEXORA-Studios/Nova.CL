@@ -32,9 +32,9 @@ export async function login(
                 "https://login.microsoftonline.com/consumers/oauth2/v2.0/token",
                 { "Content-Type": "application/x-www-form-urlencoded" },
                 {
-                    client_id: $env.MS_CLIENT_ID,
-                    client_secret: $env.MS_CLIENT_SECRET,
-                    redirect_uri: $env.MS_REDIRECT_URI,
+                    client_id: $env.OAUTH_MS_CLIENT_ID,
+                    client_secret: $env.OAUTH_MS_CLIENT_SECRET,
+                    redirect_uri: $env.OAUTH_REDIRECT_URI_BASE + $env.OAUTH_MS_REDIRECT_URI,
                     ...payload,
                     grant_type,
                     scope: "XboxLive.signin offline_access",

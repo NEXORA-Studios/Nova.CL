@@ -12,6 +12,7 @@ export { default as ModrinthProjectItem } from "./ModrinthProjectItem.vue";
 export { default as ModrinthSearchFilter } from "./ModrinthSearchFilter.vue";
 export { default as ModrinthSearchOption } from "./ModrinthSearchOption.vue";
 export { default as ModrinthSearchPage } from "./ModrinthSearchPage.vue";
+export { default as Player } from "./Player.vue";
 export { default as SearchInput } from "./SearchInput.vue";
 export { default as ThemeController } from "./ThemeController.vue";
 export { default as VirtualDownloadVersionEntryList } from "./VirtualDownloadVersionEntryList.vue";

@@ -6,7 +6,7 @@ export interface HttpRequest {
     body?: any;
 }
 
-export interface HttpResponse <T extends any = any> {
+export interface HttpResponse<T extends any = any> {
     status: number;
     headers: Record<string, string>;
     body: T;
@@ -19,24 +19,30 @@ export interface HttpError {
 }
 
 // HTTP 服务器相关类型
+// src/types/http.ts
+
 export interface HttpServerStartResult {
-    status: string;
+    status: "ok";
     message: string;
-    params: Record<string, string>;
+    port: number;
 }
 
 export interface HttpServerStopResult {
-    status: string;
+    status: "ok";
     message: string;
 }
 
 export interface HttpServerStatusResult {
     status: "running" | "stopped";
-    port?: number;
+    port?: number; // running 时才有
 }
 
-export interface HttpServerEvent<T> {
+export interface OAuthCodeReceivedPayload {
+    path: string; // 例如 "/auth/callback"
+    query: Record<string, string>; // 查询参数，如 { code: "...", state: "..." }
+}
+
+export interface HttpServerEvent<T = any> {
     event: string;
     payload: T;
 }
-
