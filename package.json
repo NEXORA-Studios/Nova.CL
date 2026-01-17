@@ -1,13 +1,18 @@
 {
-    "name": "novacl",
+    "name": "@nexora-studios/nova-cl",
     "private": true,
     "version": "0.3.1",
     "type": "module",
     "scripts": {
-        "dev": "vite",
-        "build": "vue-tsc --noEmit && vite build",
+        "dev": "tauri dev",
+        "vite:dev": "vite",
+        "build": "tauri build",
+        "vite:build": "vue-tsc --noEmit && vite build",
         "preview": "vite preview",
-        "tauri": "tauri"
+        "tauri": "tauri",
+        "tauri:dev": "tauri dev",
+        "tauri:build": "tauri build",
+        "copy:auth": "node ./scripts/copy-auth.js"
     },
     "dependencies": {
         "@tauri-apps/api": "^2",
@@ -16,6 +21,7 @@
         "@tauri-apps/plugin-updater": "~2",
         "@tauri-apps/plugin-window-state": "~2",
         "axios": "^1.13.2",
+        "three": "^0.182.0",
         "vue": "^3.5.13"
     },
     "devDependencies": {
@@ -32,6 +38,7 @@
         "@tauri-apps/cli": "^2",
         "@types/node": "^25.0.3",
         "@types/spark-md5": "^3.0.5",
+        "@types/three": "^0.182.0",
         "@vitejs/plugin-vue": "^5.2.1",
         "@vueuse/core": "^14.1.0",
         "daisyui": "^5.0.27",
@@ -46,10 +53,8 @@
         "vite": "^6.3.4",
         "vue-i18n": "^11.2.7",
         "vue-router": "^4.5.1",
-        "vue-tsc": "^2.1.10"
-    },
-    "trustedDependencies": [
-        "@parcel/watcher",
-        "esbuild"
-    ]
+        "vue-tsc": "^2.1.10",
+        "fs-extra": "^11.2.0"
+    }
 }
+

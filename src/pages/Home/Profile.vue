@@ -1,17 +1,16 @@
 <script setup lang="ts">
     import { openUrl } from "@tauri-apps/plugin-opener";
-    import { listen, UnlistenFn } from "@tauri-apps/api/event";
     import { v7 as uuidv7 } from "uuid";
     import { computed, onMounted, ref, watch } from "vue";
-    import { useI18n } from "vue-i18n";
-    import { AccountCard, BankCard } from "@/components";
+    import { AccountCard, BankCard, Player } from "@/components";
     import { ITauriTypes } from "@/types";
-    import { McMsa, McUuid, TauriHttpServer, TauriLogging, TauriTOML, useAccountStore } from "@/modules";
+    import { McMsa, McUuid, TauriHttpServer, TauriTOML, useAccountStore } from "@/modules";
     import { MsaLoginResult } from "@/types/minecraft/Msa";
     import { expiresInToUnix } from "@/utils";
     import { useTheme } from "@/composables";
+    import { useI18n } from "vue-i18n";
 
-    const { t } = useI18n();
+    const { locale } = useI18n();
     const { matchTheme } = useTheme();
 
     // ================ 账户模块 ================
@@ -46,36 +45,54 @@
     const msaFailure = ref<boolean>(false);
     const msaFailureCode = ref<number>(0);
     const msaFailureText = ref<string>("");
-    let unlisten: UnlistenFn;
     async function setupMsaService() {
-        const LOGIN_URI = `https://login.microsoftonline.com/consumers/oauth2/v2.0/authorize?client_id=${$env.MS_CLIENT_ID}&response_type=code&redirect_uri=${$env.MS_REDIRECT_URI}&response_mode=query&scope=XboxLive.signin+offline_access`;
-        await TauriLogging.info({ category: "MSA Login", message: "开始微软登录流程" });
-        TauriHttpServer.start(36993);
-        unlisten = await listen<{ code: string }>("oauth:code_received", (event) => handleMsaCodeReceived(event.payload));
+        const LOGIN_URI =
+            "https://login.microsoftonline.com/consumers/oauth2/v2.0/authorize?" +
+            new URLSearchParams({
+                client_id: $env.OAUTH_MS_CLIENT_ID,
+                response_type: "code",
+                redirect_uri: $env.OAUTH_REDIRECT_URI_BASE + $env.OAUTH_MS_REDIRECT_URI,
+                response_mode: "query",
+                scope: "XboxLive.signin offline_access",
+            }).toString();
+        console.tInfo({ category: "MSA Login", message: "开始微软登录流程" });
+        const res = await TauriHttpServer.start(36993, locale.value);
+        if (res.message === "HTTP Server already running") {
+            TauriHttpServer.unlistenOAuthCode();
+            await TauriHttpServer.stop();
+            await TauriHttpServer.start(36993, locale.value);
+        }
+        await TauriHttpServer.listenOAuthCode((payload) => handleMsaCodeReceived(payload));
         await openUrl(LOGIN_URI);
     }
-    async function handleMsaCodeReceived(payload: { code: string }) {
+    async function handleMsaCodeReceived(payload: ITauriTypes.HTTP.OAuthCodeReceivedPayload) {
+        if (payload.path !== "/oauth/callback") return;
+        if (!payload.query) return;
+        const query = new URLSearchParams(payload.query);
+        const code = query.get("code");
+        if (!code) return;
+
         // 关闭监听事件
-        await TauriLogging.info({ category: "MSA Login", message: "收到微软登录授权码" });
-        unlisten();
-        TauriHttpServer.stop();
+        console.tInfo({ category: "MSA Login", message: "收到微软登录授权码" });
 
         let msaLoginResult: MsaLoginResult;
         try {
             async function updateMsaUiText(step: number) {
                 msaUiText.value = `Main.r/Profile.Modal.Step2.Msa.Process.Step${step}.Processing`;
-                await TauriLogging.info({ category: "MSA Login", message: `微软登录流程 Step ${step}/6` });
+                console.tInfo({ category: "MSA Login", message: `微软登录流程 Step ${step}/6` });
             }
-            msaLoginResult = await McMsa.loginFromCode(payload.code, updateMsaUiText);
+            msaLoginResult = await McMsa.loginFromCode(code, updateMsaUiText);
         } catch (error) {
             const step = (error as McMsa.MsaLoginError).step;
             msaUiText.value = `Main.r/Profile.Modal.Step2.Msa.Process.Step${step}.Error`;
             msaFailure.value = true;
             msaFailureCode.value = (error as McMsa.MsaLoginError).code;
-            msaFailureText.value = t("Main.r/Profile.Modal.Step2.Msa.Details") + (error as McMsa.MsaLoginError).message;
-            await TauriLogging.error({ category: "MSA Login", message: `微软登录流程 Step ${step}/6 失败` });
-            await TauriLogging.error({ category: "MSA Login", message: `  ↪ 错误码: ${msaFailureCode.value}` });
-            await TauriLogging.error({ category: "MSA Login", message: `  ↪ 错误信息: ${msaFailureText.value}` });
+            msaFailureText.value = (error as McMsa.MsaLoginError).message;
+            // console.group("MSA Login Error");
+            console.tError({ category: "MSA Login", message: `微软登录流程 Step ${step}/6 失败` });
+            console.tError({ category: "MSA Login", message: `  ↪ 错误码: ${msaFailureCode.value}` });
+            console.tError({ category: "MSA Login", message: `  ↪ 错误信息: ${msaFailureText.value}` });
+            // console.groupEnd();
             return;
         }
 
@@ -114,8 +131,8 @@
         ProfileConfig.value = _ProfileConfig;
         Profiles.value = _Profiles;
         createModal.value?.close();
-        cleanup();
-        await TauriLogging.info({ category: "MSA Login", message: "微软登录流程完成" });
+        setTimeout(cleanup, 50) // 延迟清理以避免 UI 跳动
+        console.info({ category: "MSA Login", message: "微软登录流程完成" });
     }
 
     // 离线档案相关
@@ -181,7 +198,7 @@
         createModal.value?.showModal();
     };
 
-    const cleanup = () => {
+    const cleanup = async () => {
         step.value = 1;
         type.value = undefined;
         msaFailure.value = false;
@@ -191,10 +208,10 @@
         offlineUuidMode.value = "";
         offlineUuid.value = undefined;
         try {
-            unlisten();
-            TauriHttpServer.stop();
+            TauriHttpServer.unlistenOAuthCode();
+            await TauriHttpServer.stop();
         } catch (e) {
-            console.warn("清理 HTTP 服务器失败", e);
+            console.tWarn({ category: "Profile", message: `清理 HTTP 服务器失败: ${e}` });
         }
     };
 
@@ -272,6 +289,84 @@
         Profiles.value = _Profiles;
     }
 
+    // 玩家模型
+    interface SkinInfo {
+        id: string;
+        state: "INACTIVE" | "ACTIVE";
+        textureKey: string;
+        url: string;
+        variant: "WIDE" | "SLIM";
+    }
+    interface CapeInfo {
+        alias: string;
+        id: string;
+        state: "INACTIVE" | "ACTIVE";
+        url: string;
+    }
+
+    const CurrentProfile = computed(() => {
+        return Profiles.value.find((i) => i.picked);
+    });
+    const CurrentProfileName = computed(() => {
+        return CurrentProfile.value?.name;
+    });
+    const CurrentProfileType = computed(() => {
+        return CurrentProfile.value?.type;
+    });
+    const CurrentProfileSkin = computed(() => {
+        if (!CurrentProfile.value) return undefined;
+        switch (CurrentProfile.value.type) {
+            case "msa":
+                const skin_info: SkinInfo[] = JSON.parse(CurrentProfile.value.skin_info || "[]");
+                const active_skin = skin_info.find((i) => i.state === "ACTIVE");
+                if (!active_skin) return [];
+                return [active_skin.url, active_skin.variant];
+            default:
+                return undefined;
+        }
+    });
+    const CurrentProfileCape = computed(() => {
+        if (!CurrentProfile.value) return undefined;
+        switch (CurrentProfile.value.type) {
+            case "msa":
+                const cape_info: CapeInfo[] = JSON.parse(CurrentProfile.value.cape_info || "[]");
+                const active_cape = cape_info.find((i) => i.state === "ACTIVE");
+                if (!active_cape) return undefined;
+                return active_cape.url;
+            default:
+                return undefined;
+        }
+    });
+
+    // 跳转函数
+    function onCreateNewProfile(startType: "msa" | "legacy" | "yggdrasil") {
+        switch (startType) {
+            case "msa":
+                type.value = "msa";
+                step.value = 2;
+                setupMsaService();
+                break;
+            case "legacy":
+                if (Profiles.value.some((i) => i.type === "msa")) {
+                    type.value = "legacy";
+                    step.value = 2;
+                } else {
+                    return;
+                }
+                break;
+            case "yggdrasil":
+                // 暂时还没做好，先不让跳转
+                return;
+                if (Profiles.value.some((i) => i.type === "msa")) {
+                    type.value = "yggdrasil";
+                    step.value = 2;
+                    break;
+                } else {
+                    return;
+                }
+        }
+    }
+
     // ======== 钩子 ==========
     onMounted(async () => {
         ProfileConfig.value = await TauriTOML.getProfileConfig();
@@ -281,18 +376,18 @@
 </script>
 
 <template>
-    <div class="w-full h-full p-6">
+    <div class="w-full h-[calc(100vh-128px-64px)] p-6">
         <div class="card w-full bg-base-100">
             <div class="card-body p-2! flex flex-row">
                 <button class="btn btn-sm btn-ghost" @click="openCreateModal">
                     <i class="icon-[material-symbols--add-circle-outline-rounded] size-5 -ml-1 mr-1"></i>
                     <span class="text-sm">{{ $t("Main.r/Profile.TopButtons.AddProfile") }}</span>
                 </button>
-                <button class="btn btn-sm btn-ghost">
+                <button class="btn btn-sm btn-ghost" disabled>
                     <i class="icon-[material-symbols--drive-file-move-outline-rounded] size-5 -ml-1 mr-1"></i>
                     <span class="text-sm">{{ $t("Main.r/Profile.TopButtons.ImportProfile") }}</span>
                 </button>
-                <button class="btn btn-sm btn-ghost">
+                <button class="btn btn-sm btn-ghost" disabled>
                     <i class="icon-[material-symbols--drive-file-move-rtl-outline-rounded] size-5 -ml-1 mr-1"></i>
                     <span class="text-sm">{{ $t("Main.r/Profile.TopButtons.ExportProfile") }}</span>
                 </button>
@@ -304,42 +399,51 @@
             </div>
         </div>
 
-        <BankCard
-            class="w-full! h-[calc(100%-62px)]! aspect-auto! mt-4"
-            :style="{ '--bgc-perc': matchTheme('dark') ? '1.03%' : '0.75%' }"
-            v-if="Profiles.length === 0">
-            <div class="w-full h-full flex flex-col gap-4 justify-center items-center">
-                <i class="icon-[material-symbols--frame-exclamation-rounded] size-22"></i>
-                <span class="text-xl">{{ $t("Main.r/Profile.Profiles.NoProfile") }}</span>
-            </div>
-        </BankCard>
-        <div class="grid grid-cols-[406px_1fr] gap-4 mt-4" v-else>
-            <section>
-                <div class="stack w-101.5 h-57.5">
-                    <AccountCard
-                        :style="{ '--bgc-perc': matchTheme('dark') ? '4.23%' : '5.79%' }"
-                        v-for="card in reorderPicked(Profiles)"
-                        :key="card.guid"
-                        :profile="card" />
+        <div class="flex-1 mt-4">
+            <BankCard
+                class="w-full! h-[calc(100%-62px)]! aspect-auto! mt-4"
+                :style="{ '--bgc-perc': matchTheme('dark') ? '1.03%' : '0.75%' }"
+                v-if="Profiles.length === 0">
+                <div class="w-full h-full flex flex-col gap-4 justify-center items-center">
+                    <i class="icon-[material-symbols--frame-exclamation-rounded] size-22"></i>
+                    <span class="text-xl">{{ $t("Main.r/Profile.Profiles.NoProfile") }}</span>
                 </div>
-                <div class="card w-full bg-base-100 mt-2">
-                    <div class="card-body">
-                        <h2 class="card-title">{{ $t("Main.r/Profile.ActionButtons.__Title__") }}</h2>
-                        <button class="btn btn-soft btn-primary mt-2 w-full" @click="onSwitchProfile" :disabled="Profiles.length == 1">
-                            <span class="text-sm">{{ $t("Main.r/Profile.ActionButtons.SwitchProfileNext") }}</span>
-                        </button>
-                        <button class="btn btn-soft btn-error mt-2 w-full" @click="onRemoveProfile" :disabled="Profiles.length == 1">
-                            <span class="text-sm">
-                                {{
-                                    AccountStore.AccountType === "legacy"
-                                        ? $t("Main.r/Profile.ActionButtons.Remove")
-                                        : $t("Main.r/Profile.ActionButtons.Logout")
-                                }}
-                            </span>
-                        </button>
+            </BankCard>
+            <div class="grid grid-cols-[410px_1fr] grid-rows-[1fr] gap-4 h-full" v-else>
+                <section class="h-full">
+                    <div class="stack w-101.5 h-57.5">
+                        <AccountCard
+                            :style="{ '--bgc-perc': matchTheme('dark') ? '4.23%' : '5.79%' }"
+                            v-for="card in reorderPicked(Profiles)"
+                            :key="card.guid"
+                            :profile="card" />
                     </div>
-                </div>
-            </section>
+                    <div class="card w-full bg-base-100 mt-2">
+                        <div class="card-body">
+                            <h2 class="card-title">{{ $t("Main.r/Profile.ActionButtons.__Title__") }}</h2>
+                            <button class="btn btn-soft btn-primary mt-2 w-full" @click="onSwitchProfile" :disabled="Profiles.length == 1">
+                                <span class="text-sm">{{ $t("Main.r/Profile.ActionButtons.SwitchProfileNext") }}</span>
+                            </button>
+                            <button class="btn btn-soft btn-error mt-2 w-full" @click="onRemoveProfile" :disabled="Profiles.length == 1">
+                                <span class="text-sm">
+                                    {{
+                                        AccountStore.AccountType === "legacy"
+                                            ? $t("Main.r/Profile.ActionButtons.Remove")
+                                            : $t("Main.r/Profile.ActionButtons.Logout")
+                                    }}
+                                </span>
+                            </button>
+                        </div>
+                    </div>
+                </section>
+                <section class="h-full min-h-0">
+                    <Player
+                        v-if="CurrentProfileName"
+                        :skin-url="CurrentProfileSkin?.[0]"
+                        :type="CurrentProfileSkin?.[1].toLowerCase() || 'slim'"
+                        :cape-url="CurrentProfileCape" />
+                </section>
+            </div>
         </div>
 
         <dialog ref="createModal" class="modal">
@@ -349,13 +453,7 @@
                     <h3 class="text-xl font-bold">{{ $t("Main.r/Profile.Modal.Add.Title") }}</h3>
                     <p class="text-sm opacity-50">{{ $t("Main.r/Profile.Modal.Add.Description") }}</p>
                     <div class="divider w-76 mx-auto my-0"></div>
-                    <button
-                        class="btn bg-[#2F2F2F] text-white border-black w-66"
-                        @click="
-                            type = 'msa';
-                            step = 2;
-                            setupMsaService();
-                        ">
+                    <button class="btn bg-[#2F2F2F] text-white border-black w-66" @click="onCreateNewProfile('msa')">
                         <svg aria-label="Microsoft logo" width="24" height="24" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
                             <path d="M96 96H247V247H96" fill="#f24f23"></path>
                             <path d="M265 96V247H416V96" fill="#7eba03"></path>
@@ -364,22 +462,11 @@
                         </svg>
                         <span class="text-sm">{{ $t("Main.r/Profile.Modal.Add.MsLogin") }}</span>
                     </button>
-                    <button
-                        class="btn w-66"
-                        @click="
-                            type = 'legacy';
-                            step = 2;
-                        ">
+                    <button class="btn w-66" @click="onCreateNewProfile('legacy')" v-if="Profiles.some((i) => i.type === 'msa')">
                         <i class="icon-[material-symbols--safety-check-off-outline-rounded] size-6 mr-1"></i>
                         <span class="text-sm">{{ $t("Main.r/Profile.Modal.Add.Offline") }}</span>
                     </button>
-                    <button
-                        class="btn w-66"
-                        @click="
-                            type = 'yggdrasil';
-                            step = 2;
-                        "
-                        disabled>
+                    <button class="btn w-66" @click="onCreateNewProfile('yggdrasil')" v-if="Profiles.some((i) => i.type === 'msa')" disabled>
                         <i class="icon-[material-symbols--assured-workload-outline-rounded] size-6 mr-1"></i>
                         <span class="text-sm">{{ $t("Main.r/Profile.Modal.Add.TrdParty") }}</span>
                     </button>
@@ -396,8 +483,12 @@
                         <div class="divider w-96 mx-auto my-0"></div>
                         <span class="loading loading-dots loading-xl" v-if="!msaFailure"></span>
                         <i class="icon-[material-symbols--frame-exclamation-rounded] text-error size-16" v-else></i>
-                        <p class="text-sm" :class="{ 'text-error': msaFailure }">{{ $t(msaUiText) }}</p>
-                        <p class="text-sm text-error text-center select-text" v-if="msaFailure">{{ $t(msaFailureText) }}</p>
+                        <p class="text-sm" :class="{ 'text-error': msaFailure }">
+                            {{ $t(msaUiText) }}<span v-if="msaFailure">{{ $t("Main.r/Profile.Modal.Step2.Msa.Details") }}</span>
+                        </p>
+                        <p class="text-sm text-error text-center select-text" v-if="msaFailure">
+                            {{ $t(msaFailureText) }}
+                        </p>
                         <div class="divider w-96 mx-auto my-0"></div>
                         <form method="dialog" class="w-66">
                             <button class="btn w-full" @click="cleanup">
@@ -424,7 +515,7 @@
                             type="text"
                             class="input outline-none validator"
                             :placeholder="$t('Main.r/Profile.Modal.Step2.Offline.Uuid.Input')"
-                            :disabled="offlineUuidMode !== 'custom'"
+                            v-if="offlineUuidMode === 'custom'"
                             pattern="[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}"
                             v-model="offlineUuid" />
                         <div class="divider w-96 mx-auto my-0"></div>
@@ -451,8 +542,8 @@
                     <p class="mt-4">
                         {{
                             $t("Main.r/Profile.Modal.Remove.Content.Line2", {
-                                name: Profiles.filter((i) => i.picked)[0]?.name,
-                                type: $t(`Aside.AccountType.${Profiles.filter((i) => i.picked)[0]?.type}`),
+                                name: CurrentProfileName,
+                                type: CurrentProfileType ? $t(`Aside.AccountType.${CurrentProfileType}`) : "",
                             })
                         }}
                     </p>

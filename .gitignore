@@ -34,5 +34,5 @@ dist-ssr
 .env.*
 !.env.example
 
-# Contents for MS Store
-msstore/
+# Contents for Release
+release/

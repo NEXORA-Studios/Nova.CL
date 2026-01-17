@@ -19,7 +19,7 @@ export default defineConfig(async () => {
         },
 
         // Frontend Env Prefix
-        envPrefix: ["NOVA_", "MS_"],
+        envPrefix: ["NOVA_", "OAUTH_"],
 
         // Tauri Configuration
         clearScreen: false,
