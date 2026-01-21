@@ -36,3 +36,6 @@ dist-ssr
 
 # Contents for Release
 release/
+
+# Deprecated
+**/_deprecated/

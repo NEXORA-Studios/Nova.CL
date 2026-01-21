@@ -48,6 +48,8 @@ handlebars = "5"
 url = "2"
 mime_guess = "2.0.5"
 uuid = { version = "1", features = ["v4", "fast-rng"] }
+anyhow = "1.0.100"
+libloading = "0.9.0"
 
 [target.'cfg(not(any(target_os = "android", target_os = "ios")))'.dependencies]
 tauri-plugin-global-shortcut = "2"
