@@ -7,26 +7,26 @@
     <strong>Modern Minecraft Client Launcher</strong>
   </p>
   
-  <p align="center">
-    <a href="#features">✨ Features</a>
-    •
-    <a href="#tech-stack">🚀 Tech Stack</a>
-    •
-    <a href="#installation">📦 Installation</a>
-    •
-    <a href="#usage">💡 Usage</a>
-    •
-    <a href="#development">🛠️ Development</a>
-    •
-    <a href="#license">📄 License</a>
-  </p>
-  
   <div align="center">
     <img src="https://img.shields.io/badge/Vue-3.5.13-4FC08D?style=for-the-badge&logo=vue.js" alt="Vue" />
     <img src="https://img.shields.io/badge/TypeScript-5.8.3-3178C6?style=for-the-badge&logo=typescript" alt="TypeScript" />
     <img src="https://img.shields.io/badge/Tauri-2-FFC131?style=for-the-badge&logo=tauri" alt="Tauri" />
     <img src="https://img.shields.io/badge/Rust-1.70+-000000?style=for-the-badge&logo=rust" alt="Rust" />
     <img src="https://img.shields.io/badge/TailwindCSS-4.1.4-38B2AC?style=for-the-badge&logo=tailwind-css" alt="TailwindCSS" />
+  </div>
+
+  <p></p>
+
+  <div align="center">
+    <a href="./README.md">
+      <img src="https://img.shields.io/badge/中文_README-555555?style=for-the-badge" alt="中文 README" />
+    </a>
+    <a href="./docs/legal/EULA_EN.md">
+      <img src="https://img.shields.io/badge/EULA-555555?style=for-the-badge" alt="EULA" />
+    </a>
+    <a href="./docs/legal/PRIVACY_POLICY_EN.md">
+      <img src="https://img.shields.io/badge/Privacy_Policy-555555?style=for-the-badge" alt="Privacy Policy" />
+    </a>
   </div>
 </div>
 

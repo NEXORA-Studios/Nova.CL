@@ -80,7 +80,7 @@ We may update this Privacy Policy from time to time. The updated policy will be 
 If you have any questions or suggestions about this Privacy Policy, or need to exercise your rights, please contact us through the following methods:
 
 - Project Address: https://github.com/Org.NEOXRA-Studios/Nova.CL
-- Email: [Please check the GitHub project for contact information]
+- Email: [Please check the GitHub organization for contact information]
 
 ## 9. Applicable Law
 
