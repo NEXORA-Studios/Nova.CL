@@ -7,26 +7,26 @@
     <strong>现代化的 Minecraft 客户端启动器</strong>
   </p>
   
-  <p align="center">
-    <a href="#features">✨ 特性</a>
-    •
-    <a href="#tech-stack">🚀 技术栈</a>
-    •
-    <a href="#installation">📦 安装</a>
-    •
-    <a href="#usage">💡 使用</a>
-    •
-    <a href="#development">🛠️ 开发</a>
-    •
-    <a href="#license">📄 许可证</a>
-  </p>
-  
   <div align="center">
     <img src="https://img.shields.io/badge/Vue-3.5.13-4FC08D?style=for-the-badge&logo=vue.js" alt="Vue" />
     <img src="https://img.shields.io/badge/TypeScript-5.8.3-3178C6?style=for-the-badge&logo=typescript" alt="TypeScript" />
     <img src="https://img.shields.io/badge/Tauri-2-FFC131?style=for-the-badge&logo=tauri" alt="Tauri" />
     <img src="https://img.shields.io/badge/Rust-1.70+-000000?style=for-the-badge&logo=rust" alt="Rust" />
     <img src="https://img.shields.io/badge/TailwindCSS-4.1.4-38B2AC?style=for-the-badge&logo=tailwind-css" alt="TailwindCSS" />
+  </div>
+
+  <p></p>
+
+  <div align="center">
+    <a href="./README_EN.md">
+      <img src="https://img.shields.io/badge/English_README-555555?style=for-the-badge" alt="English README" />
+    </a>
+    <a href="./docs/legal/EULA.md">
+      <img src="https://img.shields.io/badge/最终用户许可协议-555555?style=for-the-badge" alt="最终用户许可协议" />
+    </a>
+    <a href="./docs/legal/PRIVACY_POLICY.md">
+      <img src="https://img.shields.io/badge/隐私协议-555555?style=for-the-badge" alt="隐私协议" />
+    </a>
   </div>
 </div>
 
@@ -171,4 +171,3 @@ Nova.CL/
   <br>
   <p>Made with ❤️ for Minecraft players</p>
 </div>
-
