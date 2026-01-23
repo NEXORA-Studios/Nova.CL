@@ -1,8 +1,3 @@
-mod app;
-mod core;
-mod plugin;
-mod tauri_cmd;
-
 pub fn run() {
     // 生成 Tauri 上下文
     let context = tauri::generate_context!();
