@@ -10,7 +10,9 @@ use crate::commands::*;
 use crate::lifecycle::LifecycleManager;
 #[allow(unused_imports)]
 use crate::services::env::{DotEnvProvider, EnvVarProvider, HardcodedProvider};
-use crate::services::{EnvService, HttpServerService, HttpService, LogService, SystemService};
+use crate::services::{
+    ConfigService, EnvService, HttpServerService, HttpService, LogService, SystemService,
+};
 
 #[tokio::main]
 pub async fn run() {
