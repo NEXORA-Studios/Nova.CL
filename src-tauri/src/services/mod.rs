@@ -1,8 +1,10 @@
+pub mod config;
 pub mod env;
 pub mod http;
 mod logging;
 pub mod system;
 
+pub use config::ConfigService;
 pub use env::EnvService;
 pub use http::{HttpServerService, HttpService};
 pub use logging::LogService;
