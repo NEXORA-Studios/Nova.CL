@@ -10,7 +10,7 @@ use crate::commands::*;
 use crate::lifecycle::LifecycleManager;
 #[allow(unused_imports)]
 use crate::services::env::{DotEnvProvider, EnvVarProvider, HardcodedProvider};
-use crate::services::{EnvService, HttpServerService, HttpService, LogService};
+use crate::services::{EnvService, HttpServerService, HttpService, LogService, SystemService};
 
 #[tokio::main]
 pub async fn run() {
@@ -37,7 +37,9 @@ pub async fn run() {
             // HTTP服务器命令
             http_server_start,
             http_server_stop,
-            http_server_get_status
+            http_server_get_status,
+            // 系统命令
+            get_ram_info
         ])
         .setup(|app| {
             let app_handle = app.handle().clone();
@@ -76,6 +78,7 @@ pub async fn run() {
             manager.register(Arc::new(LogService::new()));
             manager.register(Arc::new(EnvService::new(env_providers)));
             manager.register(Arc::new(HttpService::new()));
+            manager.register(Arc::new(SystemService::new()));
             manager.register(Arc::new(HttpServerService::new()));
 
             // 拉起生命周期管理
