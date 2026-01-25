@@ -5,10 +5,7 @@ use std::sync::Arc;
 use tauri::AppHandle;
 use tokio::sync::Mutex;
 
-use crate::lifecycle::{
-    sync_cmd, CommandError, CommandHashMap, CommandInput, CommandOutput, LifecycleService,
-    ServiceState,
-};
+use crate::lifecycle::{sync_cmd, CommandError, CommandHashMap, CommandInput, CommandOutput, LifecycleService, ServiceState};
 use crate::services::env::provider::EnvProvider;
 
 #[derive(Clone)]
@@ -29,11 +26,7 @@ impl EnvService {
     }
 
     /// 合并多个环境变量映射，根据优先级覆盖
-    fn merge_env_vars(
-        &self,
-        mut merged_vars: HashMap<String, String>,
-        new_vars: HashMap<String, String>,
-    ) -> HashMap<String, String> {
+    fn merge_env_vars(&self, mut merged_vars: HashMap<String, String>, new_vars: HashMap<String, String>) -> HashMap<String, String> {
         merged_vars.extend(new_vars);
         merged_vars
     }
@@ -106,52 +99,40 @@ impl LifecycleService for EnvService {
         // 每个命令都用这种固定模式
         map.insert(
             "get_env_var".to_string(),
-            sync_cmd(
-                |args: CommandInput| -> Result<CommandOutput, CommandError> {
-                    if let CommandInput::Args(args) = args {
-                        if args.is_empty() {
-                            return Err(CommandError::Text("缺少 key 参数".to_string()));
-                        }
-                        let key = args[0].clone();
-                        std::env::var(key)
-                            .map_err(|e| CommandError::Text(e.to_string()))
-                            .map(|v| CommandOutput::Text(v))
-                    } else {
-                        Err(CommandError::Text("参数格式错误".to_string()))
+            sync_cmd(|args: CommandInput| -> Result<CommandOutput, CommandError> {
+                if let CommandInput::Args(args) = args {
+                    if args.is_empty() {
+                        return Err(CommandError::Text("缺少 key 参数".to_string()));
                     }
-                },
-            ),
+                    let key = args[0].clone();
+                    std::env::var(key).map_err(|e| CommandError::Text(e.to_string())).map(|v| CommandOutput::Text(v))
+                } else {
+                    Err(CommandError::Text("参数格式错误".to_string()))
+                }
+            }),
         );
 
         map.insert(
             "get_all_env_vars".to_string(),
-            sync_cmd(
-                |_args: CommandInput| -> Result<CommandOutput, CommandError> {
-                    let vars: Vec<(String, String)> = std::env::vars().collect();
-                    serde_json::to_string(&vars)
-                        .map_err(|e| CommandError::Text(e.to_string()))
-                        .map(|v| CommandOutput::Text(v))
-                },
-            ),
+            sync_cmd(|_args: CommandInput| -> Result<CommandOutput, CommandError> {
+                let vars: Vec<(String, String)> = std::env::vars().collect();
+                serde_json::to_string(&vars).map_err(|e| CommandError::Text(e.to_string())).map(|v| CommandOutput::Text(v))
+            }),
         );
 
         map.insert(
             "has_env_var".to_string(),
-            sync_cmd(
-                |args: CommandInput| -> Result<CommandOutput, CommandError> {
-                    if let CommandInput::Args(args) = args {
-                        if args.is_empty() {
-                            return Err(CommandError::Text("缺少 key 参数".to_string()));
-                        }
-                        let key = args[0].clone();
-                        Ok(CommandOutput::Text(
-                            std::env::var_os(&key).is_some().to_string(),
-                        ))
-                    } else {
-                        Err(CommandError::Text("参数格式错误".to_string()))
+            sync_cmd(|args: CommandInput| -> Result<CommandOutput, CommandError> {
+                if let CommandInput::Args(args) = args {
+                    if args.is_empty() {
+                        return Err(CommandError::Text("缺少 key 参数".to_string()));
                     }
-                },
-            ),
+                    let key = args[0].clone();
+                    Ok(CommandOutput::Text(std::env::var_os(&key).is_some().to_string()))
+                } else {
+                    Err(CommandError::Text("参数格式错误".to_string()))
+                }
+            }),
         );
 
         map

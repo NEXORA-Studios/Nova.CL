@@ -16,10 +16,7 @@ pub async fn get_ram_info(app_handle: AppHandle, id: u64) -> CallResponse<RamInf
     let manager = manager.inner().clone();
 
     // 调用生命周期管理器的命令
-    match manager
-        .invoke_command("get_ram_info", CommandInput::Args(vec![]))
-        .await
-    {
+    match manager.invoke_command("get_ram_info", CommandInput::Args(vec![])).await {
         Ok(output) => match output {
             CommandOutput::Json(v) => match serde_json::from_value::<RamInfo>(v) {
                 Ok(ram_info) => CallResponse::ok(id, "get_ram_info".to_string(), ram_info),

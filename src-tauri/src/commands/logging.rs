@@ -12,12 +12,7 @@ use crate::lifecycle::CommandInput;
 /// - `category`: 日志分类
 /// - `message`: 日志内容
 #[tauri::command]
-pub async fn log_trace(
-    app_handle: AppHandle,
-    id: u64,
-    category: String,
-    message: String,
-) -> CallResponse<()> {
+pub async fn log_trace(app_handle: AppHandle, id: u64, category: String, message: String) -> CallResponse<()> {
     // 构建命令参数
     let args = vec![category.clone(), message.clone()];
 
@@ -26,10 +21,7 @@ pub async fn log_trace(
     let manager = manager.inner().clone();
 
     // 异步调用日志命令
-    match manager
-        .invoke_command("log_trace", CommandInput::Args(args))
-        .await
-    {
+    match manager.invoke_command("log_trace", CommandInput::Args(args)).await {
         Ok(_) => CallResponse::ok(id, "log_trace".to_string(), ()),
         Err(e) => {
             eprintln!("Failed to invoke log_trace: {:?}", e);
@@ -49,12 +41,7 @@ pub async fn log_trace(
 /// - `category`: 日志分类
 /// - `message`: 日志内容
 #[tauri::command]
-pub async fn log_debug(
-    app_handle: AppHandle,
-    id: u64,
-    category: String,
-    message: String,
-) -> CallResponse<()> {
+pub async fn log_debug(app_handle: AppHandle, id: u64, category: String, message: String) -> CallResponse<()> {
     // 构建命令参数
     let args = vec![category.clone(), message.clone()];
 
@@ -63,10 +50,7 @@ pub async fn log_debug(
     let manager = manager.inner().clone();
 
     // 异步调用日志命令
-    match manager
-        .invoke_command("log_debug", CommandInput::Args(args))
-        .await
-    {
+    match manager.invoke_command("log_debug", CommandInput::Args(args)).await {
         Ok(_) => CallResponse::ok(id, "log_debug".to_string(), ()),
         Err(e) => {
             eprintln!("Failed to invoke log_debug: {:?}", e);
@@ -86,12 +70,7 @@ pub async fn log_debug(
 /// - `category`: 日志分类
 /// - `message`: 日志内容
 #[tauri::command]
-pub async fn log_info(
-    app_handle: AppHandle,
-    id: u64,
-    category: String,
-    message: String,
-) -> CallResponse<()> {
+pub async fn log_info(app_handle: AppHandle, id: u64, category: String, message: String) -> CallResponse<()> {
     // 构建命令参数
     let args = vec![category.clone(), message.clone()];
 
@@ -100,10 +79,7 @@ pub async fn log_info(
     let manager = manager.inner().clone();
 
     // 异步调用日志命令
-    match manager
-        .invoke_command("log_info", CommandInput::Args(args))
-        .await
-    {
+    match manager.invoke_command("log_info", CommandInput::Args(args)).await {
         Ok(_) => CallResponse::ok(id, "log_info".to_string(), ()),
         Err(e) => {
             eprintln!("Failed to invoke log_info: {:?}", e);
@@ -123,12 +99,7 @@ pub async fn log_info(
 /// - `category`: 日志分类
 /// - `message`: 日志内容
 #[tauri::command]
-pub async fn log_warn(
-    app_handle: AppHandle,
-    id: u64,
-    category: String,
-    message: String,
-) -> CallResponse<()> {
+pub async fn log_warn(app_handle: AppHandle, id: u64, category: String, message: String) -> CallResponse<()> {
     // 构建命令参数
     let args = vec![category.clone(), message.clone()];
 
@@ -137,10 +108,7 @@ pub async fn log_warn(
     let manager = manager.inner().clone();
 
     // 异步调用日志命令
-    match manager
-        .invoke_command("log_warn", CommandInput::Args(args))
-        .await
-    {
+    match manager.invoke_command("log_warn", CommandInput::Args(args)).await {
         Ok(_) => CallResponse::ok(id, "log_warn".to_string(), ()),
         Err(e) => {
             eprintln!("Failed to invoke log_warn: {:?}", e);
@@ -160,12 +128,7 @@ pub async fn log_warn(
 /// - `category`: 日志分类
 /// - `message`: 日志内容
 #[tauri::command]
-pub async fn log_error(
-    app_handle: AppHandle,
-    id: u64,
-    category: String,
-    message: String,
-) -> CallResponse<()> {
+pub async fn log_error(app_handle: AppHandle, id: u64, category: String, message: String) -> CallResponse<()> {
     // 构建命令参数
     let args = vec![category.clone(), message.clone()];
 
@@ -174,10 +137,7 @@ pub async fn log_error(
     let manager = manager.inner().clone();
 
     // 异步调用日志命令
-    match manager
-        .invoke_command("log_error", CommandInput::Args(args))
-        .await
-    {
+    match manager.invoke_command("log_error", CommandInput::Args(args)).await {
         Ok(_) => CallResponse::ok(id, "log_error".to_string(), ()),
         Err(e) => {
             eprintln!("Failed to invoke log_error: {:?}", e);

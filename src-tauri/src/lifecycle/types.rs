@@ -46,7 +46,6 @@ pub enum CommandError {
 
 pub type CommandHashMap = HashMap<String, Arc<CommandHandler>>;
 
-pub type CommandFuture =
-    Pin<Box<dyn Future<Output = Result<CommandOutput, CommandError>> + Send + 'static>>;
+pub type CommandFuture = Pin<Box<dyn Future<Output = Result<CommandOutput, CommandError>> + Send + 'static>>;
 
 pub type CommandHandler = dyn Fn(CommandInput) -> CommandFuture + Send + Sync + 'static;

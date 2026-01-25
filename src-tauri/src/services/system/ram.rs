@@ -21,11 +21,7 @@ pub fn get_ram_info() -> RamInfo {
     let available = sys.available_memory() * 1024;
     let free = sys.free_memory() * 1024;
 
-    let usage_percent = if total == 0 {
-        0.0
-    } else {
-        used as f64 / total as f64 * 100.0
-    };
+    let usage_percent = if total == 0 { 0.0 } else { used as f64 / total as f64 * 100.0 };
 
     RamInfo {
         total,

@@ -53,20 +53,12 @@ impl LifecycleManager {
         }
     }
 
-    pub async fn invoke_command(
-        &self,
-        cmd_name: &str,
-        args: CommandInput,
-    ) -> Result<CommandOutput, CommandError> {
+    pub async fn invoke_command(&self, cmd_name: &str, args: CommandInput) -> Result<CommandOutput, CommandError> {
         let cmd_map = self.commands.lock().await;
 
         if let Some((svc, handler)) = cmd_map.get(cmd_name) {
             if svc.state() != ServiceState::Running {
-                return Err(CommandError::Text(format!(
-                    "服务 {} 未运行 (状态: {:?})",
-                    svc.name(),
-                    svc.state()
-                )));
+                return Err(CommandError::Text(format!("服务 {} 未运行 (状态: {:?})", svc.name(), svc.state())));
             }
 
             // 直接 .await

@@ -1,5 +1,6 @@
 use async_trait::async_trait;
 use chrono::Local;
+use fern::colors::{Color, ColoredLevelConfig};
 use log::LevelFilter;
 use log::{debug, error, info, trace, warn};
 use std::collections::HashMap;
@@ -8,10 +9,7 @@ use std::sync::Arc;
 use tauri::AppHandle;
 use tokio::sync::Mutex;
 
-use crate::lifecycle::{
-    sync_cmd, CommandError, CommandHashMap, CommandInput, CommandOutput, LifecycleService,
-    ServiceState,
-};
+use crate::lifecycle::{sync_cmd, CommandError, CommandHashMap, CommandInput, CommandOutput, LifecycleService, ServiceState};
 
 #[derive(Clone)]
 pub struct LogService {
@@ -28,9 +26,7 @@ impl LogService {
     /// 初始化日志系统
     fn init_logging() -> Result<(), Box<dyn std::error::Error>> {
         // 使用 dirs 库获取应用数据目录
-        let app_data_dir = dirs::data_dir()
-            .ok_or("Failed to get data directory")?
-            .join("NovaCL");
+        let app_data_dir = dirs::data_dir().ok_or("无法获取应用数据目录")?.join("NovaCL");
         let logs_dir = app_data_dir.join("Logs");
 
         // 创建日志目录
@@ -40,70 +36,63 @@ impl LogService {
         let log_file_name = Local::now().format("%Y-%m-%d_%H-%M-%S.log").to_string();
         let log_file_path = logs_dir.join(log_file_name);
 
-        // 配置 fern 日志器
-        #[cfg(debug_assertions)]
-        fern::Dispatch::new()
-            // 设置日志格式：[时间] [等级] [TS/Rust] [分类] 内容
-            .format(|out, message, record| {
-                // 解析目标，获取来源（TS/Rust）和分类
-                let target = record.target();
-                let (source, category) = if target.starts_with("ts::") {
-                    // 前端调用的日志，格式：ts::category
-                    ("TS", &target[4..])
-                } else {
-                    // Rust 内部日志，格式：crate::module 或 module
-                    ("Rust", target.split("::").last().unwrap_or(target))
-                };
+        // ────────────────────────────────────────────────
+        //              颜色配置（仅用于控制台）
+        // ────────────────────────────────────────────────
+        let colors = ColoredLevelConfig::new().error(Color::Red).warn(Color::Yellow).info(Color::Green).debug(Color::Blue).trace(Color::Magenta);
 
-                out.finish(format_args!(
-                    "[{}] [{}] [{}] [{}] {}",
-                    Local::now().format("%Y-%m-%d %H:%M:%S"),
-                    record.level(),
-                    source,
-                    category,
-                    message
-                ))
-            })
-            // 设置默认日志级别为 Trace
-            .level(LevelFilter::Trace)
-            // 输出到文件
-            .chain(File::create(log_file_path)?)
-            // 同时输出到控制台
-            .chain(std::io::stdout())
-            // 应用配置
-            .apply()?;
+        // ────────────────────────────────────────────────
+        //                  控制台格式化闭包
+        // ────────────────────────────────────────────────
+        let console_format = move |out: fern::FormatCallback<'_>, message: &std::fmt::Arguments<'_>, record: &log::Record<'_>| {
+            let target = record.target();
+            let (source, category) = if target.starts_with("ts::") {
+                ("TS", &target[4..])
+            } else {
+                ("Rust", target.split("::").last().unwrap_or(target))
+            };
 
-        #[cfg(not(debug_assertions))]
-        fern::Dispatch::new()
-            // 设置日志格式：[时间] [等级] [TS/Rust] [分类] 内容
-            .format(|out, message, record| {
-                // 解析目标，获取来源（TS/Rust）和分类
-                let target = record.target();
-                let (source, category) = if target.starts_with("ts::") {
-                    // 前端调用的日志，格式：ts::category
-                    ("TS", &target[4..])
-                } else {
-                    // Rust 内部日志，格式：crate::module 或 module
-                    ("Rust", target.split("::").last().unwrap_or(target))
-                };
+            out.finish(format_args!(
+                "[{}] [{level_colored}] [{source}] [{category}] {message}",
+                Local::now().format("%Y-%m-%d %H:%M:%S"),
+                level_colored = colors.color(record.level()),
+                source = source,
+                category = category,
+                message = message
+            ));
+        };
 
-                out.finish(format_args!(
-                    "[{}] [{}] [{}] [{}] {}",
-                    Local::now().format("%Y-%m-%d %H:%M:%S"),
-                    record.level(),
-                    source,
-                    category,
-                    message
-                ))
-            })
-            // 设置默认日志级别为 Info
-            .level(LevelFilter::Info)
-            // 输出到文件
-            .chain(File::create(log_file_path)?)
-            // 同时输出到控制台
-            .chain(std::io::stdout())
-            // 应用配置
-            .apply()?;
+        // ────────────────────────────────────────────────
+        //                  文件格式化闭包
+        // ────────────────────────────────────────────────
+        let file_format = |out: fern::FormatCallback<'_>, message: &std::fmt::Arguments<'_>, record: &log::Record<'_>| {
+            let target = record.target();
+            let (source, category) = if target.starts_with("ts::") {
+                ("TS", &target[4..])
+            } else {
+                ("Rust", target.split("::").last().unwrap_or(target))
+            };
+
+            out.finish(format_args!("[{}] [{}] [{}] [{}] {}", Local::now().format("%Y-%m-%d %H:%M:%S"), record.level(), source, category, message));
+        };
+
+        // ────────────────────────────────────────────────
+        //              构建 dispatch
+        // ────────────────────────────────────────────────
+        // 控制台 dispatch（带颜色）
+        let console = fern::Dispatch::new()
+            .format(console_format)
+            .level(if cfg!(debug_assertions) { LevelFilter::Trace } else { LevelFilter::Info })
+            .chain(std::io::stdout());
+
+        // 文件 dispatch（纯文本）
+        let file = fern::Dispatch::new()
+            .format(file_format)
+            .level(if cfg!(debug_assertions) { LevelFilter::Trace } else { LevelFilter::Info })
+            .chain(File::create(log_file_path)?);
+
+        // 根 dispatch 只负责合并，不设置 format
+        fern::Dispatch::new().chain(console).chain(file).apply()?;
 
         Ok(())
     }
@@ -158,9 +147,7 @@ impl LifecycleService for LogService {
                 |args: CommandInput| -> Result<CommandOutput, CommandError> {
                     if let CommandInput::Args(args) = args {
                         if args.len() < 2 {
-                            return Err(CommandError::Text(
-                                "缺少 category 或 message 参数".to_string(),
-                            ));
+                            return Err(CommandError::Text("缺少 category 或 message 参数".to_string()));
                         }
                         let category = args[0].clone();
                         let message = args[1].clone();
@@ -180,9 +167,7 @@ impl LifecycleService for LogService {
                 |args: CommandInput| -> Result<CommandOutput, CommandError> {
                     if let CommandInput::Args(args) = args {
                         if args.len() < 2 {
-                            return Err(CommandError::Text(
-                                "缺少 category 或 message 参数".to_string(),
-                            ));
+                            return Err(CommandError::Text("缺少 category 或 message 参数".to_string()));
                         }
                         let category = args[0].clone();
                         let message = args[1].clone();
@@ -202,9 +187,7 @@ impl LifecycleService for LogService {
                 |args: CommandInput| -> Result<CommandOutput, CommandError> {
                     if let CommandInput::Args(args) = args {
                         if args.len() < 2 {
-                            return Err(CommandError::Text(
-                                "缺少 category 或 message 参数".to_string(),
-                            ));
+                            return Err(CommandError::Text("缺少 category 或 message 参数".to_string()));
                         }
                         let category = args[0].clone();
                         let message = args[1].clone();
@@ -224,9 +207,7 @@ impl LifecycleService for LogService {
                 |args: CommandInput| -> Result<CommandOutput, CommandError> {
                     if let CommandInput::Args(args) = args {
                         if args.len() < 2 {
-                            return Err(CommandError::Text(
-                                "缺少 category 或 message 参数".to_string(),
-                            ));
+                            return Err(CommandError::Text("缺少 category 或 message 参数".to_string()));
                         }
                         let category = args[0].clone();
                         let message = args[1].clone();
@@ -246,9 +227,7 @@ impl LifecycleService for LogService {
                 |args: CommandInput| -> Result<CommandOutput, CommandError> {
                     if let CommandInput::Args(args) = args {
                         if args.len() < 2 {
-                            return Err(CommandError::Text(
-                                "缺少 category 或 message 参数".to_string(),
-                            ));
+                            return Err(CommandError::Text("缺少 category 或 message 参数".to_string()));
                         }
                         let category = args[0].clone();
                         let message = args[1].clone();
