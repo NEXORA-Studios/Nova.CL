@@ -18,8 +18,10 @@ export {
     /** @deprecated */
     httpClient as TauriHTTP,
     httpClient as TauriHTTPClient,
+} from "./tauri/HttpClient";
+export {
     httpServer as TauriHttpServer,
-} from "./tauri/Http";
+} from "./tauri/HttpServer";
 export { toml as TauriTOML } from "./tauri/Toml";
 export { system as TauriSystem } from "./tauri/System";
 export { logging as TauriLogging } from "./tauri/Logging";
