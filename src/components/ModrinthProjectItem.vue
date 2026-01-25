@@ -1,6 +1,6 @@
 <script setup lang="ts">
     import { onMounted, ref } from "vue";
-    import { TauriTOML } from "@/modules";
+    import { TauriConfig } from "@/modules";
     import { IMrApi } from "@/types";
     import { useI18n } from "vue-i18n";
 
@@ -19,7 +19,9 @@
     }
 
     async function buildDisplayInfo(categories: string[], versions: string[]) {
-        let ignore_quilt = (await TauriTOML.getGlobalConfig())["other"]["comp"]["ignore_quilt"];
+        // let ignore_quilt = (await TauriTOML.getGlobalConfig())["other"]["comp"]["ignore_quilt"];
+        /** @TODO 从配置中读取 */
+        let ignore_quilt = false;
 
         // ---------- Loader ----------
         const loaderMap: Record<string, string> = {

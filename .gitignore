@@ -23,6 +23,7 @@ dist-ssr
 *.sln
 *.sw?
 .trae
+.cargo/config.toml
 
 # Not-In-Use Issue Template
 .github/ISSUE_TEMPLATE/*.disabled

@@ -294,7 +294,7 @@ impl LifecycleService for HttpServerService {
         let mut map = HashMap::new();
 
         map.insert(
-            "http_start".to_string(),
+            "http_server_start".to_string(),
             async_cmd({
                 let self_arc = self.clone();
                 move |input: CommandInput| {
@@ -316,7 +316,7 @@ impl LifecycleService for HttpServerService {
         );
 
         map.insert(
-            "http_stop".to_string(),
+            "http_server_stop".to_string(),
             async_cmd({
                 let self_arc = self.clone();
                 move |_input: CommandInput| {

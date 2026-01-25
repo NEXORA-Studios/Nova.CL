@@ -70,5 +70,26 @@ export interface EmitEvent<T = unknown> {
     timestamp: number;
 }
 
+// 前端调用后端的请求
+export interface CallRequest<T = unknown> {
+    /** 协议版本号 */
+    version: IpcVersion;
+
+    /** 唯一 ID，由前端生成 */
+    id: number;
+
+    /** 命令名 */
+    topic: string;
+
+    /** 请求数据 */
+    payload?: T;
+
+    /** 时间戳（Unix ms） */
+    timestamp: number;
+}
+
 // 所有前端接收的 IPC 消息
 export type IpcMessage<T = unknown> = CallResponse<T> | EmitEvent<T>;
+
+// 所有前端发出的 IPC 消息
+export type IpcSendMessage<T = unknown> = CallRequest<T>;

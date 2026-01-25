@@ -7,4 +7,4 @@ mod types;
 pub use error::{CryptoError, CryptoResult};
 pub use provider::{ConfigProvider, TomlConfigProvider};
 pub use service::ConfigService;
-pub use types::{ConfigDataType, ConfigMetadata, ConfigMetadataList, ConfigValue};
+pub use types::{ConfigDataType, ConfigMetadata, ConfigValue};

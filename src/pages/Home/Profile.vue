@@ -4,7 +4,7 @@
     import { computed, onMounted, ref, watch } from "vue";
     import { AccountCard, BankCard, Player } from "@/components";
     import { ITauriTypes } from "@/types";
-    import { McMsa, McUuid, TauriHttpServer, TauriTOML, useAccountStore } from "@/modules";
+    import { McMsa, McUuid, TauriHttpServer, TauriConfig, useAccountStore } from "@/modules";
     import { MsaLoginResult } from "@/types/minecraft/Msa";
     import { expiresInToUnix } from "@/utils";
     import { useTheme } from "@/composables";
@@ -15,16 +15,16 @@
 
     // ================ 账户模块 ================
 
-    const ProfileConfig = ref<ITauriTypes.TOML.ProfileConfig>();
-    const Profiles = ref<ITauriTypes.TOML.ProfileConfig["profile"]>([]);
+    const ProfileConfig = ref<ITauriTypes.Config.ProfileConfig>();
+    const Profiles = ref<ITauriTypes.Config.ProfileConfig["Profile"]>([]);
     const AccountStore = useAccountStore();
 
-    function reorderPicked<T extends { picked?: boolean }>(arr: T[]): T[] {
+    function reorderPicked<T extends { Picked?: boolean }>(arr: T[]): T[] {
         const notPicked: T[] = [];
         const picked: T[] = [];
 
         for (const item of arr) {
-            if (item.picked) picked.push(item);
+            if (item.Picked) picked.push(item);
             else notPicked.push(item);
         }
 
@@ -37,7 +37,7 @@
     // 全局变量
     const createModal = ref<HTMLDialogElement>();
     const step = ref<number>(1);
-    const type = ref<ITauriTypes.TOML.ProfileType>();
+    const type = ref<ITauriTypes.Config.ProfileConfig["Profile"][0]["Type"]>();
     const $env = import.meta.env;
 
     // 微软档案相关
@@ -96,42 +96,40 @@
             return;
         }
 
-        const _ProfileConfig = await TauriTOML.getProfileConfig();
-        const _Profiles = _ProfileConfig.profile || [];
+        const _ProfileConfig = await TauriConfig.get<ITauriTypes.Config.ProfileConfig>("Profile");
+        const _Profiles = _ProfileConfig.Profile || [];
         const _ProfileMatch = _Profiles.find(
-            (profile) => profile.type === "msa" && profile.name === msaLoginResult.name && profile.uuid === msaLoginResult.uuid
+            (profile) => profile.Type === "msa" && profile.Name === msaLoginResult.name && profile.Uuid === msaLoginResult.uuid
         );
         if (_ProfileMatch) {
-            _ProfileMatch.picked = true;
+            _ProfileMatch.Picked = true;
         } else {
-            const access_token = await TauriTOML.encryptString(msaLoginResult.msaAccessToken);
-            const refresh_token = await TauriTOML.encryptString(msaLoginResult.msaRefreshToken);
             _Profiles.push({
-                guid: uuidv7(),
-                type: "msa",
-                name: msaLoginResult.name,
-                uuid: msaLoginResult.uuid,
-                picked: true,
-                access_token,
-                refresh_token,
-                msa_expires_at: expiresInToUnix(msaLoginResult.msaExpiresIn * 1000),
-                mc_expires_at: expiresInToUnix(msaLoginResult.mcExpiresIn * 1000),
-                skin_info: JSON.stringify(msaLoginResult.skins),
-                cape_info: JSON.stringify(msaLoginResult.capes),
+                Guid: uuidv7(),
+                Type: "msa",
+                Name: msaLoginResult.name,
+                Uuid: msaLoginResult.uuid,
+                Picked: true,
+                AccessToken: msaLoginResult.msaAccessToken,
+                RefreshToken: msaLoginResult.msaRefreshToken,
+                MsaExpiresAt: expiresInToUnix(msaLoginResult.msaExpiresIn * 1000),
+                McExpiresAt: expiresInToUnix(msaLoginResult.mcExpiresIn * 1000),
+                SkinInfo: JSON.stringify(msaLoginResult.skins),
+                CapeInfo: JSON.stringify(msaLoginResult.capes),
             });
         }
         _Profiles.forEach((profile) => {
-            if (profile.uuid !== msaLoginResult.uuid || profile.type !== "msa" || profile.name !== msaLoginResult.name) {
-                profile.picked = false;
+            if (profile.Uuid !== msaLoginResult.uuid || profile.Type !== "msa" || profile.Name !== msaLoginResult.name) {
+                profile.Picked = false;
             }
         });
         AccountStore.setAccountState(msaLoginResult.name, "msa");
-        _ProfileConfig.profile = _Profiles;
-        await TauriTOML.saveProfileConfig(_ProfileConfig);
+        _ProfileConfig.Profile = _Profiles;
+        await TauriConfig.set("Profiles.Profile", _ProfileConfig);
         ProfileConfig.value = _ProfileConfig;
         Profiles.value = _Profiles;
         createModal.value?.close();
-        setTimeout(cleanup, 50) // 延迟清理以避免 UI 跳动
+        setTimeout(cleanup, 50); // 延迟清理以避免 UI 跳动
         console.info({ category: "MSA Login", message: "微软登录流程完成" });
     }
 
@@ -168,26 +166,25 @@
         }
         const uuid = offlineUuidMode.value === "custom" ? offlineUuid.value! : McUuid.createOfflineUUID(offlineUsername.value).dash;
 
-        const _ProfileConfig = await TauriTOML.getProfileConfig();
-        const _Profiles = _ProfileConfig.profile || [];
-        const encryptedEmptyString = await TauriTOML.encryptString("None");
+        const _ProfileConfig = await TauriConfig.get<ITauriTypes.Config.ProfileConfig>("Profile");
+        const _Profiles = _ProfileConfig.Profile || [];
         _Profiles.push({
-            guid: uuidv7(),
-            type: "legacy",
-            name: offlineUsername.value,
-            uuid,
-            picked: true,
+            Guid: uuidv7(),
+            Type: "legacy",
+            Name: offlineUsername.value,
+            Uuid: uuid,
+            Picked: true,
             // 保留字段
-            access_token: encryptedEmptyString,
-            refresh_token: encryptedEmptyString,
+            AccessToken: "",
+            RefreshToken: "",
         });
         _Profiles.forEach((profile) => {
-            if (profile.uuid !== uuid) {
-                profile.picked = false;
+            if (profile.Uuid !== uuid) {
+                profile.Picked = false;
             }
         });
         AccountStore.setAccountState(offlineUsername.value, "legacy");
-        await TauriTOML.saveProfileConfig(_ProfileConfig);
+        await TauriConfig.set("Profiles.Profile", _ProfileConfig);
         Profiles.value = _Profiles;
         cleanup();
         createModal.value?.close();
@@ -226,18 +223,18 @@
         if (!newProfile) return;
 
         // 更新档案状态
-        AccountStore.setAccountState(newProfile.name, newProfile.type);
+        AccountStore.setAccountState(newProfile.Name, newProfile.Type);
 
         // 异步更新配置，但不要改变 Profiles.value 的顺序
         (async () => {
-            const _ProfileConfig = await TauriTOML.getProfileConfig();
+            const _ProfileConfig = await TauriConfig.get<ITauriTypes.Config.ProfileConfig>("Profile");
 
             // 标记 picked
-            _ProfileConfig.profile.forEach((profile) => {
-                profile.picked = profile.guid === newProfile.guid;
+            _ProfileConfig.Profile.forEach((profile) => {
+                profile.Picked = profile.Guid === newProfile.Guid;
             });
 
-            await TauriTOML.saveProfileConfig(_ProfileConfig);
+            await TauriConfig.set("Profile", _ProfileConfig);
 
             // 更新 ProfileConfig，但不要替换 Profiles.value
             ProfileConfig.value = _ProfileConfig;
@@ -249,20 +246,20 @@
         }
         const newProfile = Profiles.value[newId];
         if (newProfile) {
-            const AccountName = newProfile.name;
-            const AccountType = newProfile.type;
+            const AccountName = newProfile.Name;
+            const AccountType = newProfile.Type;
             AccountStore.setAccountState(AccountName, AccountType);
-            const _ProfileConfig = await TauriTOML.getProfileConfig();
-            _ProfileConfig.profile.forEach((profile) => {
-                if (profile.guid === newProfile.guid) {
-                    profile.picked = true;
+            const _ProfileConfig = await TauriConfig.get<ITauriTypes.Config.ProfileConfig>("Profile");
+            _ProfileConfig.Profile.forEach((profile) => {
+                if (profile.Guid === newProfile.Guid) {
+                    profile.Picked = true;
                 } else {
-                    profile.picked = false;
+                    profile.Picked = false;
                 }
             });
-            await TauriTOML.saveProfileConfig(_ProfileConfig);
+            await TauriConfig.set("Profiles.Profile", _ProfileConfig);
             ProfileConfig.value = _ProfileConfig;
-            Profiles.value = _ProfileConfig.profile || [];
+            Profiles.value = _ProfileConfig.Profile || [];
         }
     });
 
@@ -272,19 +269,19 @@
         removeModal.value?.show();
     }
     async function removeCurrentProfile() {
-        const _ProfileConfig = await TauriTOML.getProfileConfig();
-        const _Profiles = _ProfileConfig.profile ?? [];
-        const currentIndex = _Profiles.findIndex((p) => p.picked);
+        const _ProfileConfig = await TauriConfig.get<ITauriTypes.Config.ProfileConfig>("Profile");
+        const _Profiles = _ProfileConfig.Profile ?? [];
+        const currentIndex = _Profiles.findIndex((p) => p.Picked);
         if (_Profiles.length === 0 || currentIndex === -1) return;
         _Profiles.splice(currentIndex, 1);
         if (_Profiles.length > 0) {
             const nextIndex = Math.min(currentIndex, _Profiles.length - 1);
-            _Profiles.forEach((p) => (p.picked = false));
-            _Profiles[nextIndex].picked = true;
-            AccountStore.setAccountState(_Profiles[nextIndex].name, _Profiles[nextIndex].type);
+            _Profiles.forEach((p) => (p.Picked = false));
+            _Profiles[nextIndex].Picked = true;
+            AccountStore.setAccountState(_Profiles[nextIndex].Name, _Profiles[nextIndex].Type);
         }
-        _ProfileConfig.profile = _Profiles;
-        await TauriTOML.saveProfileConfig(_ProfileConfig);
+        _ProfileConfig.Profile = _Profiles;
+        await TauriConfig.set("Profile", _ProfileConfig);
         ProfileConfig.value = _ProfileConfig;
         Profiles.value = _Profiles;
     }
@@ -305,19 +302,19 @@
     }
 
     const CurrentProfile = computed(() => {
-        return Profiles.value.find((i) => i.picked);
+        return Profiles.value.find((i) => i.Picked);
     });
     const CurrentProfileName = computed(() => {
-        return CurrentProfile.value?.name;
+        return CurrentProfile.value?.Name;
     });
     const CurrentProfileType = computed(() => {
-        return CurrentProfile.value?.type;
+        return CurrentProfile.value?.Type;
     });
     const CurrentProfileSkin = computed(() => {
         if (!CurrentProfile.value) return undefined;
-        switch (CurrentProfile.value.type) {
+        switch (CurrentProfile.value.Type) {
             case "msa":
-                const skin_info: SkinInfo[] = JSON.parse(CurrentProfile.value.skin_info || "[]");
+                const skin_info: SkinInfo[] = JSON.parse(CurrentProfile.value.SkinInfo || "[]");
                 const active_skin = skin_info.find((i) => i.state === "ACTIVE");
                 if (!active_skin) return [];
                 return [active_skin.url, active_skin.variant];
@@ -327,9 +324,9 @@
     });
     const CurrentProfileCape = computed(() => {
         if (!CurrentProfile.value) return undefined;
-        switch (CurrentProfile.value.type) {
+        switch (CurrentProfile.value.Type) {
             case "msa":
-                const cape_info: CapeInfo[] = JSON.parse(CurrentProfile.value.cape_info || "[]");
+                const cape_info: CapeInfo[] = JSON.parse(CurrentProfile.value.CapeInfo || "[]");
                 const active_cape = cape_info.find((i) => i.state === "ACTIVE");
                 if (!active_cape) return undefined;
                 return active_cape.url;
@@ -347,7 +344,7 @@
                 setupMsaService();
                 break;
             case "legacy":
-                if (Profiles.value.some((i) => i.type === "msa")) {
+                if (Profiles.value.some((i) => i.Type === "msa")) {
                     type.value = "legacy";
                     step.value = 2;
                 } else {
@@ -357,7 +354,7 @@
             case "yggdrasil":
                 // 暂时还没做好，先不让跳转
                 return;
-                if (Profiles.value.some((i) => i.type === "msa")) {
+                if (Profiles.value.some((i) => i.Type === "msa")) {
                     type.value = "yggdrasil";
                     step.value = 2;
                     break;
@@ -369,9 +366,9 @@
 
     // ======== 钩子 ==========
     onMounted(async () => {
-        ProfileConfig.value = await TauriTOML.getProfileConfig();
-        Profiles.value = ProfileConfig.value?.profile || [];
-        topCardIndex.value = Profiles.value.findIndex((i) => i.picked);
+        ProfileConfig.value = await TauriConfig.get<ITauriTypes.Config.ProfileConfig>("Profile");
+        Profiles.value = ProfileConfig.value?.Profile || [];
+        topCardIndex.value = Profiles.value.findIndex((i) => i.Picked);
     });
 </script>
 
@@ -415,7 +412,7 @@
                         <AccountCard
                             :style="{ '--bgc-perc': matchTheme('dark') ? '4.23%' : '5.79%' }"
                             v-for="card in reorderPicked(Profiles)"
-                            :key="card.guid"
+                            :key="card.Guid"
                             :profile="card" />
                     </div>
                     <div class="card w-full bg-base-100 mt-2">
@@ -462,11 +459,11 @@
                         </svg>
                         <span class="text-sm">{{ $t("Main.r/Profile.Modal.Add.MsLogin") }}</span>
                     </button>
-                    <button class="btn w-66" @click="onCreateNewProfile('legacy')" v-if="Profiles.some((i) => i.type === 'msa')">
+                    <button class="btn w-66" @click="onCreateNewProfile('legacy')" v-if="Profiles.some((i) => i.Type === 'msa')">
                         <i class="icon-[material-symbols--safety-check-off-outline-rounded] size-6 mr-1"></i>
                         <span class="text-sm">{{ $t("Main.r/Profile.Modal.Add.Offline") }}</span>
                     </button>
-                    <button class="btn w-66" @click="onCreateNewProfile('yggdrasil')" v-if="Profiles.some((i) => i.type === 'msa')" disabled>
+                    <button class="btn w-66" @click="onCreateNewProfile('yggdrasil')" v-if="Profiles.some((i) => i.Type === 'msa')" disabled>
                         <i class="icon-[material-symbols--assured-workload-outline-rounded] size-6 mr-1"></i>
                         <span class="text-sm">{{ $t("Main.r/Profile.Modal.Add.TrdParty") }}</span>
                     </button>
@@ -547,7 +544,7 @@
                             })
                         }}
                     </p>
-                    <p>UUID {{ Profiles.filter((i) => i.picked)[0]?.uuid }}</p>
+                    <p>UUID {{ Profiles.filter((i) => i.Picked)[0]?.Uuid }}</p>
                     <div class="divider w-96 mx-auto my-0"></div>
                     <form method="dialog" class="w-66 grid grid-cols-5 gap-4">
                         <button class="btn w-full btn-error col-span-3" @click="removeCurrentProfile">

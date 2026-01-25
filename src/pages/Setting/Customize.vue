@@ -1,30 +1,25 @@
 <script setup lang="ts">
-    import { EventBus, TauriTOML } from "@/modules";
+    import { EventBus, TauriConfig } from "@/modules";
     import { ITauriTypes } from "@/types";
+    import { watchAndSet } from "@/utils";
     import { onMounted, ref, watch } from "vue";
     import { useI18n } from "vue-i18n";
 
     const { t, locale } = useI18n();
 
-    const Theme = ref<ITauriTypes.TOML.CustomizeConfig["theme"]>("auto");
-    const Language = ref<ITauriTypes.TOML.CustomizeConfig["language"]>("zh-CN");
+    const Theme = ref<ITauriTypes.Config.CustomizeConfig["UI"]["Theme"]>("auto");
+    const Language = ref<ITauriTypes.Config.CustomizeConfig["UI"]["Language"]>("zh-CN");
 
     onMounted(async () => {
-        const config = await TauriTOML.getGlobalConfig();
-        const theme_config = config.customize;
-        Theme.value = theme_config.theme;
-        Language.value = theme_config.language;
+        Theme.value = await TauriConfig.get<ITauriTypes.Config.CustomizeConfig["UI"]["Theme"]>("UI.Theme");
+        Language.value = await TauriConfig.get<ITauriTypes.Config.CustomizeConfig["UI"]["Language"]>("UI.Language");
     });
 
-    watch([Theme, Language], async ([Theme, Language]) => {
-        const config = await TauriTOML.getGlobalConfig();
-        const theme_config = config.customize;
-        theme_config.theme = Theme;
-        theme_config.language = Language;
-        await TauriTOML.saveGlobalConfig(config);
-        // Post-Updates
-        EventBus.emit("theme:change", Theme);
-        locale.value = Language;
+    watchAndSet(Theme, "Customize.UI.Theme", (new_value) => {
+        EventBus.emit("theme:change", new_value);
+    });
+    watchAndSet(Language, "Customize.UI.Language", (new_value) => {
+        locale.value = new_value;
     });
 </script>
 
