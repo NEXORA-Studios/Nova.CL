@@ -1,4 +1,4 @@
-import { HttpClient } from "../tauri/Http";
+import { HttpClient } from "../tauri/HttpClient";
 
 export class Requester {
     private baseUrl?: string;

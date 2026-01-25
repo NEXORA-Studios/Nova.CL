@@ -1,4 +1,4 @@
-import { invoke } from "@tauri-apps/api/core";
+import { IpcClient } from "./IpcClient";
 import { ITauriTypes } from "@/types";
 
 /**
@@ -12,7 +12,7 @@ export class TauriLogging {
      * @returns Promise<void>
      */
     static async trace(options: ITauriTypes.Logging.LogOptions): Promise<void> {
-        await invoke("log_trace", {
+        await IpcClient.invoke<void>("log_trace", {
             category: options.category,
             message: options.message,
         });
@@ -25,7 +25,7 @@ export class TauriLogging {
      * @returns Promise<void>
      */
     static async debug(options: ITauriTypes.Logging.LogOptions): Promise<void> {
-        await invoke("log_debug", {
+        await IpcClient.invoke<void>("log_debug", {
             category: options.category,
             message: options.message,
         });
@@ -38,7 +38,7 @@ export class TauriLogging {
      * @returns Promise<void>
      */
     static async info(options: ITauriTypes.Logging.LogOptions): Promise<void> {
-        await invoke("log_info", {
+        await IpcClient.invoke<void>("log_info", {
             category: options.category,
             message: options.message,
         });
@@ -51,7 +51,7 @@ export class TauriLogging {
      * @returns Promise<void>
      */
     static async warn(options: ITauriTypes.Logging.LogOptions): Promise<void> {
-        await invoke("log_warn", {
+        await IpcClient.invoke<void>("log_warn", {
             category: options.category,
             message: options.message,
         });
@@ -64,7 +64,7 @@ export class TauriLogging {
      * @returns Promise<void>
      */
     static async error(options: ITauriTypes.Logging.LogOptions): Promise<void> {
-        await invoke("log_error", {
+        await IpcClient.invoke<void>("log_error", {
             category: options.category,
             message: options.message,
         });
