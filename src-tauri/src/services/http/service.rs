@@ -6,10 +6,7 @@ use std::sync::Arc;
 use tauri::AppHandle;
 use tokio::sync::Mutex;
 
-use crate::lifecycle::{
-    async_cmd, CommandError, CommandHashMap, CommandInput, CommandOutput, LifecycleService,
-    ServiceState,
-};
+use crate::lifecycle::{async_cmd, CommandError, CommandHashMap, CommandInput, CommandOutput, LifecycleService, ServiceState};
 use crate::services::http::client::HttpClient;
 use crate::services::http::server::{get_server_status, start_server, stop_server};
 
@@ -33,10 +30,7 @@ impl HttpService {
     /// 获取 HTTP 客户端实例
     async fn get_client(&self) -> Result<HttpClient, CommandError> {
         let guard = self.client.lock().await;
-        guard
-            .as_ref()
-            .ok_or_else(|| CommandError::Text("HTTP 客户端未初始化".to_string()))
-            .cloned()
+        guard.as_ref().ok_or_else(|| CommandError::Text("HTTP 客户端未初始化".to_string())).cloned()
     }
 }
 
@@ -93,12 +87,7 @@ impl LifecycleService for HttpService {
                         let client = self_arc.get_client().await?;
 
                         if let CommandInput::HttpClientReq(args) = input {
-                            Ok(CommandOutput::HttpClientResp(
-                                client
-                                    .request(&args)
-                                    .await
-                                    .map_err(CommandError::HttpClientErr)?,
-                            ))
+                            Ok(CommandOutput::HttpClientResp(client.request(&args).await.map_err(CommandError::HttpClientErr)?))
                         } else {
                             Err(CommandError::Text("需要 HttpReq 输入".to_string()))
                         }
@@ -117,12 +106,7 @@ impl LifecycleService for HttpService {
                         let client = self_arc.get_client().await?;
 
                         if let CommandInput::HttpClientReq(args) = input {
-                            Ok(CommandOutput::HttpClientResp(
-                                client
-                                    .get(&args.url, args.headers)
-                                    .await
-                                    .map_err(CommandError::HttpClientErr)?,
-                            ))
+                            Ok(CommandOutput::HttpClientResp(client.get(&args.url, args.headers).await.map_err(CommandError::HttpClientErr)?))
                         } else {
                             Err(CommandError::Text("需要 HttpReq 输入".to_string()))
                         }
@@ -141,12 +125,7 @@ impl LifecycleService for HttpService {
                         let client = self_arc.get_client().await?;
 
                         if let CommandInput::HttpClientReq(args) = input {
-                            Ok(CommandOutput::HttpClientResp(
-                                client
-                                    .post(&args.url, args.headers, args.body)
-                                    .await
-                                    .map_err(CommandError::HttpClientErr)?,
-                            ))
+                            Ok(CommandOutput::HttpClientResp(client.post(&args.url, args.headers, args.body).await.map_err(CommandError::HttpClientErr)?))
                         } else {
                             Err(CommandError::Text("需要 HttpReq 输入".to_string()))
                         }
@@ -165,12 +144,7 @@ impl LifecycleService for HttpService {
                         let client = self_arc.get_client().await?;
 
                         if let CommandInput::HttpClientReq(args) = input {
-                            Ok(CommandOutput::HttpClientResp(
-                                client
-                                    .put(&args.url, args.headers, args.body)
-                                    .await
-                                    .map_err(CommandError::HttpClientErr)?,
-                            ))
+                            Ok(CommandOutput::HttpClientResp(client.put(&args.url, args.headers, args.body).await.map_err(CommandError::HttpClientErr)?))
                         } else {
                             Err(CommandError::Text("需要 HttpReq 输入".to_string()))
                         }
@@ -189,12 +163,7 @@ impl LifecycleService for HttpService {
                         let client = self_arc.get_client().await?;
 
                         if let CommandInput::HttpClientReq(args) = input {
-                            Ok(CommandOutput::HttpClientResp(
-                                client
-                                    .delete(&args.url, args.headers)
-                                    .await
-                                    .map_err(CommandError::HttpClientErr)?,
-                            ))
+                            Ok(CommandOutput::HttpClientResp(client.delete(&args.url, args.headers).await.map_err(CommandError::HttpClientErr)?))
                         } else {
                             Err(CommandError::Text("需要 HttpReq 输入".to_string()))
                         }
@@ -213,12 +182,7 @@ impl LifecycleService for HttpService {
                         let client = self_arc.get_client().await?;
 
                         if let CommandInput::HttpClientReq(args) = input {
-                            Ok(CommandOutput::HttpClientResp(
-                                client
-                                    .patch(&args.url, args.headers, args.body)
-                                    .await
-                                    .map_err(CommandError::HttpClientErr)?,
-                            ))
+                            Ok(CommandOutput::HttpClientResp(client.patch(&args.url, args.headers, args.body).await.map_err(CommandError::HttpClientErr)?))
                         } else {
                             Err(CommandError::Text("需要 HttpReq 输入".to_string()))
                         }
@@ -249,12 +213,7 @@ impl HttpServerService {
     }
 
     /// 启动 HTTP 服务器
-    pub async fn start(
-        &self,
-        app_handle: AppHandle,
-        port: u16,
-        lang: String,
-    ) -> Result<(), String> {
+    pub async fn start(&self, app_handle: AppHandle, port: u16, lang: String) -> Result<(), String> {
         match start_server(app_handle, port, lang).await {
             Ok(_) => {
                 let mut port_guard = self.server_port.lock().await;
@@ -317,10 +276,7 @@ impl LifecycleService for HttpServerService {
 
         // 停止服务器（如果正在运行）
         if let Some(port) = self.status().await {
-            info!(
-                "HTTP 服务器服务组件正在停止，将自动清理残留在端口 {} 上的 HTTP 服务",
-                port
-            );
+            info!("HTTP 服务器服务组件正在停止，将自动清理残留在端口 {} 上的 HTTP 服务", port);
             if let Err(e) = self.stop().await {
                 error!("HTTP 服务器服务组件停止失败: {}", e);
             }
@@ -345,10 +301,7 @@ impl LifecycleService for HttpServerService {
                     let self_arc = self_arc.clone();
                     async move {
                         if let CommandInput::HttpServerStart(args) = input {
-                            self_arc
-                                .start(args.app_handle, args.port, args.lang.clone())
-                                .await
-                                .map_err(CommandError::Text)?;
+                            self_arc.start(args.app_handle, args.port, args.lang.clone()).await.map_err(CommandError::Text)?;
                             Ok(CommandOutput::Json(json!({
                                 "status": "ok",
                                 "message": "HTTP server started",

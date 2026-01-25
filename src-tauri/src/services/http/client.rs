@@ -9,9 +9,7 @@ pub struct HttpClient {
 
 impl HttpClient {
     pub fn new() -> Self {
-        let client = ReqwestClient::builder()
-            .build()
-            .expect("Failed to create HTTP client");
+        let client = ReqwestClient::builder().build().expect("Failed to create HTTP client");
         HttpClient { client }
     }
 
@@ -34,12 +32,7 @@ impl HttpClient {
             }
         };
 
-        Ok(HttpResponse {
-            status,
-            headers,
-            body,
-            text: None,
-        })
+        Ok(HttpResponse { status, headers, body, text: None })
     }
 
     pub async fn request(&self, req: &HttpRequest) -> Result<HttpResponse, HttpError> {
@@ -67,11 +60,7 @@ impl HttpClient {
 
         if let Some(body) = &req.body {
             // 检查Content-Type头，决定如何处理请求体
-            let content_type = req
-                .headers
-                .as_ref()
-                .and_then(|h| h.get("Content-Type"))
-                .map(|v| v.to_lowercase());
+            let content_type = req.headers.as_ref().and_then(|h| h.get("Content-Type")).map(|v| v.to_lowercase());
 
             match content_type.as_deref() {
                 Some("application/x-www-form-urlencoded") => {
@@ -98,11 +87,7 @@ impl HttpClient {
         Self::process_response(response).await
     }
 
-    pub async fn get(
-        &self,
-        url: &str,
-        headers: Option<HashMap<String, String>>,
-    ) -> Result<HttpResponse, HttpError> {
+    pub async fn get(&self, url: &str, headers: Option<HashMap<String, String>>) -> Result<HttpResponse, HttpError> {
         self.request(&HttpRequest {
             method: "GET".to_string(),
             url: url.to_string(),
@@ -112,12 +97,7 @@ impl HttpClient {
         .await
     }
 
-    pub async fn post(
-        &self,
-        url: &str,
-        headers: Option<HashMap<String, String>>,
-        body: Option<serde_json::Value>,
-    ) -> Result<HttpResponse, HttpError> {
+    pub async fn post(&self, url: &str, headers: Option<HashMap<String, String>>, body: Option<serde_json::Value>) -> Result<HttpResponse, HttpError> {
         self.request(&HttpRequest {
             method: "POST".to_string(),
             url: url.to_string(),
@@ -127,12 +107,7 @@ impl HttpClient {
         .await
     }
 
-    pub async fn put(
-        &self,
-        url: &str,
-        headers: Option<HashMap<String, String>>,
-        body: Option<serde_json::Value>,
-    ) -> Result<HttpResponse, HttpError> {
+    pub async fn put(&self, url: &str, headers: Option<HashMap<String, String>>, body: Option<serde_json::Value>) -> Result<HttpResponse, HttpError> {
         self.request(&HttpRequest {
             method: "PUT".to_string(),
             url: url.to_string(),
@@ -142,11 +117,7 @@ impl HttpClient {
         .await
     }
 
-    pub async fn delete(
-        &self,
-        url: &str,
-        headers: Option<HashMap<String, String>>,
-    ) -> Result<HttpResponse, HttpError> {
+    pub async fn delete(&self, url: &str, headers: Option<HashMap<String, String>>) -> Result<HttpResponse, HttpError> {
         self.request(&HttpRequest {
             method: "DELETE".to_string(),
             url: url.to_string(),
@@ -156,12 +127,7 @@ impl HttpClient {
         .await
     }
 
-    pub async fn patch(
-        &self,
-        url: &str,
-        headers: Option<HashMap<String, String>>,
-        body: Option<serde_json::Value>,
-    ) -> Result<HttpResponse, HttpError> {
+    pub async fn patch(&self, url: &str, headers: Option<HashMap<String, String>>, body: Option<serde_json::Value>) -> Result<HttpResponse, HttpError> {
         self.request(&HttpRequest {
             method: "PATCH".to_string(),
             url: url.to_string(),

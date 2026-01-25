@@ -1,4 +1,4 @@
-use tauri::{AppHandle, Manager}; 
+use tauri::{AppHandle, Manager};
 
 use crate::ipc::{CallResponse, IpcError};
 use crate::lifecycle::{CommandInput, HttpStartArgs};
@@ -46,10 +46,7 @@ pub async fn http_server_start(app_handle: AppHandle, id: u64, port: u16, lang: 
     };
 
     // 调用生命周期管理器的命令
-    match manager
-        .invoke_command("http_server_start", CommandInput::HttpServerStart(start_args))
-        .await
-    {
+    match manager.invoke_command("http_server_start", CommandInput::HttpServerStart(start_args)).await {
         Ok(output) => {
             match output {
                 crate::lifecycle::CommandOutput::Json(json) => {
@@ -67,7 +64,7 @@ pub async fn http_server_start(app_handle: AppHandle, id: u64, port: u16, lang: 
                         };
                         CallResponse::error(id, "http_server_start".to_string(), error)
                     }
-                },
+                }
                 _ => {
                     let error = IpcError {
                         code: 2002,
@@ -78,7 +75,7 @@ pub async fn http_server_start(app_handle: AppHandle, id: u64, port: u16, lang: 
                         retryable: false,
                     };
                     CallResponse::error(id, "http_server_start".to_string(), error)
-                },
+                }
             }
         }
         Err(e) => {
@@ -92,7 +89,7 @@ pub async fn http_server_start(app_handle: AppHandle, id: u64, port: u16, lang: 
                 retryable: true,
             };
             CallResponse::error(id, "http_server_start".to_string(), error)
-        },
+        }
     }
 }
 
@@ -108,10 +105,7 @@ pub async fn http_server_stop(app_handle: AppHandle, id: u64) -> CallResponse<Ht
     let manager = manager.inner().clone();
 
     // 调用生命周期管理器的命令
-    match manager
-        .invoke_command("http_server_stop", CommandInput::Args(vec![]))
-        .await
-    {
+    match manager.invoke_command("http_server_stop", CommandInput::Args(vec![])).await {
         Ok(output) => {
             match output {
                 crate::lifecycle::CommandOutput::Json(json) => {
@@ -129,7 +123,7 @@ pub async fn http_server_stop(app_handle: AppHandle, id: u64) -> CallResponse<Ht
                         };
                         CallResponse::error(id, "http_server_stop".to_string(), error)
                     }
-                },
+                }
                 _ => {
                     let error = IpcError {
                         code: 2005,
@@ -140,7 +134,7 @@ pub async fn http_server_stop(app_handle: AppHandle, id: u64) -> CallResponse<Ht
                         retryable: false,
                     };
                     CallResponse::error(id, "http_server_stop".to_string(), error)
-                },
+                }
             }
         }
         Err(e) => {
@@ -154,7 +148,7 @@ pub async fn http_server_stop(app_handle: AppHandle, id: u64) -> CallResponse<Ht
                 retryable: true,
             };
             CallResponse::error(id, "http_server_stop".to_string(), error)
-        },
+        }
     }
 }
 
@@ -170,10 +164,7 @@ pub async fn http_server_get_status(app_handle: AppHandle, id: u64) -> CallRespo
     let manager = manager.inner().clone();
 
     // 调用生命周期管理器的命令
-    match manager
-        .invoke_command("http_server_get_status", CommandInput::Args(vec![]))
-        .await
-    {
+    match manager.invoke_command("http_server_get_status", CommandInput::Args(vec![])).await {
         Ok(output) => {
             match output {
                 crate::lifecycle::CommandOutput::Json(json) => {
@@ -191,7 +182,7 @@ pub async fn http_server_get_status(app_handle: AppHandle, id: u64) -> CallRespo
                         };
                         CallResponse::error(id, "http_server_get_status".to_string(), error)
                     }
-                },
+                }
                 _ => {
                     let error = IpcError {
                         code: 2008,
@@ -202,7 +193,7 @@ pub async fn http_server_get_status(app_handle: AppHandle, id: u64) -> CallRespo
                         retryable: false,
                     };
                     CallResponse::error(id, "http_server_get_status".to_string(), error)
-                },
+                }
             }
         }
         Err(e) => {
@@ -216,6 +207,6 @@ pub async fn http_server_get_status(app_handle: AppHandle, id: u64) -> CallRespo
                 retryable: true,
             };
             CallResponse::error(id, "http_server_get_status".to_string(), error)
-        },
+        }
     }
 }

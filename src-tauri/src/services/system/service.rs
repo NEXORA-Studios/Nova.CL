@@ -1,6 +1,5 @@
-
 use async_trait::async_trait;
-use log::{info};
+use log::info;
 use std::collections::HashMap;
 use std::sync::Arc;
 use tauri::AppHandle;
@@ -60,14 +59,12 @@ impl LifecycleService for SystemService {
         // 获取内存信息命令
         map.insert(
             "get_ram_info".to_string(),
-            sync_cmd(
-                |_args: CommandInput| -> Result<CommandOutput, CommandError> {
-                    match serde_json::to_value(&get_ram_info()) {
-                        Ok(v) => Ok(CommandOutput::Json(v)),
-                        Err(e) => Err(CommandError::Text(format!("获取 RAM 信息失败: {:?}", e)))
-                    }
-                },
-            )
+            sync_cmd(|_args: CommandInput| -> Result<CommandOutput, CommandError> {
+                match serde_json::to_value(&get_ram_info()) {
+                    Ok(v) => Ok(CommandOutput::Json(v)),
+                    Err(e) => Err(CommandError::Text(format!("获取 RAM 信息失败: {:?}", e))),
+                }
+            }),
         );
 
         map

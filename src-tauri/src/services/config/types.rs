@@ -24,3 +24,17 @@ pub enum ConfigDataType {
     Array,
     Object,
 }
+
+/// 配置元数据结构体
+#[derive(Debug, Clone)]
+pub struct ConfigMetadata {
+    pub toml_file: &'static str,        // TOML 文件名（不含扩展名）
+    pub config_item: Vec<&'static str>, // 配置项名称
+    pub data_type: ConfigDataType,      // 数据类型
+    pub need_encrypt: bool,             // 是否需要加密
+    pub default_value: ConfigValue,     // 默认值
+    pub is_list: bool,                  // 是否为 [[list]] 数组表
+}
+
+/// 配置元数据列表
+pub type ConfigMetadataList = &'static [ConfigMetadata];

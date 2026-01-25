@@ -6,34 +6,29 @@ use tauri::AppHandle;
 use tokio::sync::Mutex;
 
 use crate::lifecycle::{sync_cmd, CommandError, CommandHashMap, CommandInput, CommandOutput, LifecycleService, ServiceState};
-use crate::services::config::provider::ConfigProvider;
-use crate::services::config::types::{ConfigDataType, ConfigMap, ConfigValue};
-use crate::services::config::metadata::{ConfigMetadata, ConfigMetadataList};
-use crate::services::config::crypto::CryptoContext;
+use crate::services::config::{
+    crypto::CryptoContext,
+    provider::TomlConfigProvider,
+    types::{ConfigDataType, ConfigMap, ConfigMetadataList, ConfigValue},
+};
+use crate::services::config::{ConfigMetadata, ConfigProvider};
 
 /// 配置服务
 #[derive(Clone)]
 pub struct ConfigService {
     state: Arc<Mutex<ServiceState>>,
     app_handle: Arc<Mutex<Option<AppHandle>>>,
-    providers: Arc<Mutex<Vec<Arc<dyn ConfigProvider>>>>,
+    providers: Arc<Mutex<Vec<Arc<dyn crate::services::config::provider::ConfigProvider>>>>,
     config: Arc<Mutex<ConfigMap>>,
     metadata: ConfigMetadataList,
     crypto_context: Option<CryptoContext>,
 }
 
 impl ConfigService {
-    /// 创建新的配置服务实例
-    pub fn new(
-        providers: Vec<Arc<dyn ConfigProvider>>,
-        metadata: ConfigMetadataList
-    ) -> Self {
-        // 初始加密密钥使用随机生成的值
+    pub fn new(providers: Vec<Arc<dyn crate::services::config::provider::ConfigProvider>>, metadata: ConfigMetadataList) -> Self {
         let random_key = CryptoContext::generate_random_key();
-        let crypto_context = tokio::runtime::Runtime::new().unwrap().block_on(
-            CryptoContext::new(random_key)
-        );
-        
+        let crypto_context = tokio::runtime::Runtime::new().unwrap().block_on(CryptoContext::new(random_key));
+
         Self {
             state: Arc::new(Mutex::new(ServiceState::Created)),
             app_handle: Arc::new(Mutex::new(None)),
@@ -43,28 +38,28 @@ impl ConfigService {
             crypto_context: Some(crypto_context),
         }
     }
-    
+
     /// 初始化默认配置
     fn init_default_config(&self) -> ConfigMap {
         let mut default_config = ConfigMap::new();
-        
         for meta in self.metadata {
-            default_config.insert(meta.config_name.to_string(), meta.default_value.clone());
+            let mut value = meta.default_value.clone();
+            if meta.is_list && !matches!(value, ConfigValue::Array(_)) {
+                value = ConfigValue::Array(vec![value]);
+            }
+            Self::set_by_path(&mut default_config, &meta.config_item, value, self.metadata);
         }
-        
         default_config
     }
-    
-    /// 合并配置
+
     fn merge_configs(&self, mut merged: ConfigMap, new: ConfigMap) -> ConfigMap {
         merged.extend(new);
         merged
     }
-    
-    /// 验证配置类型
-    fn validate_config_type(&self, key: &str, value: &ConfigValue) -> bool {
+
+    fn validate_config_type(&self, path: &[&str], value: &ConfigValue) -> bool {
         for meta in self.metadata {
-            if meta.config_name == key {
+            if meta.config_item == path {
                 match (&meta.data_type, value) {
                     (ConfigDataType::String, ConfigValue::String(_)) => return true,
                     (ConfigDataType::Number, ConfigValue::Number(_)) => return true,
@@ -75,113 +70,131 @@ impl ConfigService {
                 }
             }
         }
-        true // 未知配置项，不验证类型
+        true
     }
-    
-    /// 获取配置值
-    async fn get_config(&self, key: &str) -> Option<ConfigValue> {
-        let config_guard = self.config.lock().await;
-        config_guard.get(key).cloned()
+
+    pub async fn get_config(&self, path: &[&str]) -> Option<ConfigValue> {
+        let guard = self.config.lock().await;
+        Self::get_by_path(&*guard, path).cloned()
     }
-    
-    /// 设置配置值
-    async fn set_config(&self, key: &str, value: ConfigValue) -> Result<(), Box<dyn std::error::Error>> {
-        // 验证类型
-        if !self.validate_config_type(key, &value) {
-            return Err(Box::new(std::io::Error::new(
-                std::io::ErrorKind::InvalidData,
-                format!("配置项 {} 类型不匹配", key)
-            )));
+
+    pub async fn set_config(&self, path: &[&str], value: ConfigValue) -> Result<(), Box<dyn std::error::Error>> {
+        // 校验类型
+        if !self.validate_config_type(path, &value) {
+            return Err(Box::new(std::io::Error::new(std::io::ErrorKind::InvalidData, "类型不匹配")));
         }
-        
-        // 检查是否需要加密
-        let need_encrypt = self.metadata.iter()
-            .find(|meta| meta.config_name == key)
-            .map(|meta| meta.need_encrypt)
-            .unwrap_or(false);
-        
+
+        let need_encrypt = self.metadata.iter().find(|meta| meta.config_item == path).map(|m| m.need_encrypt).unwrap_or(false);
+
         let processed_value = if need_encrypt {
-            // 加密处理
-            if let ConfigValue::String(plaintext) = &value {
-                if let Some(crypto_context) = &self.crypto_context {
-                    let encrypted = crypto_context.encrypt_value(plaintext).await?;
+            if let ConfigValue::String(s) = &value {
+                if let Some(crypto) = &self.crypto_context {
+                    let encrypted = crypto.encrypt_value(s).await?;
                     ConfigValue::String(encrypted)
                 } else {
-                    value // 加密上下文未初始化，直接返回
+                    value.clone()
                 }
             } else {
-                value // 只加密字符串类型
+                value.clone()
             }
         } else {
-            value
+            value.clone()
         };
-        
-        // 更新配置
-        let mut config_guard = self.config.lock().await;
-        config_guard.insert(key.to_string(), processed_value.clone());
-        
-        // 保存到对应的 TOML 文件
-        if let Some(meta) = self.metadata.iter().find(|m| m.config_name == key) {
-            let provider = super::provider::TomlConfigProvider::new(meta.toml_file);
-            
-            // 获取 AppHandle
-            let app_handle_guard = self.app_handle.lock().await;
-            let app_handle = app_handle_guard.as_ref()
-                .ok_or("AppHandle not initialized")?;
-            
-            // 只保存当前文件的配置
+
+        let mut guard = self.config.lock().await;
+        Self::set_by_path(&mut *guard, path, processed_value.clone(), self.metadata);
+
+        // 保存对应文件
+        if let Some(meta) = self.metadata.iter().find(|m| m.config_item == path) {
+            let provider = TomlConfigProvider::new(meta.toml_file);
+            let app_guard = self.app_handle.lock().await;
+            let app = app_guard.as_ref().ok_or("AppHandle not initialized")?;
             let mut file_config = ConfigMap::new();
-            for (k, v) in config_guard.iter() {
-                if let Some(m) = self.metadata.iter().find(|m| m.config_name == k) {
-                    if m.toml_file == meta.toml_file {
-                        file_config.insert(k.clone(), v.clone());
-                    }
-                }
-            }
-            
-            provider.save(app_handle, &file_config).await?;
+            file_config.insert(meta.config_item.last().unwrap().to_string(), processed_value);
+            provider.save(app, &file_config).await?;
         }
-        
+
         Ok(())
     }
-    
-    /// 获取解密后的配置值
-    async fn get_decrypted_config(&self, key: &str) -> Result<Option<ConfigValue>, Box<dyn std::error::Error>> {
-        if let Some(value) = self.get_config(key).await {
-            // 检查是否需要解密
-            let need_encrypt = self.metadata.iter()
-                .find(|meta| meta.config_name == key)
-                .map(|meta| meta.need_encrypt)
-                .unwrap_or(false);
-            
+
+    pub async fn get_decrypted_config(&self, path: &[&str]) -> Result<Option<ConfigValue>, Box<dyn std::error::Error>> {
+        if let Some(value) = self.get_config(path).await {
+            let need_encrypt = self.metadata.iter().find(|meta| meta.config_item == path).map(|m| m.need_encrypt).unwrap_or(false);
             if need_encrypt {
-                // 解密处理
-                if let ConfigValue::String(encrypted) = value {
-                    if let Some(crypto_context) = &self.crypto_context {
-                        let plaintext = crypto_context.decrypt_value(&encrypted).await?;
-                        Ok(Some(ConfigValue::String(plaintext)))
+                if let ConfigValue::String(s) = value {
+                    if let Some(crypto) = &self.crypto_context {
+                        let decrypted = crypto.decrypt_value(&s).await.map_err(|e| format!("解密失败: {}", e))?;
+                        Ok(Some(ConfigValue::String(decrypted)))
                     } else {
-                        Ok(Some(ConfigValue::String(encrypted)))
+                        Ok(Some(ConfigValue::String(s)))
                     }
                 } else {
-                    Ok(Some(value)) // 非字符串类型，直接返回
+                    Ok(Some(value))
                 }
             } else {
-                Ok(Some(value)) // 不需要解密，直接返回
+                Ok(Some(value))
             }
         } else {
             Ok(None)
         }
     }
-    
-    /// 从环境变量获取加密密钥盐
-    fn get_encryption_key_salt(&self) -> String {
-        // 从系统环境变量获取 APP_ENCRYPTION_KEY
-        std::env::var("APP_ENCRYPTION_KEY").unwrap_or_else(|_| {
-            // 如果环境变量不存在，使用默认值
-            warn!("APP_ENCRYPTION_KEY 环境变量未设置，使用默认值");
-            "novacl_default_encryption_key_salt".to_string()
-        })
+
+    fn get_by_path<'a>(config: &'a ConfigMap, path: &[&str]) -> Option<&'a ConfigValue> {
+        let mut current = config;
+
+        for key in &path[..path.len() - 1] {
+            match current.get(*key) {
+                Some(ConfigValue::Object(obj)) => current = obj,
+                _ => return None,
+            }
+        }
+
+        current.get(*path.last().unwrap())
+    }
+
+    fn set_by_path(config: &mut ConfigMap, path: &[&str], value: ConfigValue, metadata: &[ConfigMetadata]) {
+        if path.is_empty() {
+            return;
+        }
+
+        let mut current = config;
+
+        // 逐层向下创建/获取 Object
+        for &key in &path[..path.len() - 1] {
+            current = match current.entry(key.to_string()) {
+                std::collections::hash_map::Entry::Vacant(e) => {
+                    let obj = e.insert(ConfigValue::Object(HashMap::new()));
+                    if let ConfigValue::Object(map) = obj {
+                        map
+                    } else {
+                        unreachable!()
+                    }
+                }
+                std::collections::hash_map::Entry::Occupied(e) => {
+                    let value = e.into_mut();
+                    if !matches!(value, ConfigValue::Object(_)) {
+                        *value = ConfigValue::Object(HashMap::new());
+                    }
+                    if let ConfigValue::Object(map) = value {
+                        map
+                    } else {
+                        unreachable!()
+                    }
+                }
+            };
+        }
+
+        let last_key = path.last().unwrap().to_string();
+
+        let mut final_value = value;
+
+        if let Some(meta) = metadata.iter().find(|m| m.config_item == path) {
+            if meta.is_list && !matches!(&final_value, ConfigValue::Array(_)) {
+                final_value = ConfigValue::Array(vec![final_value]);
+            }
+        }
+
+        current.insert(last_key, final_value);
     }
 }
 
@@ -190,176 +203,142 @@ impl LifecycleService for ConfigService {
     fn name(&self) -> &'static str {
         "ConfigService"
     }
-    
     fn priority(&self) -> i32 {
-        90 // 优先级高于 HttpService，低于 EnvService (EnvService 优先级为 100)
+        90
     }
-    
+
     async fn on_start(&self, app: &AppHandle) {
         let mut state_guard = self.state.lock().await;
         *state_guard = ServiceState::Starting;
-        
-        // 保存 AppHandle
-        let mut app_handle_guard = self.app_handle.lock().await;
-        *app_handle_guard = Some(app.clone());
-        
-        // 从环境变量获取加密密钥盐
-        let salt = self.get_encryption_key_salt();
-        
-        // 初始化默认配置
+
+        let mut app_guard = self.app_handle.lock().await;
+        *app_guard = Some(app.clone());
+
         let default_config = self.init_default_config();
-        
-        // 按优先级排序提供器
+
         let mut providers = self.providers.lock().await;
         providers.sort_by_key(|p| p.priority());
-        
+
         let mut merged_config = default_config;
-        let mut loaded_providers = Vec::new();
-        
-        // 加载所有配置
+
         for provider in providers.iter() {
             match provider.load(app).await {
                 Ok(config) => {
-                    let config_count = config.len();
+                    let count = config.len();
                     merged_config = self.merge_configs(merged_config, config);
-                    loaded_providers.push(provider.name());
-                    debug!("从 {} 加载了 {} 个配置项", provider.name(), config_count);
+                    debug!("从 {} 加载了 {} 个配置项", provider.name(), count);
                 }
-                Err(e) => {
-                    warn!("从 {} 加载配置失败: {}", provider.name(), e);
-                }
+                Err(e) => warn!("从 {} 加载配置失败: {}", provider.name(), e),
             }
         }
-        
-        // 另外，加载所有已知的 TOML 文件
-        let mut file_providers = Vec::new();
+
+        let mut guard = self.config.lock().await;
+        *guard = merged_config;
+
+        // 收集缺失的文件和默认配置
+        let mut missing_files: HashMap<&str, ConfigMap> = HashMap::new();
         for meta in self.metadata {
-            let provider = super::provider::TomlConfigProvider::new(meta.toml_file);
-            if !file_providers.iter().any(|p: &super::provider::TomlConfigProvider| p.file_name == meta.toml_file) {
-                file_providers.push(provider);
-            }
-        }
-        
-        for provider in file_providers {
-            match provider.load(app).await {
-                Ok(config) => {
-                    let config_count = config.len();
-                    merged_config = self.merge_configs(merged_config, config);
-                    debug!("从 TOML 文件 {} 加载了 {} 个配置项", provider.file_name, config_count);
-                }
+            let provider = TomlConfigProvider::new(meta.toml_file);
+            let path = match provider.get_config_path(app) {
+                Ok(p) => p,
                 Err(e) => {
-                    warn!("从 TOML 文件 {} 加载配置失败: {}", provider.file_name, e);
+                    warn!("无法获取路径 {}: {}", meta.toml_file, e);
+                    continue;
+                }
+            };
+
+            if !path.exists() {
+                let entry = missing_files.entry(meta.toml_file).or_insert_with(ConfigMap::new);
+                entry.insert(meta.config_item.join("."), meta.default_value.clone());
+            }
+        }
+
+        // 对于缺失的文件，写入默认配置
+        for (file_name, default_map) in missing_files {
+            if !default_map.is_empty() {
+                let provider = TomlConfigProvider::new(file_name);
+                if let Err(e) = provider.save(app, &default_map).await {
+                    warn!("初始化缺失文件 {}.toml 失败: {}", file_name, e);
+                } else {
+                    info!("已创建缺失文件 {}.toml 并写入默认配置 ({} 项)", file_name, default_map.len());
                 }
             }
         }
-        
-        // 存储合并后的配置
-        let mut config_guard = self.config.lock().await;
-        *config_guard = merged_config;
-        
-        info!("配置服务启动成功，加载了 {} 个配置项", config_guard.len());
+
         *state_guard = ServiceState::Running;
+        info!("配置服务启动成功，加载了 {} 个配置项", guard.len());
     }
-    
+
     async fn on_stop(&self, app: &AppHandle) {
         let mut state_guard = self.state.lock().await;
         *state_guard = ServiceState::Stopping;
-        
-        // 按 TOML 文件分组保存配置
-        let config_guard = self.config.lock().await;
-        let mut file_configs: HashMap<&str, ConfigMap> = HashMap::new();
-        
-        for (key, value) in config_guard.iter() {
-            if let Some(meta) = self.metadata.iter().find(|m| m.config_name == key) {
-                let file_config = file_configs.entry(meta.toml_file).or_insert(ConfigMap::new());
-                file_config.insert(key.clone(), value.clone());
+
+        let guard = self.config.lock().await;
+
+        for meta in self.metadata {
+            let provider = TomlConfigProvider::new(meta.toml_file);
+            if let Err(e) = provider.save(app, &*guard).await {
+                warn!("保存 {} 配置失败: {}", meta.toml_file, e);
             }
         }
-        
-        // 保存每个 TOML 文件
-        for (file_name, config) in file_configs {
-            let provider = super::provider::TomlConfigProvider::new(file_name);
-            if let Err(e) = provider.save(app, &config).await {
-                warn!("保存配置文件 {} 失败: {}", file_name, e);
-            }
-        }
-        
+
         *state_guard = ServiceState::Stopped;
         info!("配置服务已停止");
     }
-    
+
     fn state(&self) -> ServiceState {
         *tokio::task::block_in_place(|| futures::executor::block_on(self.state.lock()))
     }
-    
+
     async fn commands(&self) -> CommandHashMap {
         let mut map: CommandHashMap = HashMap::new();
-        let service = self.clone();
-        
-        // 获取配置值命令
+
+        let service_get = Arc::new(self.clone());
         map.insert(
             "get_config".to_string(),
-            sync_cmd(
-                move |args: CommandInput| -> Result<CommandOutput, CommandError> {
-                    if let CommandInput::Args(args) = args {
-                        if args.is_empty() {
-                            return Err(CommandError::Text("缺少 key 参数".to_string()));
-                        }
-                        let key = args[0].clone();
-                        
-                        let result = tokio::task::block_in_place(|| {
-                            futures::executor::block_on(async move {
-                                service.get_decrypted_config(&key).await
-                            })
-                        });
-                        
-                        match result {
-                            Ok(Some(value)) => {
-                                serde_json::to_string(&value)
-                                    .map_err(|e| CommandError::Text(e.to_string()))
-                                    .map(|v| CommandOutput::Text(v))
-                            },
-                            Ok(None) => Ok(CommandOutput::Text("null".to_string())),
-                            Err(e) => Err(CommandError::Text(e.to_string())),
-                        }
-                    } else {
-                        Err(CommandError::Text("参数格式错误".to_string()))
+            sync_cmd(move |args: CommandInput| -> Result<CommandOutput, CommandError> {
+                if let CommandInput::Args(args) = args {
+                    if args.is_empty() {
+                        return Err(CommandError::Text("缺少 path 参数".to_string()));
                     }
-                },
-            ),
+                    let path_json = &args[0];
+                    let path: Vec<String> = serde_json::from_str(path_json).map_err(|e| CommandError::Text(format!("解析 path 失败: {}", e)))?;
+                    let path_ref: Vec<&str> = path.iter().map(|s| s.as_str()).collect();
+                    let svc = service_get.clone();
+                    let res = tokio::task::block_in_place(|| futures::executor::block_on(svc.get_decrypted_config(&path_ref)));
+                    match res {
+                        Ok(Some(v)) => Ok(CommandOutput::Text(serde_json::to_string(&v).unwrap_or("null".to_string()))),
+                        Ok(None) => Ok(CommandOutput::Text("null".to_string())),
+                        Err(e) => Err(CommandError::Text(e.to_string())),
+                    }
+                } else {
+                    Err(CommandError::Text("参数格式错误".to_string()))
+                }
+            }),
         );
-        
-        // 设置配置值命令
+
+        let service_set = Arc::new(self.clone());
         map.insert(
             "set_config".to_string(),
-            sync_cmd(
-                move |args: CommandInput| -> Result<CommandOutput, CommandError> {
-                    if let CommandInput::Args(args) = args {
-                        if args.len() < 2 {
-                            return Err(CommandError::Text("缺少 key 或 value 参数".to_string()));
-                        }
-                        let key = args[0].clone();
-                        let value_str = args[1].clone();
-                        
-                        let value: ConfigValue = serde_json::from_str(&value_str)
-                            .map_err(|e| CommandError::Text(format!("解析 value 失败: {}", e)))?;
-                        
-                        let result = tokio::task::block_in_place(|| {
-                            futures::executor::block_on(async move {
-                                service.set_config(&key, value).await
-                            })
-                        });
-                        
-                        result
-                            .map_err(|e| CommandError::Text(e.to_string()))
-                            .map(|_| CommandOutput::Text("ok".to_string()))
-                    } else {
-                        Err(CommandError::Text("参数格式错误".to_string()))
+            sync_cmd(move |args: CommandInput| -> Result<CommandOutput, CommandError> {
+                if let CommandInput::Args(args) = args {
+                    if args.len() < 2 {
+                        return Err(CommandError::Text("缺少 path 或 value 参数".to_string()));
                     }
-                },
-            ),
+                    let path_json = &args[0];
+                    let value_json = &args[1];
+                    let path: Vec<String> = serde_json::from_str(path_json).map_err(|e| CommandError::Text(format!("解析 path 失败: {}", e)))?;
+                    let path_ref: Vec<&str> = path.iter().map(|s| s.as_str()).collect();
+                    let value: ConfigValue = serde_json::from_str(value_json).map_err(|e| CommandError::Text(format!("解析 value 失败: {}", e)))?;
+                    let svc = service_set.clone();
+                    let res = tokio::task::block_in_place(|| futures::executor::block_on(svc.set_config(&path_ref, value)));
+                    res.map(|_| CommandOutput::Text("ok".to_string())).map_err(|e| CommandError::Text(e.to_string()))
+                } else {
+                    Err(CommandError::Text("参数格式错误".to_string()))
+                }
+            }),
         );
-        
+
         map
     }
 }

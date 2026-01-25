@@ -1,5 +1,5 @@
-mod service;
 mod provider;
+mod service;
 
+pub use provider::{DotEnvProvider, EnvProvider, EnvVarProvider, HardcodedProvider};
 pub use service::EnvService;
-pub use provider::{EnvProvider, EnvVarProvider, DotEnvProvider, HardcodedProvider};

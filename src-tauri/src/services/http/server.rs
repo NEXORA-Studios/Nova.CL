@@ -37,20 +37,13 @@ static GLOBAL_SERVER: OnceCell<Mutex<Option<ServerState>>> = OnceCell::new();
 
 // ================== Handler ==================
 
-async fn auth_callback_handler(
-    State(app_handle): State<AppHandle>,
-    req: Request,
-) -> impl IntoResponse {
+async fn auth_callback_handler(State(app_handle): State<AppHandle>, req: Request) -> impl IntoResponse {
     let path = req.uri().path().to_string();
 
     let query = req
         .uri()
         .query()
-        .map(|q| {
-            url::form_urlencoded::parse(q.as_bytes())
-                .into_owned()
-                .collect::<HashMap<String, String>>()
-        })
+        .map(|q| url::form_urlencoded::parse(q.as_bytes()).into_owned().collect::<HashMap<String, String>>())
         .unwrap_or_default();
 
     let global = GLOBAL_SERVER.get_or_init(|| Mutex::new(None));
@@ -75,48 +68,31 @@ async fn auth_callback_handler(
     let html_content = match &*state_guard {
         Some(server_state) => {
             // 先 resolve 资源路径
-            let index_path_result = app_handle
-                .path()
-                .resolve("addons/auth/index.html", BaseDirectory::Resource);
+            let index_path_result = app_handle.path().resolve("addons/auth/index.html", BaseDirectory::Resource);
 
             match index_path_result {
                 Ok(index_path) => {
                     // 成功解析路径后，再读取文件
                     match std::fs::read_to_string(&index_path) {
                         Ok(mut content) => {
-                            let lang = server_state
-                                .auth_context
-                                .as_ref()
-                                .map(|ctx| ctx.lang.as_str())
-                                .unwrap_or("en");
+                            let lang = server_state.auth_context.as_ref().map(|ctx| ctx.lang.as_str()).unwrap_or("en");
 
                             // 注入语言 meta 标签
-                            content = content.replace(
-                                "</head>",
-                                &format!("<meta name=\"lang\" content=\"{}\"></head>", lang),
-                            );
+                            content = content.replace("</head>", &format!("<meta name=\"lang\" content=\"{}\"></head>", lang));
 
                             content // 成功返回修改后的 HTML
                         }
                         Err(e) => {
-                            format!(
-                            "<html><body><h1>Error</h1><p>Failed to read auth/index.html: {}</p></body></html>",
-                            e
-                        )
+                            format!("<html><body><h1>Error</h1><p>Failed to read auth/index.html: {}</p></body></html>", e)
                         }
                     }
                 }
                 Err(e) => {
-                    format!(
-                    "<html><body><h1>Error</h1><p>Failed to resolve resource path: {}</p></body></html>",
-                    e
-                )
+                    format!("<html><body><h1>Error</h1><p>Failed to resolve resource path: {}</p></body></html>", e)
                 }
             }
         }
-        None => {
-            "<html><body><h1>Error</h1><p>Server state not available</p></body></html>".to_string()
-        }
+        None => "<html><body><h1>Error</h1><p>Server state not available</p></body></html>".to_string(),
     };
 
     (StatusCode::OK, axum::response::Html(html_content))
@@ -137,10 +113,7 @@ async fn close_handler() -> impl IntoResponse {
     (StatusCode::OK, "Server is shutting down...")
 }
 
-async fn assets_handler(
-    State(app_handle): State<AppHandle>,
-    axum::extract::Path(path): axum::extract::Path<String>,
-) -> impl IntoResponse {
+async fn assets_handler(State(app_handle): State<AppHandle>, axum::extract::Path(path): axum::extract::Path<String>) -> impl IntoResponse {
     let global = GLOBAL_SERVER.get_or_init(|| Mutex::new(None));
     let state_guard = global.lock().await;
 
@@ -151,47 +124,28 @@ async fn assets_handler(
             let resource_relative_path = format!("addons/auth/assets/{}", path);
 
             // 先 resolve 资源路径
-            let asset_path_result = app_handle
-                .path()
-                .resolve(&resource_relative_path, BaseDirectory::Resource);
+            let asset_path_result = app_handle.path().resolve(&resource_relative_path, BaseDirectory::Resource);
 
             match asset_path_result {
                 Ok(asset_path) => {
                     // 成功解析到打包资源路径，再读取文件内容（二进制）
                     match std::fs::read(&asset_path) {
                         Ok(content) => {
-                            let mime = mime_guess::from_path(&path)
-                                .first_or_octet_stream()
-                                .to_string();
+                            let mime = mime_guess::from_path(&path).first_or_octet_stream().to_string();
 
-                            (
-                                StatusCode::OK,
-                                [(axum::http::header::CONTENT_TYPE, mime)],
-                                content,
-                            )
+                            (StatusCode::OK, [(axum::http::header::CONTENT_TYPE, mime)], content)
                         }
                         Err(e) => {
                             // 读取失败（极少发生，除非资源损坏）
-                            let error_html = format!(
-                        "<html><body><h1>500 Internal Error</h1><p>Failed to read asset: {}</p></body></html>",
-                        e
-                    );
-                            (
-                                StatusCode::INTERNAL_SERVER_ERROR,
-                                [(axum::http::header::CONTENT_TYPE, "text/html".to_string())],
-                                error_html.into_bytes(),
-                            )
+                            let error_html = format!("<html><body><h1>500 Internal Error</h1><p>Failed to read asset: {}</p></body></html>", e);
+                            (StatusCode::INTERNAL_SERVER_ERROR, [(axum::http::header::CONTENT_TYPE, "text/html".to_string())], error_html.into_bytes())
                         }
                     }
                 }
                 Err(_) => {
                     // 资源未打包进去或路径错误 → 404
                     let error_html = "<html><body><h1>404 Not Found</h1></body></html>".to_string();
-                    (
-                        StatusCode::NOT_FOUND,
-                        [(axum::http::header::CONTENT_TYPE, "text/html".to_string())],
-                        error_html.into_bytes(),
-                    )
+                    (StatusCode::NOT_FOUND, [(axum::http::header::CONTENT_TYPE, "text/html".to_string())], error_html.into_bytes())
                 }
             }
         }
@@ -204,10 +158,7 @@ async fn assets_handler(
 }
 
 async fn not_found_handler(_req: Request) -> impl IntoResponse {
-    (
-        StatusCode::NOT_FOUND,
-        axum::response::Html("<html><body><h1>404 Not Found</h1></body></html>".to_string()),
-    )
+    (StatusCode::NOT_FOUND, axum::response::Html("<html><body><h1>404 Not Found</h1></body></html>".to_string()))
 }
 
 // ================== Public API ==================
@@ -234,9 +185,7 @@ pub async fn start_server(app_handle: AppHandle, port: u16, lang: String) -> Res
         .with_state(app_handle_clone);
 
     let addr = SocketAddr::from(([0, 0, 0, 0], port));
-    let listener = tokio::net::TcpListener::bind(addr)
-        .await
-        .map_err(|e| e.to_string())?;
+    let listener = tokio::net::TcpListener::bind(addr).await.map_err(|e| e.to_string())?;
 
     let handle = task::spawn(async move {
         axum::serve(listener, app)
