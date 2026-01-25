@@ -1,5 +1,6 @@
 use async_trait::async_trait;
-use log::{debug, info, warn};
+use log::{debug, info, trace, warn};
+use serde_json::Value as SerdeJsonValue;
 use std::collections::HashMap;
 use std::sync::Arc;
 use tauri::AppHandle;
@@ -47,13 +48,33 @@ impl ConfigService {
             if meta.is_list && !matches!(value, ConfigValue::Array(_)) {
                 value = ConfigValue::Array(vec![value]);
             }
-            Self::set_by_path(&mut default_config, &meta.config_item, value, self.metadata);
+            Self::set_by_path(self, &mut default_config, &meta.config_item, value, self.metadata);
         }
         default_config
     }
 
     fn merge_configs(&self, mut merged: ConfigMap, new: ConfigMap) -> ConfigMap {
         merged.extend(new);
+        merged
+    }
+
+    fn merge_configs_if_exists(&self, mut merged: ConfigMap, new: ConfigMap) -> ConfigMap {
+        for (key, value) in new {
+            if let Some(existing) = merged.get_mut(&key) {
+                match existing {
+                    ConfigValue::Array(old) => {
+                        if let ConfigValue::Array(mut new_array) = value {
+                            old.append(&mut new_array);
+                        } else {
+                            *existing = value;
+                        }
+                    }
+                    _ => {
+                        *existing = value;
+                    }
+                }
+            }
+        }
         merged
     }
 
@@ -101,16 +122,16 @@ impl ConfigService {
             value.clone()
         };
 
+        // 更新内存配置
         let mut guard = self.config.lock().await;
-        Self::set_by_path(&mut *guard, path, processed_value.clone(), self.metadata);
+        let file_config = Self::set_by_path(self, &mut *guard, path, processed_value.clone(), self.metadata);
 
-        // 保存对应文件
+        // 保存到文件，合并原有文件配置，避免丢失其它字段
         if let Some(meta) = self.metadata.iter().find(|m| m.config_item == path) {
             let provider = TomlConfigProvider::new(meta.toml_file);
             let app_guard = self.app_handle.lock().await;
             let app = app_guard.as_ref().ok_or("AppHandle not initialized")?;
-            let mut file_config = ConfigMap::new();
-            file_config.insert(meta.config_item.last().unwrap().to_string(), processed_value);
+            // 4. 保存合并后的文件
             provider.save(app, &file_config).await?;
         }
 
@@ -152,49 +173,37 @@ impl ConfigService {
         current.get(*path.last().unwrap())
     }
 
-    fn set_by_path(config: &mut ConfigMap, path: &[&str], value: ConfigValue, metadata: &[ConfigMetadata]) {
+    fn set_by_path(&self, config: &mut ConfigMap, path: &[&str], value: ConfigValue, metadata: &[ConfigMetadata]) -> HashMap<String, ConfigValue> {
         if path.is_empty() {
-            return;
+            return HashMap::new();
         }
 
-        let mut current = config;
-
-        // 逐层向下创建/获取 Object
-        for &key in &path[..path.len() - 1] {
-            current = match current.entry(key.to_string()) {
-                std::collections::hash_map::Entry::Vacant(e) => {
-                    let obj = e.insert(ConfigValue::Object(HashMap::new()));
-                    if let ConfigValue::Object(map) = obj {
-                        map
-                    } else {
-                        unreachable!()
-                    }
-                }
-                std::collections::hash_map::Entry::Occupied(e) => {
-                    let value = e.into_mut();
-                    if !matches!(value, ConfigValue::Object(_)) {
-                        *value = ConfigValue::Object(HashMap::new());
-                    }
-                    if let ConfigValue::Object(map) = value {
-                        map
-                    } else {
-                        unreachable!()
-                    }
-                }
-            };
-        }
-
-        let last_key = path.last().unwrap().to_string();
-
+        // 根据 metadata 判断是否要包成 Array
         let mut final_value = value;
-
         if let Some(meta) = metadata.iter().find(|m| m.config_item == path) {
             if meta.is_list && !matches!(&final_value, ConfigValue::Array(_)) {
                 final_value = ConfigValue::Array(vec![final_value]);
             }
         }
 
-        current.insert(last_key, final_value);
+        // 从最内层开始递归生成嵌套对象
+        let mut nested_value = final_value;
+        for _key in path[..path.len() - 1].iter().rev() {
+            let mut map = HashMap::new();
+            map.insert(path[path.len() - 1].to_string(), nested_value);
+            nested_value = ConfigValue::Object(map);
+        }
+
+        // 最外层 key
+        let top_key = path[0].to_string();
+        let mut new_config = ConfigMap::new();
+        new_config.insert(top_key, nested_value);
+
+        // 使用已有 merge_configs_if_exists 合并
+        let merged = Self::merge_configs_if_exists(self, config.clone(), new_config);
+        *config = merged.clone();
+
+        merged
     }
 }
 
@@ -277,7 +286,10 @@ impl LifecycleService for ConfigService {
 
         for meta in self.metadata {
             let provider = TomlConfigProvider::new(meta.toml_file);
-            if let Err(e) = provider.save(app, &*guard).await {
+            let current_provider_config = provider.load(app).await.unwrap_or_default();
+            // 只合并是目前 Toml 文件的配置
+            let merged_config = self.merge_configs_if_exists(current_provider_config, guard.clone());
+            if let Err(e) = provider.save(app, &merged_config).await {
                 warn!("保存 {} 配置失败: {}", meta.toml_file, e);
             }
         }
@@ -321,15 +333,29 @@ impl LifecycleService for ConfigService {
         map.insert(
             "set_config".to_string(),
             sync_cmd(move |args: CommandInput| -> Result<CommandOutput, CommandError> {
+                trace!("set_config 命令参数: {:#?}", args);
                 if let CommandInput::Args(args) = args {
                     if args.len() < 2 {
                         return Err(CommandError::Text("缺少 path 或 value 参数".to_string()));
                     }
-                    let path_json = &args[0];
+                    let path_vec = (&args[0]).split(".").map(|s| s.to_string()).collect::<Vec<String>>();
+                    let path_json = serde_json::to_string(&path_vec).unwrap_or("null".to_string());
                     let value_json = &args[1];
-                    let path: Vec<String> = serde_json::from_str(path_json).map_err(|e| CommandError::Text(format!("解析 path 失败: {}", e)))?;
+                    let path: Vec<String> = serde_json::from_str(&path_json).map_err(|e| CommandError::Text(format!("解析 path 失败: {}", e)))?;
                     let path_ref: Vec<&str> = path.iter().map(|s| s.as_str()).collect();
-                    let value: ConfigValue = serde_json::from_str(value_json).map_err(|e| CommandError::Text(format!("解析 value 失败: {}", e)))?;
+                    let raw_value: SerdeJsonValue = serde_json::from_str(value_json).map_err(|e| CommandError::Text(format!("解析 value 失败: {}", e)))?;
+                    let value: ConfigValue = match raw_value {
+                        SerdeJsonValue::String(s) => ConfigValue::String(s),
+                        SerdeJsonValue::Number(n) => ConfigValue::Number(n.as_f64().unwrap_or(0.0)),
+                        SerdeJsonValue::Bool(b) => ConfigValue::Boolean(b),
+                        SerdeJsonValue::Array(a) => ConfigValue::Array(a.into_iter().map(|v: SerdeJsonValue| serde_json::from_str(&v.to_string()).unwrap_or(ConfigValue::Null)).collect()),
+                        SerdeJsonValue::Object(o) => ConfigValue::Object(
+                            o.into_iter()
+                                .map(|(k, v): (String, SerdeJsonValue)| (k, serde_json::from_str(&v.to_string()).unwrap_or(ConfigValue::Null)))
+                                .collect(),
+                        ),
+                        SerdeJsonValue::Null => ConfigValue::Null,
+                    };
                     let svc = service_set.clone();
                     let res = tokio::task::block_in_place(|| futures::executor::block_on(svc.set_config(&path_ref, value)));
                     res.map(|_| CommandOutput::Text("ok".to_string())).map_err(|e| CommandError::Text(e.to_string()))

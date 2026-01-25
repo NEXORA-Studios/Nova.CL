@@ -5,7 +5,7 @@ libsodium-1.0.21-stable-msvc development sources
 If you reach an error likes:
 
 ```ansi
-thread 'main' (11924) panicked at C:\Users\*******\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\libsodium-sys-stable-1.23.2\build.rs:405:14:
+thread 'main' (11924) panicked at C:/Users/*******/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/libsodium-sys-stable-1.23.2/build.rs:405:14:
 called `Result::unwrap()` on an `Err` value: Custom { kind: Other, error: Timeout(Global) }
 ```
 
@@ -16,11 +16,19 @@ you can download its source code and unzip it to here.
 Next, load with these environment variables:
 
 ```powershell
-$env:SODIUM_LIB_DIR = "lib\libsodium-1.0.21-stable-msvc\libsodium" # add actual path for your folder before `lib\`
+$env:SODIUM_LIB_DIR = "lib/libsodium-1.0.21-stable-msvc/libsodium" # add actual path for your folder before `lib/`
 $env:SODIUM_SHARED = "0"
 ```
 
 ```bash
 export SODIUM_LIB_DIR="lib/libsodium-1.0.21-stable-msvc/libsodium" # add actual path for your folder before `lib/`
 export SODIUM_SHARED=0
+```
+
+or use a .cargo/config.toml:
+
+```toml
+[env]
+SODIUM_LIB_DIR = "lib/libsodium-1.0.21-stable-msvc/libsodium"
+SODIUM_SHARED = "0"
 ```

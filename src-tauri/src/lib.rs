@@ -4,14 +4,14 @@ mod commands;
 mod ipc;
 mod lifecycle;
 mod services;
-mod static_data;
+mod r#static;
 
 use std::sync::Arc;
 use tauri::{Manager, WindowEvent};
 
 use crate::commands::*;
 use crate::lifecycle::LifecycleManager;
-use crate::static_data::*;
+use crate::r#static::*;
 
 #[allow(unused_imports)]
 use crate::services::env::{DotEnvProvider, EnvProvider, EnvVarProvider, HardcodedProvider};
@@ -43,7 +43,7 @@ pub fn run() {
             // HTTP服务器命令
             http_server_start,
             http_server_stop,
-            http_server_get_status,
+            http_server_status,
             // 系统命令
             get_ram_info,
             // 配置命令

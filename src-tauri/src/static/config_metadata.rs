@@ -1,0 +1,287 @@
+use std::sync::LazyLock;
+
+use crate::services::config::{ConfigDataType, ConfigMetadata, ConfigValue};
+
+// ────────────────────────────────────────────────
+//                    配置元数据
+// ────────────────────────────────────────────────
+pub static CONFIG_METADATA: LazyLock<Vec<ConfigMetadata>> = LazyLock::new(|| {
+    vec![
+        // #REGION Config - 启动配置/基本
+        ConfigMetadata {
+            toml_file: "Launch",
+            config_item: vec!["Launch", "Basic", "VersionIndieType"],
+            data_type: ConfigDataType::String,
+            need_encrypt: false,
+            default_value: ConfigValue::String(String::from("disabled")),
+            is_list: false,
+        },
+        ConfigMetadata {
+            toml_file: "Launch",
+            config_item: vec!["Launch", "Basic", "LauncherVisibility"],
+            data_type: ConfigDataType::String,
+            need_encrypt: false,
+            default_value: ConfigValue::String(String::from("immediately_quit")),
+            is_list: false,
+        },
+        ConfigMetadata {
+            toml_file: "Launch",
+            config_item: vec!["Launch", "Basic", "PreferIpStack"],
+            data_type: ConfigDataType::Number,
+            need_encrypt: false,
+            default_value: ConfigValue::Number(4.0),
+            is_list: false,
+        },
+        ConfigMetadata {
+            toml_file: "Launch",
+            config_item: vec!["Launch", "Basic", "SelectedJava"],
+            data_type: ConfigDataType::String,
+            need_encrypt: false,
+            default_value: ConfigValue::String(String::from("")),
+            is_list: false,
+        },
+        ConfigMetadata {
+            toml_file: "Launch",
+            config_item: vec!["Launch", "Basic", "AutoRam"],
+            data_type: ConfigDataType::Boolean,
+            need_encrypt: false,
+            default_value: ConfigValue::Boolean(true),
+            is_list: false,
+        },
+        // #REGION Config - 启动配置/内存
+        ConfigMetadata {
+            toml_file: "Launch",
+            config_item: vec!["Launch", "Ram", "CustomRam"],
+            data_type: ConfigDataType::Number,
+            need_encrypt: false,
+            default_value: ConfigValue::Number(8192.0),
+            is_list: false,
+        },
+        ConfigMetadata {
+            toml_file: "Launch",
+            config_item: vec!["Launch", "Ram", "PreSwap"],
+            data_type: ConfigDataType::Boolean,
+            need_encrypt: false,
+            default_value: ConfigValue::Boolean(false),
+            is_list: false,
+        },
+        // #REGION Config - 启动配置/高级启动选项
+        ConfigMetadata {
+            toml_file: "Launch",
+            config_item: vec!["Launch", "Advanced", "Renderer"],
+            data_type: ConfigDataType::String,
+            need_encrypt: false,
+            default_value: ConfigValue::String(String::from("default")),
+            is_list: false,
+        },
+        ConfigMetadata {
+            toml_file: "Launch",
+            config_item: vec!["Launch", "Advanced", "JvmArgs"],
+            data_type: ConfigDataType::String,
+            need_encrypt: false,
+            default_value: ConfigValue::String(String::from("-XX:+UseG1GC -XX:-UseAdaptiveSizePolicy -XX:-OmitStackTraceInFastThrow -Djdk.lang.Process.allowAmbiguousCommands=true -Dfml.ignoreInvalidMinecraftCertificates=True -Dfml.ignorePatchDiscrepancies=True -Dlog4j2.formatMsgNoLookups=true")),
+            is_list: false,
+        },
+        ConfigMetadata {
+            toml_file: "Launch",
+            config_item: vec!["Launch", "Advanced", "GameArgs"],
+            data_type: ConfigDataType::String,
+            need_encrypt: false,
+            default_value: ConfigValue::String(String::from("")),
+            is_list: false,
+        },
+        ConfigMetadata {
+            toml_file: "Launch",
+            config_item: vec!["Launch", "Advanced", "PreLaunchCommand"],
+            data_type: ConfigDataType::String,
+            need_encrypt: false,
+            default_value: ConfigValue::String(String::from("")),
+            is_list: false,
+        },
+        ConfigMetadata {
+            toml_file: "Launch",
+            config_item: vec!["Launch", "Advanced", "DisableRetroWrapper"],
+            data_type: ConfigDataType::Boolean,
+            need_encrypt: false,
+            default_value: ConfigValue::Boolean(false),
+            is_list: false,
+        },
+        ConfigMetadata {
+            toml_file: "Launch",
+            config_item: vec!["Launch", "Advanced", "UseDiscreteGpu"],
+            data_type: ConfigDataType::Boolean,
+            need_encrypt: false,
+            default_value: ConfigValue::Boolean(false),
+            is_list: false,
+        },
+        ConfigMetadata {
+            toml_file: "Launch",
+            config_item: vec!["Launch", "Advanced", "UseJavaExe"],
+            data_type: ConfigDataType::Boolean,
+            need_encrypt: false,
+            default_value: ConfigValue::Boolean(false),
+            is_list: false,
+        },
+        // #REGION Config - 个性化配置/UI
+        ConfigMetadata {
+            toml_file: "Customize",
+            config_item: vec!["Customize", "UI", "Theme"],
+            data_type: ConfigDataType::String,
+            need_encrypt: false,
+            default_value: ConfigValue::String(String::from("auto")),
+            is_list: false,
+        },
+        ConfigMetadata {
+            toml_file: "Customize",
+            config_item: vec!["Customize", "UI", "Language"],
+            data_type: ConfigDataType::String,
+            need_encrypt: false,
+            default_value: ConfigValue::String(String::from("zh-CN")),
+            is_list: false,
+        },
+        // #REGION Config - 下载配置/源
+        ConfigMetadata {
+            toml_file: "Download",
+            config_item: vec!["Download", "Source", "DownloadSource"],
+            data_type: ConfigDataType::String,
+            need_encrypt: false,
+            default_value: ConfigValue::String(String::from("offical")),
+            is_list: false,
+        },
+        ConfigMetadata {
+            toml_file: "Download",
+            config_item: vec!["Download", "Source", "VersionSource"],
+            data_type: ConfigDataType::String,
+            need_encrypt: false,
+            default_value: ConfigValue::String(String::from("offical")),
+            is_list: false,
+        },
+        // #REGION Config - 下载配置/网络
+        ConfigMetadata {
+            toml_file: "Download",
+            config_item: vec!["Download", "Internet", "MaxConcurrent"],
+            data_type: ConfigDataType::Number,
+            need_encrypt: false,
+            default_value: ConfigValue::Number(64.0),
+            is_list: false,
+        },
+        ConfigMetadata {
+            toml_file: "Download",
+            config_item: vec!["Download", "Internet", "MaxBandwidth"],
+            data_type: ConfigDataType::Number,
+            need_encrypt: false,
+            default_value: ConfigValue::Number(-1.0),
+            is_list: false,
+        },
+        // #REGION Config - 下载配置/安装后操作
+        ConfigMetadata {
+            toml_file: "Download",
+            config_item: vec!["Download", "PostInstall", "SelectInstance"],
+            data_type: ConfigDataType::Boolean,
+            need_encrypt: false,
+            default_value: ConfigValue::Boolean(true),
+            is_list: false,
+        },
+        ConfigMetadata {
+            toml_file: "Download",
+            config_item: vec!["Download", "PostInstall", "UpdateAuthlib"],
+            data_type: ConfigDataType::Boolean,
+            need_encrypt: false,
+            default_value: ConfigValue::Boolean(true),
+            is_list: false,
+        },
+        // #REGION Config - 网络配置/DNS
+        ConfigMetadata {
+            toml_file: "Network",
+            config_item: vec!["Network", "DNS", "UseDoh"],
+            data_type: ConfigDataType::Boolean,
+            need_encrypt: false,
+            default_value: ConfigValue::Boolean(false),
+            is_list: false,
+        },
+        // #REGION Config - 网络配置/代理
+        ConfigMetadata {
+            toml_file: "Network",
+            config_item: vec!["Network", "Proxy", "UseSystemProxy"],
+            data_type: ConfigDataType::Boolean,
+            need_encrypt: false,
+            default_value: ConfigValue::Boolean(false),
+            is_list: false,
+        },
+        ConfigMetadata {
+            toml_file: "Network",
+            config_item: vec!["Network", "Proxy", "UseCustomProxy"],
+            data_type: ConfigDataType::Boolean,
+            need_encrypt: false,
+            default_value: ConfigValue::Boolean(false),
+            is_list: false,
+        },
+        ConfigMetadata {
+            toml_file: "Network",
+            config_item: vec!["Network", "Proxy", "CustomProxyUri"],
+            data_type: ConfigDataType::String,
+            need_encrypt: false,
+            default_value: ConfigValue::String(String::from("")),
+            is_list: false,
+        },
+        ConfigMetadata {
+            toml_file: "Network",
+            config_item: vec!["Network", "Proxy", "CustomProxyAccount"],
+            data_type: ConfigDataType::String,
+            need_encrypt: true,
+            default_value: ConfigValue::String(String::from("")),
+            is_list: false,
+        },
+        ConfigMetadata {
+            toml_file: "Network",
+            config_item: vec!["Network", "Proxy", "CustomProxyPassword"],
+            data_type: ConfigDataType::String,
+            need_encrypt: true,
+            default_value: ConfigValue::String(String::from("")),
+            is_list: false,
+        },
+        // #REGION Config - 调试配置/根权限
+        ConfigMetadata {
+            toml_file: "Debug",
+            config_item: vec!["Debug", "Root", "Enabled"],
+            data_type: ConfigDataType::Boolean,
+            need_encrypt: false,
+            default_value: ConfigValue::Boolean(false),
+            is_list: false,
+        },
+        // #REGION Profile - 档案文件
+        ConfigMetadata {
+            toml_file: "Profiles",
+            config_item: vec!["Profiles", "Profile"],
+            data_type: ConfigDataType::Array, // 因为是 [[profile]] 数组
+            need_encrypt: true,
+            default_value: ConfigValue::Array(vec![]),
+            is_list: true,
+        },
+        // #REGION Java - Java 配置
+        ConfigMetadata {
+            toml_file: "Java",
+            config_item: vec!["Java", "SelectedId"],
+            data_type: ConfigDataType::String,
+            need_encrypt: false,
+            default_value: ConfigValue::String(String::from("")),
+            is_list: false,
+        },
+        ConfigMetadata {
+            toml_file: "Java",
+            config_item: vec!["Java", "AutoSelect"],
+            data_type: ConfigDataType::Boolean,
+            need_encrypt: false,
+            default_value: ConfigValue::Boolean(true),
+            is_list: false,
+        },
+        ConfigMetadata {
+            toml_file: "Java",
+            config_item: vec!["Java", "Entry"],
+            data_type: ConfigDataType::Array,
+            need_encrypt: false,
+            default_value: ConfigValue::Array(vec![]),
+            is_list: true,
+        },
+    ]
+});

@@ -1,5 +1,7 @@
 use serde::{Deserialize, Serialize};
 
+use crate::r#static::ErrCodes;
+
 /// 协议版本
 pub const IPC_VERSION: u8 = 1;
 
@@ -15,7 +17,7 @@ pub enum IpcStatus {
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct IpcError {
     /// 错误码（模块内唯一）
-    pub code: u32,
+    pub code: ErrCodes,
     /// 错误模块
     pub module: String,
     /// 面向用户的错误描述
@@ -66,6 +68,22 @@ pub struct EmitEvent<T> {
     /// 错误信息，仅 status = Error 时存在
     #[serde(skip_serializing_if = "Option::is_none")]
     pub error: Option<IpcError>,
+    /// 时间戳（Unix ms）
+    pub timestamp: u64,
+}
+
+/// 前端请求后端的消息
+#[derive(Debug, Serialize, Deserialize, Clone)]
+pub struct CallRequest<T> {
+    /// 协议版本号
+    pub version: u8,
+    /// 唯一 ID
+    pub id: u64,
+    /// 命令名
+    pub topic: String,
+    /// 请求数据
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub payload: Option<T>,
     /// 时间戳（Unix ms）
     pub timestamp: u64,
 }

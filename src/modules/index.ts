@@ -19,12 +19,11 @@ export {
     httpClient as TauriHTTP,
     httpClient as TauriHTTPClient,
 } from "./tauri/HttpClient";
-export {
-    httpServer as TauriHttpServer,
-} from "./tauri/HttpServer";
-export { toml as TauriTOML } from "./tauri/Toml";
+export { httpServer as TauriHttpServer } from "./tauri/HttpServer";
 export { system as TauriSystem } from "./tauri/System";
 export { logging as TauriLogging } from "./tauri/Logging";
+export { config as TauriConfig } from "./tauri/Config";
 // Minecraft
 export { uuid as McUuid } from "./minecraft/Uuid";
 export * as McMsa from "./minecraft/Msa";
+

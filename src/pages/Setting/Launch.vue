@@ -2,9 +2,10 @@
     import { onMounted, ref, watch } from "vue";
     import { useI18n } from "vue-i18n";
     import { ITauriTypes } from "@/types";
-    import { TauriSystem, TauriTOML } from "@/modules";
+    import { TauriSystem, TauriConfig } from "@/modules";
     import { useTimer } from "@/composables";
     import { DoubleStateProgress } from "@/components";
+    import { watchAndSet } from "@/utils";
     const { t } = useI18n();
 
     const { onMediumInterval } = useTimer();
@@ -12,21 +13,21 @@
     const CurrentRam = ref<number>();
     const AvailableRam = ref<number>();
 
-    const VersionIndie = ref<ITauriTypes.TOML.BasicLaunchConfig["version_indie_type"]>("disabled");
-    const LauncherVisibility = ref<ITauriTypes.TOML.BasicLaunchConfig["launcher_visibility"]>("immediately_quit");
-    const PreferIPStack = ref<ITauriTypes.TOML.BasicLaunchConfig["prefer_ip_stack"]>(4);
+    const VersionIndie = ref<ITauriTypes.Config.LaunchConfig["Basic"]["VersionIndieType"]>("disabled");
+    const LauncherVisibility = ref<ITauriTypes.Config.LaunchConfig["Basic"]["LauncherVisibility"]>("immediately_quit");
+    const PreferIPStack = ref<ITauriTypes.Config.LaunchConfig["Basic"]["PreferIpStack"]>(4);
 
-    const AutoRam = ref<ITauriTypes.TOML.RamConfig["auto_ram"]>(true);
-    const CustomRam = ref<ITauriTypes.TOML.RamConfig["custom_ram"]>(1024);
-    const PreSwap = ref<ITauriTypes.TOML.RamConfig["pre_swap"]>(false);
+    const AutoRam = ref<ITauriTypes.Config.LaunchConfig["Ram"]["AutoRam"]>(true);
+    const CustomRam = ref<ITauriTypes.Config.LaunchConfig["Ram"]["CustomRam"]>(1024);
+    const PreSwap = ref<ITauriTypes.Config.LaunchConfig["Ram"]["PreSwap"]>(false);
 
-    const Renderer = ref<ITauriTypes.TOML.AdvancedLaunchConfig["renderer"]>("default");
-    const JvmArgs = ref<ITauriTypes.TOML.AdvancedLaunchConfig["jvm_args"]>("");
-    const GameArgs = ref<ITauriTypes.TOML.AdvancedLaunchConfig["game_args"]>("");
-    const PreCommand = ref<ITauriTypes.TOML.AdvancedLaunchConfig["pre_command"]>("");
-    const DisableRetroWrapper = ref<ITauriTypes.TOML.AdvancedLaunchConfig["disable_retrowrapper"]>(false);
-    const UseDiscreteGpu = ref<ITauriTypes.TOML.AdvancedLaunchConfig["use_discrete_gpu"]>(false);
-    const UseJavaExe = ref<ITauriTypes.TOML.AdvancedLaunchConfig["use_java_exe"]>(false);
+    const Renderer = ref<ITauriTypes.Config.LaunchConfig["Advanced"]["Renderer"]>("default");
+    const JvmArgs = ref<ITauriTypes.Config.LaunchConfig["Advanced"]["JvmArgs"]>("");
+    const GameArgs = ref<ITauriTypes.Config.LaunchConfig["Advanced"]["GameArgs"]>("");
+    const PreCommand = ref<ITauriTypes.Config.LaunchConfig["Advanced"]["PreLaunchCommand"]>("");
+    const DisableRetroWrapper = ref<ITauriTypes.Config.LaunchConfig["Advanced"]["DisableRetroWrapper"]>(false);
+    const UseDiscreteGpu = ref<ITauriTypes.Config.LaunchConfig["Advanced"]["UseDiscreteGpu"]>(false);
+    const UseJavaExe = ref<ITauriTypes.Config.LaunchConfig["Advanced"]["UseJavaExe"]>(false);
 
     async function updateRamInfo() {
         const ram_info = await TauriSystem.getRamInfo();
@@ -38,73 +39,36 @@
 
     onMounted(async () => {
         await updateRamInfo();
-        const config = await TauriTOML.getGlobalConfig();
-        const launch_config = config.launch;
-        VersionIndie.value = launch_config.basic.version_indie_type;
-        LauncherVisibility.value = launch_config.basic.launcher_visibility;
-        PreferIPStack.value = launch_config.basic.prefer_ip_stack;
-        AutoRam.value = launch_config.rams.auto_ram;
-        CustomRam.value = launch_config.rams.custom_ram;
-        PreSwap.value = launch_config.rams.pre_swap;
-        Renderer.value = launch_config.advanced.renderer;
-        JvmArgs.value = launch_config.advanced.jvm_args;
-        GameArgs.value = launch_config.advanced.game_args;
-        PreCommand.value = launch_config.advanced.pre_command;
-        DisableRetroWrapper.value = launch_config.advanced.disable_retrowrapper;
-        UseDiscreteGpu.value = launch_config.advanced.use_discrete_gpu;
-        UseJavaExe.value = launch_config.advanced.use_java_exe;
+        VersionIndie.value = await TauriConfig.get("Launch.Basic.VersionIndieType");
+        LauncherVisibility.value = await TauriConfig.get("Launch.Basic.LauncherVisibility");
+        PreferIPStack.value = await TauriConfig.get("Launch.Basic.PreferIpStack");
+        AutoRam.value = await TauriConfig.get("Launch.Ram.AutoRam");
+        CustomRam.value = await TauriConfig.get("Launch.Ram.CustomRam");
+        PreSwap.value = await TauriConfig.get("Launch.Ram.PreSwap");
+        Renderer.value = await TauriConfig.get("Launch.Advanced.Renderer");
+        JvmArgs.value = await TauriConfig.get("Launch.Advanced.JvmArgs");
+        GameArgs.value = await TauriConfig.get("Launch.Advanced.GameArgs");
+        PreCommand.value = await TauriConfig.get("Launch.Advanced.PreLaunchCommand");
+        DisableRetroWrapper.value = await TauriConfig.get("Launch.Advanced.DisableRetroWrapper");
+        UseDiscreteGpu.value = await TauriConfig.get("Launch.Advanced.UseDiscreteGpu");
+        UseJavaExe.value = await TauriConfig.get("Launch.Advanced.UseJavaExe");
     });
 
     onMediumInterval(updateRamInfo);
 
-    watch(
-        [
-            VersionIndie,
-            LauncherVisibility,
-            PreferIPStack,
-            AutoRam,
-            CustomRam,
-            PreSwap,
-            Renderer,
-            JvmArgs,
-            GameArgs,
-            PreCommand,
-            DisableRetroWrapper,
-            UseDiscreteGpu,
-            UseJavaExe,
-        ],
-        async ([
-            VersionIndie,
-            LauncherVisibility,
-            PreferIPStack,
-            AutoRam,
-            CustomRam,
-            PreSwap,
-            Renderer,
-            JvmArgs,
-            GameArgs,
-            PreCommand,
-            DisableRetroWrapper,
-            UseDiscreteGpu,
-            UseJavaExe,
-        ]) => {
-            const config = await TauriTOML.getGlobalConfig();
-            config.launch.basic.version_indie_type = VersionIndie;
-            config.launch.basic.launcher_visibility = LauncherVisibility;
-            config.launch.basic.prefer_ip_stack = PreferIPStack;
-            config.launch.rams.auto_ram = AutoRam;
-            config.launch.rams.custom_ram = CustomRam;
-            config.launch.rams.pre_swap = PreSwap;
-            config.launch.advanced.renderer = Renderer;
-            config.launch.advanced.jvm_args = JvmArgs;
-            config.launch.advanced.game_args = GameArgs;
-            config.launch.advanced.pre_command = PreCommand;
-            config.launch.advanced.disable_retrowrapper = DisableRetroWrapper;
-            config.launch.advanced.use_discrete_gpu = UseDiscreteGpu;
-            config.launch.advanced.use_java_exe = UseJavaExe;
-            await TauriTOML.saveGlobalConfig(config);
-        }
-    );
+    watchAndSet(VersionIndie, "Launch.Basic.VersionIndieType");
+    watchAndSet(LauncherVisibility, "Launch.Basic.LauncherVisibility");
+    watchAndSet(PreferIPStack, "Launch.Basic.PreferIpStack");
+    watchAndSet(AutoRam, "Launch.Ram.AutoRam");
+    watchAndSet(CustomRam, "Launch.Ram.CustomRam");
+    watchAndSet(PreSwap, "Launch.Ram.PreSwap");
+    watchAndSet(Renderer, "Launch.Advanced.Renderer");
+    watchAndSet(JvmArgs, "Launch.Advanced.JvmArgs");
+    watchAndSet(GameArgs, "Launch.Advanced.GameArgs");
+    watchAndSet(PreCommand, "Launch.Advanced.PreLaunchCommand");
+    watchAndSet(DisableRetroWrapper, "Launch.Advanced.DisableRetroWrapper");
+    watchAndSet(UseDiscreteGpu, "Launch.Advanced.UseDiscreteGpu");
+    watchAndSet(UseJavaExe, "Launch.Advanced.UseJavaExe");
 </script>
 
 <template>
@@ -207,11 +171,7 @@
                             class="range range-xs range-primary w-full" />
                     </div>
                     <div class="flex gap-2 items-center mt-1">
-                        <input
-                            type="checkbox"
-                            id="pre-swap"
-                            class="checkbox checkbox-primary checkbox-sm"
-                            v-model="PreSwap" />
+                        <input type="checkbox" id="pre-swap" class="checkbox checkbox-primary checkbox-sm" v-model="PreSwap" />
                         <label for="pre-swap" class="text-sm -translate-y-px">
                             {{ t("Main.Setting/Launch.RAM.PreSwap") }}
                         </label>
@@ -239,9 +199,7 @@
                         <option value="zink">{{ t("Main.Setting/Launch.Advanced.Renderer.Zink") }}</option>
                     </select>
                     <span class="text-sm ml-4">{{ t("Main.Setting/Launch.Advanced.JvmArgs.__Name__") }}</span>
-                    <textarea
-                        class="textarea w-full h-full outline-none resize-none overflow-y-auto"
-                        v-model="JvmArgs"></textarea>
+                    <textarea class="textarea w-full h-full outline-none resize-none overflow-y-auto" v-model="JvmArgs"></textarea>
                     <span class="text-sm ml-4">{{ t("Main.Setting/Launch.Advanced.GameArgs.__Name__") }}</span>
                     <input type="text" class="input input-sm w-full outline-none" v-model="GameArgs" />
                     <span class="text-sm ml-4">{{ t("Main.Setting/Launch.Advanced.PreCommand.__Name__") }}</span>
@@ -258,21 +216,13 @@
                     </label>
                 </div>
                 <div class="flex gap-2 items-center pl-4 mt-2">
-                    <input
-                        type="checkbox"
-                        id="use_discrete_gpu"
-                        class="checkbox checkbox-primary checkbox-sm"
-                        v-model="UseDiscreteGpu" />
+                    <input type="checkbox" id="use_discrete_gpu" class="checkbox checkbox-primary checkbox-sm" v-model="UseDiscreteGpu" />
                     <label for="use_discrete_gpu" class="text-sm -translate-y-px">
                         {{ t("Main.Setting/Launch.Advanced.UseDiscreteGPU") }}
                     </label>
                 </div>
                 <div class="flex gap-2 items-center pl-4 mt-2">
-                    <input
-                        type="checkbox"
-                        id="use_java_exe"
-                        class="checkbox checkbox-primary checkbox-sm"
-                        v-model="UseJavaExe" />
+                    <input type="checkbox" id="use_java_exe" class="checkbox checkbox-primary checkbox-sm" v-model="UseJavaExe" />
                     <label for="use_java_exe" class="text-sm -translate-y-px">
                         {{ t("Main.Setting/Launch.Advanced.UseJavaExe") }}
                     </label>
