@@ -5,7 +5,6 @@ interface BaseProfile {
     Type: ProfileType;
     Uuid: string;
     Name: string;
-    Picked: boolean;
     AccessToken: string;
     RefreshToken: string;
 }
