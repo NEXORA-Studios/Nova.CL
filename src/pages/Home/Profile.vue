@@ -19,17 +19,16 @@
     const Profiles = ref<ITauriTypes.Config.ProfileConfig["Profile"]>([]);
     const AccountStore = useAccountStore();
 
-    function reorderPicked<T extends { Picked?: boolean }>(arr: T[]): T[] {
-        const notPicked: T[] = [];
-        const picked: T[] = [];
+    function reorderPicked<T extends { Guid: string }>(arr: T[]): T[] {
+        const notCurrent: T[] = [];
+        const current: T[] = [];
 
         for (const item of arr) {
-            if (item.Picked) picked.push(item);
-            else notPicked.push(item);
+            if (item.Guid === ProfileConfig.value?.Current) current.push(item);
+            else notCurrent.push(item);
         }
 
-        // return [...notPicked, ...picked];
-        return [...picked, ...notPicked];
+        return [...current, ...notCurrent];
     }
 
     // ================== 弹窗 ==================
@@ -96,36 +95,34 @@
             return;
         }
 
-        const _ProfileConfig = await TauriConfig.get<ITauriTypes.Config.ProfileConfig>("Profile");
+        const _ProfileConfig = await TauriConfig.get<ITauriTypes.Config.ProfileConfig>("Profiles");
         const _Profiles = _ProfileConfig.Profile || [];
         const _ProfileMatch = _Profiles.find(
             (profile) => profile.Type === "msa" && profile.Name === msaLoginResult.name && profile.Uuid === msaLoginResult.uuid
         );
         if (_ProfileMatch) {
-            _ProfileMatch.Picked = true;
+            _ProfileConfig.Current = _ProfileMatch.Guid;
         } else {
-            _Profiles.push({
+            const newProfile = {
                 Guid: uuidv7(),
-                Type: "msa",
+                Type: "msa" as "msa",
                 Name: msaLoginResult.name,
                 Uuid: msaLoginResult.uuid,
-                Picked: true,
                 AccessToken: msaLoginResult.msaAccessToken,
                 RefreshToken: msaLoginResult.msaRefreshToken,
                 MsaExpiresAt: expiresInToUnix(msaLoginResult.msaExpiresIn * 1000),
                 McExpiresAt: expiresInToUnix(msaLoginResult.mcExpiresIn * 1000),
                 SkinInfo: JSON.stringify(msaLoginResult.skins),
                 CapeInfo: JSON.stringify(msaLoginResult.capes),
-            });
+            };
+            _Profiles.push(newProfile);
+            _ProfileConfig.Current = newProfile.Guid;
         }
-        _Profiles.forEach((profile) => {
-            if (profile.Uuid !== msaLoginResult.uuid || profile.Type !== "msa" || profile.Name !== msaLoginResult.name) {
-                profile.Picked = false;
-            }
-        });
         AccountStore.setAccountState(msaLoginResult.name, "msa");
         _ProfileConfig.Profile = _Profiles;
-        await TauriConfig.set("Profiles.Profile", _ProfileConfig);
+        // 设置 Current 和 Profile 分开
+        await TauriConfig.set("Profiles.Current", _ProfileConfig.Current);
+        await TauriConfig.set("Profiles.Profile", _ProfileConfig.Profile);
         ProfileConfig.value = _ProfileConfig;
         Profiles.value = _Profiles;
         createModal.value?.close();
@@ -166,25 +163,23 @@
         }
         const uuid = offlineUuidMode.value === "custom" ? offlineUuid.value! : McUuid.createOfflineUUID(offlineUsername.value).dash;
 
-        const _ProfileConfig = await TauriConfig.get<ITauriTypes.Config.ProfileConfig>("Profile");
+        const _ProfileConfig = await TauriConfig.get<ITauriTypes.Config.ProfileConfig>("Profiles");
         const _Profiles = _ProfileConfig.Profile || [];
-        _Profiles.push({
+        const newProfile = {
             Guid: uuidv7(),
-            Type: "legacy",
+            Type: "legacy" as "legacy",
             Name: offlineUsername.value,
             Uuid: uuid,
-            Picked: true,
             // 保留字段
             AccessToken: "",
             RefreshToken: "",
-        });
-        _Profiles.forEach((profile) => {
-            if (profile.Uuid !== uuid) {
-                profile.Picked = false;
-            }
-        });
+        };
+        _Profiles.push(newProfile);
+        _ProfileConfig.Current = newProfile.Guid;
         AccountStore.setAccountState(offlineUsername.value, "legacy");
-        await TauriConfig.set("Profiles.Profile", _ProfileConfig);
+        // 设置 Current 和 Profile 分开
+        await TauriConfig.set("Profiles.Current", _ProfileConfig.Current);
+        await TauriConfig.set("Profiles.Profile", _ProfileConfig.Profile);
         Profiles.value = _Profiles;
         cleanup();
         createModal.value?.close();
@@ -227,14 +222,14 @@
 
         // 异步更新配置，但不要改变 Profiles.value 的顺序
         (async () => {
-            const _ProfileConfig = await TauriConfig.get<ITauriTypes.Config.ProfileConfig>("Profile");
+            const _ProfileConfig = await TauriConfig.get<ITauriTypes.Config.ProfileConfig>("Profiles");
 
-            // 标记 picked
-            _ProfileConfig.Profile.forEach((profile) => {
-                profile.Picked = profile.Guid === newProfile.Guid;
-            });
+            // 更新 Current 字段
+            _ProfileConfig.Current = newProfile.Guid;
 
-            await TauriConfig.set("Profile", _ProfileConfig);
+            // 设置 Current 和 Profile 分开
+            await TauriConfig.set("Profiles.Current", _ProfileConfig.Current);
+            await TauriConfig.set("Profiles.Profile", _ProfileConfig.Profile);
 
             // 更新 ProfileConfig，但不要替换 Profiles.value
             ProfileConfig.value = _ProfileConfig;
@@ -249,15 +244,14 @@
             const AccountName = newProfile.Name;
             const AccountType = newProfile.Type;
             AccountStore.setAccountState(AccountName, AccountType);
-            const _ProfileConfig = await TauriConfig.get<ITauriTypes.Config.ProfileConfig>("Profile");
-            _ProfileConfig.Profile.forEach((profile) => {
-                if (profile.Guid === newProfile.Guid) {
-                    profile.Picked = true;
-                } else {
-                    profile.Picked = false;
-                }
-            });
-            await TauriConfig.set("Profiles.Profile", _ProfileConfig);
+            const _ProfileConfig = await TauriConfig.get<ITauriTypes.Config.ProfileConfig>("Profiles");
+
+            // 更新 Current 字段
+            _ProfileConfig.Current = newProfile.Guid;
+
+            // 设置 Current 和 Profile 分开
+            await TauriConfig.set("Profiles.Current", _ProfileConfig.Current);
+            await TauriConfig.set("Profiles.Profile", _ProfileConfig.Profile);
             ProfileConfig.value = _ProfileConfig;
             Profiles.value = _ProfileConfig.Profile || [];
         }
@@ -269,19 +263,20 @@
         removeModal.value?.show();
     }
     async function removeCurrentProfile() {
-        const _ProfileConfig = await TauriConfig.get<ITauriTypes.Config.ProfileConfig>("Profile");
+        const _ProfileConfig = await TauriConfig.get<ITauriTypes.Config.ProfileConfig>("Profiles");
         const _Profiles = _ProfileConfig.Profile ?? [];
-        const currentIndex = _Profiles.findIndex((p) => p.Picked);
+        const currentIndex = _Profiles.findIndex((p) => p.Guid === _ProfileConfig.Current);
         if (_Profiles.length === 0 || currentIndex === -1) return;
         _Profiles.splice(currentIndex, 1);
         if (_Profiles.length > 0) {
             const nextIndex = Math.min(currentIndex, _Profiles.length - 1);
-            _Profiles.forEach((p) => (p.Picked = false));
-            _Profiles[nextIndex].Picked = true;
+            _ProfileConfig.Current = _Profiles[nextIndex].Guid;
             AccountStore.setAccountState(_Profiles[nextIndex].Name, _Profiles[nextIndex].Type);
         }
         _ProfileConfig.Profile = _Profiles;
-        await TauriConfig.set("Profile", _ProfileConfig);
+        // 设置 Current 和 Profile 分开
+        await TauriConfig.set("Profiles.Current", _ProfileConfig.Current);
+        await TauriConfig.set("Profiles.Profile", _ProfileConfig.Profile);
         ProfileConfig.value = _ProfileConfig;
         Profiles.value = _Profiles;
     }
@@ -302,7 +297,7 @@
     }
 
     const CurrentProfile = computed(() => {
-        return Profiles.value.find((i) => i.Picked);
+        return Profiles.value.find((i) => i.Guid === ProfileConfig.value?.Current);
     });
     const CurrentProfileName = computed(() => {
         return CurrentProfile.value?.Name;
@@ -366,9 +361,9 @@
 
     // ======== 钩子 ==========
     onMounted(async () => {
-        ProfileConfig.value = await TauriConfig.get<ITauriTypes.Config.ProfileConfig>("Profiles.Profile");
+        ProfileConfig.value = await TauriConfig.get<ITauriTypes.Config.ProfileConfig>("Profiles");
         Profiles.value = ProfileConfig.value?.Profile || [];
-        topCardIndex.value = Profiles.value.findIndex((i) => i.Picked);
+        topCardIndex.value = Profiles.value.findIndex((i) => i.Guid === ProfileConfig.value?.Current);
     });
 </script>
 
@@ -396,7 +391,7 @@
             </div>
         </div>
 
-        <div class="flex-1 mt-4">
+        <div class="flex-1 mt-4 h-full">
             <BankCard
                 class="w-full! h-[calc(100%-62px)]! aspect-auto! mt-4"
                 :style="{ '--bgc-perc': matchTheme('dark') ? '1.03%' : '0.75%' }"
@@ -544,7 +539,7 @@
                             })
                         }}
                     </p>
-                    <p>UUID {{ Profiles.filter((i) => i.Picked)[0]?.Uuid }}</p>
+                    <p>UUID {{ CurrentProfile?.Uuid }}</p>
                     <div class="divider w-96 mx-auto my-0"></div>
                     <form method="dialog" class="w-66 grid grid-cols-5 gap-4">
                         <button class="btn w-full btn-error col-span-3" @click="removeCurrentProfile">
