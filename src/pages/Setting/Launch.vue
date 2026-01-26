@@ -52,6 +52,7 @@
         DisableRetroWrapper.value = await TauriConfig.get("Launch.Advanced.DisableRetroWrapper");
         UseDiscreteGpu.value = await TauriConfig.get("Launch.Advanced.UseDiscreteGpu");
         UseJavaExe.value = await TauriConfig.get("Launch.Advanced.UseJavaExe");
+        console.debug("JvmArgs", JvmArgs.value);
     });
 
     onMediumInterval(updateRamInfo);
@@ -72,7 +73,7 @@
 </script>
 
 <template>
-    <main class="p-6 pr-8 max-h-[calc(100vh-128px-var(--spacing)*1)] rounded-box overflow-auto beautiful-scrollbar">
+    <main class="p-6 pr-8 max-h-[calc(100vh-128px-var(--spacing)*1)] rounded-box overflow-x-hidden overflow-y-auto beautiful-scrollbar">
         <div class="card bg-base-100 outline outline-base-content/25 w-full">
             <div class="card-body px-4 py-3 pb-4">
                 <h1 class="card-title">{{ t("Main.Setting/Launch.Basic.__Title__") }}</h1>

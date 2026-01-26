@@ -12,6 +12,22 @@ pub enum ConfigValue {
     Null,
 }
 
+impl ConfigValue {
+    pub fn as_object_mut(&mut self) -> Option<&mut HashMap<String, ConfigValue>> {
+        match self {
+            ConfigValue::Object(map) => Some(map),
+            _ => None,
+        }
+    }
+
+    pub fn into_object(self) -> Option<HashMap<String, ConfigValue>> {
+        match self {
+            ConfigValue::Object(map) => Some(map),
+            _ => None,
+        }
+    }
+}
+
 /// 配置映射类型
 pub type ConfigMap = HashMap<String, ConfigValue>;
 

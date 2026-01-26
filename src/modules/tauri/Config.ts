@@ -9,11 +9,12 @@ export class Config {
      * @param key 配置项名称
      * @returns 配置值
      */
-    static async get<T>(key: string): Promise<T> {
+    static async get<T extends Object>(key: string): Promise<T> {
         const result = await IpcClient.invoke<string>("get_config", { key: key.split(".") });
         // 根据需要解析返回值
         try {
-            return JSON.parse(result) as T;
+            let resp = JSON.parse(result) as T;
+            return Object.values(resp)[0];
         } catch {
             return result as unknown as T;
         }
@@ -39,4 +40,3 @@ export const config = {
     get: Config.get,
     set: Config.set,
 };
-
