@@ -252,6 +252,14 @@ pub static CONFIG_METADATA: LazyLock<Vec<ConfigMetadata>> = LazyLock::new(|| {
         // #REGION Profile - 档案文件
         ConfigMetadata {
             toml_file: "Profiles",
+            config_item: vec!["Profiles", "Current"],
+            data_type: ConfigDataType::String,
+            need_encrypt: false,
+            default_value: ConfigValue::String(String::from("Null")),
+            is_list: false,
+        },
+        ConfigMetadata {
+            toml_file: "Profiles",
             config_item: vec!["Profiles", "Profile"],
             data_type: ConfigDataType::Array, // 因为是 [[profile]] 数组
             need_encrypt: true,

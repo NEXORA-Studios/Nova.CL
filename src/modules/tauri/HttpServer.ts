@@ -45,7 +45,7 @@ export class HttpServer {
      */
     static async getStatus(): Promise<ITauriTypes.HTTP.HttpServerStatusResult> {
         try {
-            return await IpcClient.invoke<ITauriTypes.HTTP.HttpServerStatusResult>("http_server_get_status");
+            return await IpcClient.invoke<ITauriTypes.HTTP.HttpServerStatusResult>("http_server_status");
         } catch (error) {
             console.error({ category: "HTTP Server", message: `Failed to get HTTP server status: ${error}` });
             // 返回一个合理的默认值，避免调用方崩溃

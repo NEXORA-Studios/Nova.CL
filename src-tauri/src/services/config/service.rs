@@ -100,11 +100,12 @@ impl ConfigService {
     }
 
     pub async fn set_config(&self, path: &[&str], value: ConfigValue) -> Result<(), Box<dyn std::error::Error>> {
-        // 校验类型
+        // 1. 类型校验
         if !self.validate_config_type(path, &value) {
-            return Err(Box::new(std::io::Error::new(std::io::ErrorKind::InvalidData, "类型不匹配")));
+            return Err(Box::new(std::io::Error::new(std::io::ErrorKind::InvalidData, format!("配置类型不匹配: path={:?}", path))));
         }
 
+        // 2. 判断是否需要加密
         let need_encrypt = self.metadata.iter().find(|meta| meta.config_item == path).map(|m| m.need_encrypt).unwrap_or(false);
 
         let processed_value = if need_encrypt {
@@ -116,23 +117,38 @@ impl ConfigService {
                     value.clone()
                 }
             } else {
-                value.clone()
+                value.clone() // 非字符串不加密
             }
         } else {
             value.clone()
         };
 
-        // 更新内存配置
-        let mut guard = self.config.lock().await;
-        let file_config = Self::set_by_path(self, &mut *guard, path, processed_value.clone(), self.metadata);
+        // 3. 更新内存中的配置（使用修复后的 set_by_path）
+        {
+            let mut guard = self.config.lock().await;
+            Self::set_by_path(self, &mut *guard, path, processed_value.clone(), &self.metadata);
+        }
 
-        // 保存到文件，合并原有文件配置，避免丢失其它字段
+        // 4. 持久化：只处理有对应 toml_file 的配置项
         if let Some(meta) = self.metadata.iter().find(|m| m.config_item == path) {
-            let provider = TomlConfigProvider::new(meta.toml_file);
+            let toml_file = meta.toml_file;
+
+            let provider = TomlConfigProvider::new(toml_file);
+
             let app_guard = self.app_handle.lock().await;
-            let app = app_guard.as_ref().ok_or("AppHandle not initialized")?;
-            // 4. 保存合并后的文件
+            let app = app_guard.as_ref().ok_or("AppHandle 未初始化")?;
+
+            // 读取当前文件内容（避免覆盖其他无关字段）
+            let mut file_config = provider.load(app).await.unwrap_or_else(|_| ConfigMap::new());
+
+            // 在文件配置上应用本次变更（深合并）
+            Self::set_by_path(self, &mut file_config, path, processed_value, &self.metadata);
+
+            // 写回文件
             provider.save(app, &file_config).await?;
+            debug!("已保存配置到文件: {} , path={:?}", toml_file, path);
+        } else {
+            debug!("路径 {:?} 没有关联的 toml 文件，仅更新内存", path);
         }
 
         Ok(())
@@ -173,37 +189,45 @@ impl ConfigService {
         current.get(*path.last().unwrap())
     }
 
-    fn set_by_path(&self, config: &mut ConfigMap, path: &[&str], value: ConfigValue, metadata: &[ConfigMetadata]) -> HashMap<String, ConfigValue> {
+    /// 在 ConfigMap 中按照路径深层设置值（会自动创建中间层对象）
+    fn set_by_path(&self, config: &mut ConfigMap, path: &[&str], mut value: ConfigValue, metadata: &[ConfigMetadata]) -> ConfigMap {
         if path.is_empty() {
-            return HashMap::new();
+            return config.clone();
         }
 
-        // 根据 metadata 判断是否要包成 Array
-        let mut final_value = value;
+        // 处理 is_list
         if let Some(meta) = metadata.iter().find(|m| m.config_item == path) {
-            if meta.is_list && !matches!(&final_value, ConfigValue::Array(_)) {
-                final_value = ConfigValue::Array(vec![final_value]);
+            if meta.is_list && !matches!(value, ConfigValue::Array(_)) {
+                value = ConfigValue::Array(vec![value]);
             }
         }
 
-        // 从最内层开始递归生成嵌套对象
-        let mut nested_value = final_value;
-        for _key in path[..path.len() - 1].iter().rev() {
-            let mut map = HashMap::new();
-            map.insert(path[path.len() - 1].to_string(), nested_value);
-            nested_value = ConfigValue::Object(map);
+        // 关键：不移动 config，而是用一个新的可变引用变量
+        let mut current: &mut HashMap<String, ConfigValue> = config;
+
+        for &key in &path[..path.len() - 1] {
+            let key_str = key.to_string();
+            let entry = current.entry(key_str).or_insert_with(|| ConfigValue::Object(HashMap::new()));
+
+            current = match entry {
+                ConfigValue::Object(map) => map,
+                _ => {
+                    *entry = ConfigValue::Object(HashMap::new());
+                    if let ConfigValue::Object(map) = entry {
+                        map
+                    } else {
+                        unreachable!("刚刚赋值的必定是 Object")
+                    }
+                }
+            };
         }
 
-        // 最外层 key
-        let top_key = path[0].to_string();
-        let mut new_config = ConfigMap::new();
-        new_config.insert(top_key, nested_value);
+        // 最后一层插入
+        let last_key = path.last().unwrap().to_string();
+        current.insert(last_key, value);
 
-        // 使用已有 merge_configs_if_exists 合并
-        let merged = Self::merge_configs_if_exists(self, config.clone(), new_config);
-        *config = merged.clone();
-
-        merged
+        // 现在 config 仍然有效，可以 clone
+        config.clone()
     }
 }
 
@@ -309,22 +333,49 @@ impl LifecycleService for ConfigService {
         map.insert(
             "get_config".to_string(),
             sync_cmd(move |args: CommandInput| -> Result<CommandOutput, CommandError> {
-                if let CommandInput::Args(args) = args {
-                    if args.is_empty() {
-                        return Err(CommandError::Text("缺少 path 参数".to_string()));
+                // 先统一拿到 payload 字符串
+                let payload_str = match args {
+                    CommandInput::Args(mut args_vec) => {
+                        if args_vec.is_empty() {
+                            return Err(CommandError::Text("缺少参数".to_string()));
+                        }
+                        args_vec.remove(0)  // 取出第一个字符串
                     }
-                    let path_json = &args[0];
-                    let path: Vec<String> = serde_json::from_str(path_json).map_err(|e| CommandError::Text(format!("解析 path 失败: {}", e)))?;
-                    let path_ref: Vec<&str> = path.iter().map(|s| s.as_str()).collect();
-                    let svc = service_get.clone();
-                    let res = tokio::task::block_in_place(|| futures::executor::block_on(svc.get_decrypted_config(&path_ref)));
-                    match res {
-                        Ok(Some(v)) => Ok(CommandOutput::Text(serde_json::to_string(&v).unwrap_or("null".to_string()))),
-                        Ok(None) => Ok(CommandOutput::Text("null".to_string())),
-                        Err(e) => Err(CommandError::Text(e.to_string())),
+                    CommandInput::Json(json) => {
+                        serde_json::to_string(&json)
+                            .map_err(|e| CommandError::Text(format!("Json 转字符串失败: {}", e)))?
                     }
-                } else {
-                    Err(CommandError::Text("参数格式错误".to_string()))
+                    _ => return Err(CommandError::Text("不支持的参数格式".to_string())),
+                };
+
+                // 现在解析这个字符串为 JSON 对象
+                let payload: SerdeJsonValue = serde_json::from_str(&payload_str)
+                    .map_err(|e| CommandError::Text(format!("解析 payload 失败: {}", e)))?;
+
+                // 从对象中取 "key"
+                let path_value = payload.get("key")
+                    .ok_or_else(|| CommandError::Text("缺少 'key' 字段".to_string()))?;
+
+                let path: Vec<String> = serde_json::from_value(path_value.clone())
+                    .map_err(|e| CommandError::Text(format!("解析 path 失败: {}", e)))?;
+
+                if path.is_empty() {
+                    return Err(CommandError::Text("path 不能为空".to_string()));
+                }
+
+                let path_ref: Vec<&str> = path.iter().map(|s| s.as_str()).collect();
+
+                let svc = service_get.clone();
+                let res = tokio::task::block_in_place(|| {
+                    futures::executor::block_on(svc.get_decrypted_config(&path_ref))
+                });
+
+                match res {
+                    Ok(Some(v)) => Ok(CommandOutput::Text(
+                        serde_json::to_string(&v).unwrap_or("null".to_string())
+                    )),
+                    Ok(None) => Ok(CommandOutput::Text("null".to_string())),
+                    Err(e) => Err(CommandError::Text(e.to_string())),
                 }
             }),
         );

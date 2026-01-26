@@ -11,8 +11,8 @@
     const Language = ref<ITauriTypes.Config.CustomizeConfig["UI"]["Language"]>("zh-CN");
 
     onMounted(async () => {
-        Theme.value = await TauriConfig.get<ITauriTypes.Config.CustomizeConfig["UI"]["Theme"]>("UI.Theme");
-        Language.value = await TauriConfig.get<ITauriTypes.Config.CustomizeConfig["UI"]["Language"]>("UI.Language");
+        Theme.value = await TauriConfig.get<ITauriTypes.Config.CustomizeConfig["UI"]["Theme"]>("Customize.UI.Theme");
+        Language.value = await TauriConfig.get<ITauriTypes.Config.CustomizeConfig["UI"]["Language"]>("Customize.UI.Language");
     });
 
     watchAndSet(Theme, "Customize.UI.Theme", (new_value) => {

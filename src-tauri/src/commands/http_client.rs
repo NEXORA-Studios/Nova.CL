@@ -67,7 +67,7 @@ pub async fn http_request(app_handle: AppHandle, request: CallRequest<HttpReques
 
 /// 发送 GET 请求
 ///
-/// # 参数
+/// # 参数z
 /// - `app_handle`: Tauri 应用句柄，用于获取生命周期管理器
 /// - `request`: 前端发送的 CallRequest 结构体，包含请求 ID 和 GET 请求参数
 #[tauri::command]

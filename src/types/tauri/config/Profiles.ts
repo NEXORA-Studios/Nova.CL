@@ -32,5 +32,6 @@ export interface YggdrasilProfile extends BaseProfile {
 export type Profile = MsaProfile | LegacyProfile | YggdrasilProfile;
 
 export interface ProfileConfig {
+    Current: string;
     Profile: Profile[];
 }

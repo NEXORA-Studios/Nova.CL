@@ -366,7 +366,7 @@
 
     // ======== 钩子 ==========
     onMounted(async () => {
-        ProfileConfig.value = await TauriConfig.get<ITauriTypes.Config.ProfileConfig>("Profile");
+        ProfileConfig.value = await TauriConfig.get<ITauriTypes.Config.ProfileConfig>("Profiles.Profile");
         Profiles.value = ProfileConfig.value?.Profile || [];
         topCardIndex.value = Profiles.value.findIndex((i) => i.Picked);
     });
