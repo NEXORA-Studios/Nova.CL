@@ -13,8 +13,8 @@ export interface MsaProfile extends BaseProfile {
     Type: "msa";
     MsaExpiresAt: number;
     McExpiresAt: number;
-    SkinInfo: string;
-    CapeInfo: string;
+    SkinInfo: Array<any>;
+    CapeInfo: Array<any>;
 }
 
 export interface LegacyProfile extends BaseProfile {

@@ -1,374 +1,102 @@
 <script setup lang="ts">
-    import { openUrl } from "@tauri-apps/plugin-opener";
-    import { v7 as uuidv7 } from "uuid";
-    import { computed, onMounted, ref, watch } from "vue";
-    import { AccountCard, BankCard, Player } from "@/components";
-    import { ITauriTypes } from "@/types";
-    import { McMsa, McUuid, TauriHttpServer, TauriConfig, useAccountStore } from "@/modules";
-    import { MsaLoginResult } from "@/types/minecraft/Msa";
-    import { expiresInToUnix } from "@/utils";
+    import { ref, computed, onMounted } from "vue";
+    import { BankCard, AccountCard, Player } from "@/components";
+    import { useProfileManager } from "@/composables";
     import { useTheme } from "@/composables";
     import { useI18n } from "vue-i18n";
+    import { openUrl } from "@tauri-apps/plugin-opener";
 
+    // 国际化、主题
     const { locale } = useI18n();
     const { matchTheme } = useTheme();
 
-    // ================ 账户模块 ================
+    // -------------------- Profile 管理 --------------------
+    const profileManager = useProfileManager();
 
-    const ProfileConfig = ref<ITauriTypes.Config.ProfileConfig>();
-    const Profiles = ref<ITauriTypes.Config.ProfileConfig["Profile"]>([]);
-    const AccountStore = useAccountStore();
-
-    function reorderPicked<T extends { Guid: string }>(arr: T[]): T[] {
-        const notCurrent: T[] = [];
-        const current: T[] = [];
-
-        for (const item of arr) {
-            if (item.Guid === ProfileConfig.value?.Current) current.push(item);
-            else notCurrent.push(item);
-        }
-
-        return [...current, ...notCurrent];
-    }
-
-    // ================== 弹窗 ==================
-
-    // 全局变量
+    // 弹窗状态
     const createModal = ref<HTMLDialogElement>();
-    const step = ref<number>(1);
-    const type = ref<ITauriTypes.Config.ProfileConfig["Profile"][0]["Type"]>();
-    const $env = import.meta.env;
+    const removeModal = ref<HTMLDialogElement>();
+    const step = ref(1);
+    const type = ref<"msa" | "legacy" | "yggdrasil">();
 
-    // 微软档案相关
-    const msaUiText = ref<string>("Main.r/Profile.Modal.Step2.Msa.Waiting");
-    const msaFailure = ref<boolean>(false);
-    const msaFailureCode = ref<number>(0);
-    const msaFailureText = ref<string>("");
-    async function setupMsaService() {
-        const LOGIN_URI =
-            "https://login.microsoftonline.com/consumers/oauth2/v2.0/authorize?" +
-            new URLSearchParams({
-                client_id: $env.OAUTH_MS_CLIENT_ID,
-                response_type: "code",
-                redirect_uri: $env.OAUTH_REDIRECT_URI_BASE + $env.OAUTH_MS_REDIRECT_URI,
-                response_mode: "query",
-                scope: "XboxLive.signin offline_access",
-            }).toString();
-        console.tInfo({ category: "MSA Login", message: "开始微软登录流程" });
-        const res = await TauriHttpServer.start(36993, locale.value);
-        if (res.message === "HTTP Server already running") {
-            TauriHttpServer.unlistenOAuthCode();
-            await TauriHttpServer.stop();
-            await TauriHttpServer.start(36993, locale.value);
-        }
-        await TauriHttpServer.listenOAuthCode((payload) => handleMsaCodeReceived(payload));
-        await openUrl(LOGIN_URI);
-    }
-    async function handleMsaCodeReceived(payload: ITauriTypes.HTTP.OAuthCodeReceivedPayload) {
-        if (payload.path !== "/oauth/callback") return;
-        if (!payload.query) return;
-        const query = new URLSearchParams(payload.query);
-        const code = query.get("code");
-        if (!code) return;
+    // Legacy 输入
+    const offlineUsername = ref("");
+    const offlineUuidMode = ref<"standard" | "custom" | "">("");
+    const offlineUuid = ref("");
 
-        // 关闭监听事件
-        console.tInfo({ category: "MSA Login", message: "收到微软登录授权码" });
-
-        let msaLoginResult: MsaLoginResult;
-        try {
-            async function updateMsaUiText(step: number) {
-                msaUiText.value = `Main.r/Profile.Modal.Step2.Msa.Process.Step${step}.Processing`;
-                console.tInfo({ category: "MSA Login", message: `微软登录流程 Step ${step}/6` });
-            }
-            msaLoginResult = await McMsa.loginFromCode(code, updateMsaUiText);
-        } catch (error) {
-            const step = (error as McMsa.MsaLoginError).step;
-            msaUiText.value = `Main.r/Profile.Modal.Step2.Msa.Process.Step${step}.Error`;
-            msaFailure.value = true;
-            msaFailureCode.value = (error as McMsa.MsaLoginError).code;
-            msaFailureText.value = (error as McMsa.MsaLoginError).message;
-            // console.group("MSA Login Error");
-            console.tError({ category: "MSA Login", message: `微软登录流程 Step ${step}/6 失败` });
-            console.tError({ category: "MSA Login", message: `  ↪ 错误码: ${msaFailureCode.value}` });
-            console.tError({ category: "MSA Login", message: `  ↪ 错误信息: ${msaFailureText.value}` });
-            // console.groupEnd();
-            return;
-        }
-
-        const _ProfileConfig = await TauriConfig.get<ITauriTypes.Config.ProfileConfig>("Profiles");
-        const _Profiles = _ProfileConfig.Profile || [];
-        const _ProfileMatch = _Profiles.find(
-            (profile) => profile.Type === "msa" && profile.Name === msaLoginResult.name && profile.Uuid === msaLoginResult.uuid
-        );
-        if (_ProfileMatch) {
-            _ProfileConfig.Current = _ProfileMatch.Guid;
-        } else {
-            const newProfile = {
-                Guid: uuidv7(),
-                Type: "msa" as "msa",
-                Name: msaLoginResult.name,
-                Uuid: msaLoginResult.uuid,
-                AccessToken: msaLoginResult.msaAccessToken,
-                RefreshToken: msaLoginResult.msaRefreshToken,
-                MsaExpiresAt: expiresInToUnix(msaLoginResult.msaExpiresIn * 1000),
-                McExpiresAt: expiresInToUnix(msaLoginResult.mcExpiresIn * 1000),
-                SkinInfo: JSON.stringify(msaLoginResult.skins),
-                CapeInfo: JSON.stringify(msaLoginResult.capes),
-            };
-            _Profiles.push(newProfile);
-            _ProfileConfig.Current = newProfile.Guid;
-        }
-        AccountStore.setAccountState(msaLoginResult.name, "msa");
-        _ProfileConfig.Profile = _Profiles;
-        // 设置 Current 和 Profile 分开
-        await TauriConfig.set("Profiles.Current", _ProfileConfig.Current);
-        await TauriConfig.set("Profiles.Profile", _ProfileConfig.Profile);
-        ProfileConfig.value = _ProfileConfig;
-        Profiles.value = _Profiles;
-        createModal.value?.close();
-        setTimeout(cleanup, 50); // 延迟清理以避免 UI 跳动
-        console.info({ category: "MSA Login", message: "微软登录流程完成" });
-    }
-
-    // 离线档案相关
-    const offlineUsername = ref<string>();
-    const offlineUuidMode = ref<string>("");
-    const offlineUuid = ref<string>();
+    // 计算可用性
     const offlineValid = computed(() => {
-        if (
-            !offlineUsername.value ||
-            offlineUsername.value.length < 3 ||
-            offlineUsername.value.length > 16 ||
-            !/^[a-zA-Z0-9_]+$/.test(offlineUsername.value)
-        ) {
-            return false;
-        }
-
-        if (offlineUuidMode.value === "") {
-            return false;
-        }
-
+        if (!offlineUsername.value || offlineUsername.value.length < 3 || offlineUsername.value.length > 16) return false;
+        if (offlineUuidMode.value === "") return false;
         if (offlineUuidMode.value === "custom") {
-            return (
-                offlineUuid.value?.length === 36 &&
-                /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/.test(offlineUuid.value)
-            );
+            return offlineUuid.value?.length === 36 && /^[0-9a-fA-F\-]{36}$/.test(offlineUuid.value);
         }
-
         return true;
     });
-    async function createLegacyProfile() {
-        if (!offlineUsername.value || offlineUuidMode.value === "" || (offlineUuidMode.value === "custom" && !offlineUuid.value)) {
-            return;
-        }
-        const uuid = offlineUuidMode.value === "custom" ? offlineUuid.value! : McUuid.createOfflineUUID(offlineUsername.value).dash;
 
-        const _ProfileConfig = await TauriConfig.get<ITauriTypes.Config.ProfileConfig>("Profiles");
-        const _Profiles = _ProfileConfig.Profile || [];
-        const newProfile = {
-            Guid: uuidv7(),
-            Type: "legacy" as "legacy",
-            Name: offlineUsername.value,
-            Uuid: uuid,
-            // 保留字段
-            AccessToken: "",
-            RefreshToken: "",
-        };
-        _Profiles.push(newProfile);
-        _ProfileConfig.Current = newProfile.Guid;
-        AccountStore.setAccountState(offlineUsername.value, "legacy");
-        // 设置 Current 和 Profile 分开
-        await TauriConfig.set("Profiles.Current", _ProfileConfig.Current);
-        await TauriConfig.set("Profiles.Profile", _ProfileConfig.Profile);
-        Profiles.value = _Profiles;
+    // -------------------- Computed --------------------
+    const Profiles = computed(() => profileManager.profiles.value);
+    const CurrentProfile = computed(() => profileManager.currentProfile.value);
+
+    const CurrentProfileSkin = computed(() => {
+        if (!CurrentProfile.value || CurrentProfile.value.Type !== "msa") return undefined;
+        const skins = CurrentProfile.value.SkinInfo || [];
+        return skins.find((i: any) => i.state === "ACTIVE");
+    });
+
+    const CurrentProfileCape = computed(() => {
+        if (!CurrentProfile.value || CurrentProfile.value.Type !== "msa") return undefined;
+        const capes = CurrentProfile.value.CapeInfo || [];
+        return capes.find((i: any) => i.state === "ACTIVE")?.url;
+    });
+
+    // -------------------- Actions --------------------
+    const openCreateModal = () => createModal.value?.showModal();
+    const onRemoveProfile = () => removeModal.value?.show();
+
+    async function createLegacyProfile() {
+        if (!offlineValid.value) return;
+        const uuid = offlineUuidMode.value === "custom" ? offlineUuid.value : undefined;
+        await profileManager.createLegacy(offlineUsername.value, offlineUuidMode.value || "standard", uuid);
         cleanup();
-        createModal.value?.close();
     }
 
-    // 弹窗相关
-    const openCreateModal = () => {
-        createModal.value?.showModal();
-    };
+    async function switchNextProfile() {
+        await profileManager.switchNext();
+    }
 
-    const cleanup = async () => {
+    async function removeCurrentProfile() {
+        await profileManager.removeCurrent();
+        cleanup();
+    }
+
+    function onCreateNewProfile(startType: "msa" | "legacy" | "yggdrasil") {
+        type.value = startType;
+        step.value = 2;
+        if (startType === "msa") profileManager.startMsaLogin(locale.value);
+    }
+
+    // 弹窗 cleanup
+    async function cleanup() {
         step.value = 1;
         type.value = undefined;
-        msaFailure.value = false;
-        msaFailureCode.value = 0;
-        msaFailureText.value = "";
-        offlineUsername.value = undefined;
+        offlineUsername.value = "";
         offlineUuidMode.value = "";
-        offlineUuid.value = undefined;
-        try {
-            TauriHttpServer.unlistenOAuthCode();
-            await TauriHttpServer.stop();
-        } catch (e) {
-            console.tWarn({ category: "Profile", message: `清理 HTTP 服务器失败: ${e}` });
-        }
-    };
-
-    // 选择界面
-    const topCardIndex = ref<number>(0);
-    function onSwitchProfile() {
-        // 先切换 index，保持 0-based 循环
-        topCardIndex.value = (topCardIndex.value + 1) % Profiles.value.length;
-
-        // 获取当前选中的 profile
-        const newProfile = Profiles.value[topCardIndex.value];
-        if (!newProfile) return;
-
-        // 更新档案状态
-        AccountStore.setAccountState(newProfile.Name, newProfile.Type);
-
-        // 异步更新配置，但不要改变 Profiles.value 的顺序
-        (async () => {
-            const _ProfileConfig = await TauriConfig.get<ITauriTypes.Config.ProfileConfig>("Profiles");
-
-            // 更新 Current 字段
-            _ProfileConfig.Current = newProfile.Guid;
-
-            // 设置 Current 和 Profile 分开
-            await TauriConfig.set("Profiles.Current", _ProfileConfig.Current);
-            await TauriConfig.set("Profiles.Profile", _ProfileConfig.Profile);
-
-            // 更新 ProfileConfig，但不要替换 Profiles.value
-            ProfileConfig.value = _ProfileConfig;
-        })();
-    }
-    watch(topCardIndex, async (newId, oldId) => {
-        if (newId === oldId) {
-            return;
-        }
-        const newProfile = Profiles.value[newId];
-        if (newProfile) {
-            const AccountName = newProfile.Name;
-            const AccountType = newProfile.Type;
-            AccountStore.setAccountState(AccountName, AccountType);
-            const _ProfileConfig = await TauriConfig.get<ITauriTypes.Config.ProfileConfig>("Profiles");
-
-            // 更新 Current 字段
-            _ProfileConfig.Current = newProfile.Guid;
-
-            // 设置 Current 和 Profile 分开
-            await TauriConfig.set("Profiles.Current", _ProfileConfig.Current);
-            await TauriConfig.set("Profiles.Profile", _ProfileConfig.Profile);
-            ProfileConfig.value = _ProfileConfig;
-            Profiles.value = _ProfileConfig.Profile || [];
-        }
-    });
-
-    // 注销、删除档案
-    const removeModal = ref<HTMLDialogElement>();
-    function onRemoveProfile() {
-        removeModal.value?.show();
-    }
-    async function removeCurrentProfile() {
-        const _ProfileConfig = await TauriConfig.get<ITauriTypes.Config.ProfileConfig>("Profiles");
-        const _Profiles = _ProfileConfig.Profile ?? [];
-        const currentIndex = _Profiles.findIndex((p) => p.Guid === _ProfileConfig.Current);
-        if (_Profiles.length === 0 || currentIndex === -1) return;
-        _Profiles.splice(currentIndex, 1);
-        if (_Profiles.length > 0) {
-            const nextIndex = Math.min(currentIndex, _Profiles.length - 1);
-            _ProfileConfig.Current = _Profiles[nextIndex].Guid;
-            AccountStore.setAccountState(_Profiles[nextIndex].Name, _Profiles[nextIndex].Type);
-        }
-        _ProfileConfig.Profile = _Profiles;
-        // 设置 Current 和 Profile 分开
-        await TauriConfig.set("Profiles.Current", _ProfileConfig.Current);
-        await TauriConfig.set("Profiles.Profile", _ProfileConfig.Profile);
-        ProfileConfig.value = _ProfileConfig;
-        Profiles.value = _Profiles;
+        offlineUuid.value = "";
+        createModal.value?.close();
+        removeModal.value?.close();
+        await profileManager.cleanup();
     }
 
-    // 玩家模型
-    interface SkinInfo {
-        id: string;
-        state: "INACTIVE" | "ACTIVE";
-        textureKey: string;
-        url: string;
-        variant: "WIDE" | "SLIM";
-    }
-    interface CapeInfo {
-        alias: string;
-        id: string;
-        state: "INACTIVE" | "ACTIVE";
-        url: string;
-    }
-
-    const CurrentProfile = computed(() => {
-        return Profiles.value.find((i) => i.Guid === ProfileConfig.value?.Current);
-    });
-    const CurrentProfileName = computed(() => {
-        return CurrentProfile.value?.Name;
-    });
-    const CurrentProfileType = computed(() => {
-        return CurrentProfile.value?.Type;
-    });
-    const CurrentProfileSkin = computed(() => {
-        if (!CurrentProfile.value) return undefined;
-        switch (CurrentProfile.value.Type) {
-            case "msa":
-                const skin_info: SkinInfo[] = JSON.parse(CurrentProfile.value.SkinInfo || "[]");
-                const active_skin = skin_info.find((i) => i.state === "ACTIVE");
-                if (!active_skin) return [];
-                return [active_skin.url, active_skin.variant];
-            default:
-                return undefined;
-        }
-    });
-    const CurrentProfileCape = computed(() => {
-        if (!CurrentProfile.value) return undefined;
-        switch (CurrentProfile.value.Type) {
-            case "msa":
-                const cape_info: CapeInfo[] = JSON.parse(CurrentProfile.value.CapeInfo || "[]");
-                const active_cape = cape_info.find((i) => i.state === "ACTIVE");
-                if (!active_cape) return undefined;
-                return active_cape.url;
-            default:
-                return undefined;
-        }
-    });
-
-    // 跳转函数
-    function onCreateNewProfile(startType: "msa" | "legacy" | "yggdrasil") {
-        switch (startType) {
-            case "msa":
-                type.value = "msa";
-                step.value = 2;
-                setupMsaService();
-                break;
-            case "legacy":
-                if (Profiles.value.some((i) => i.Type === "msa")) {
-                    type.value = "legacy";
-                    step.value = 2;
-                } else {
-                    return;
-                }
-                break;
-            case "yggdrasil":
-                // 暂时还没做好，先不让跳转
-                return;
-                if (Profiles.value.some((i) => i.Type === "msa")) {
-                    type.value = "yggdrasil";
-                    step.value = 2;
-                    break;
-                } else {
-                    return;
-                }
-        }
-    }
-
-    // ======== 钩子 ==========
+    // -------------------- Mounted --------------------
     onMounted(async () => {
-        ProfileConfig.value = await TauriConfig.get<ITauriTypes.Config.ProfileConfig>("Profiles");
-        Profiles.value = ProfileConfig.value?.Profile || [];
-        topCardIndex.value = Profiles.value.findIndex((i) => i.Guid === ProfileConfig.value?.Current);
+        await profileManager.load();
     });
 </script>
 
 <template>
     <div class="w-full h-[calc(100vh-128px-64px)] p-6">
+        <!-- 顶部操作 -->
         <div class="card w-full bg-base-100">
             <div class="card-body p-2! flex flex-row">
                 <button class="btn btn-sm btn-ghost" @click="openCreateModal">
@@ -391,35 +119,39 @@
             </div>
         </div>
 
+        <!-- 主体 -->
         <div class="flex-1 mt-4 h-full">
+            <!-- 没有档案 -->
             <BankCard
+                v-if="Profiles.length === 0"
                 class="w-full! h-[calc(100%-62px)]! aspect-auto! mt-4"
-                :style="{ '--bgc-perc': matchTheme('dark') ? '1.03%' : '0.75%' }"
-                v-if="Profiles.length === 0">
+                :style="{ '--bgc-perc': matchTheme('dark') ? '1.03%' : '0.75%' }">
                 <div class="w-full h-full flex flex-col gap-4 justify-center items-center">
                     <i class="icon-[material-symbols--frame-exclamation-rounded] size-22"></i>
                     <span class="text-xl">{{ $t("Main.r/Profile.Profiles.NoProfile") }}</span>
                 </div>
             </BankCard>
-            <div class="grid grid-cols-[410px_1fr] grid-rows-[1fr] gap-4 h-full" v-else>
+
+            <!-- 有档案 -->
+            <div v-else class="grid grid-cols-[410px_1fr] grid-rows-[1fr] gap-4 h-full">
                 <section class="h-full">
                     <div class="stack w-101.5 h-57.5">
                         <AccountCard
-                            :style="{ '--bgc-perc': matchTheme('dark') ? '4.23%' : '5.79%' }"
-                            v-for="card in reorderPicked(Profiles)"
+                            v-for="card in Profiles"
                             :key="card.Guid"
-                            :profile="card" />
+                            :profile="card"
+                            :style="{ '--bgc-perc': matchTheme('dark') ? '4.23%' : '5.79%' }" />
                     </div>
                     <div class="card w-full bg-base-100 mt-2">
                         <div class="card-body">
                             <h2 class="card-title">{{ $t("Main.r/Profile.ActionButtons.__Title__") }}</h2>
-                            <button class="btn btn-soft btn-primary mt-2 w-full" @click="onSwitchProfile" :disabled="Profiles.length == 1">
+                            <button class="btn btn-soft btn-primary mt-2 w-full" @click="switchNextProfile" :disabled="Profiles.length === 1">
                                 <span class="text-sm">{{ $t("Main.r/Profile.ActionButtons.SwitchProfileNext") }}</span>
                             </button>
-                            <button class="btn btn-soft btn-error mt-2 w-full" @click="onRemoveProfile" :disabled="Profiles.length == 1">
+                            <button class="btn btn-soft btn-error mt-2 w-full" @click="onRemoveProfile" :disabled="Profiles.length === 1">
                                 <span class="text-sm">
                                     {{
-                                        AccountStore.AccountType === "legacy"
+                                        CurrentProfile?.Type === "legacy"
                                             ? $t("Main.r/Profile.ActionButtons.Remove")
                                             : $t("Main.r/Profile.ActionButtons.Logout")
                                     }}
@@ -428,25 +160,28 @@
                         </div>
                     </div>
                 </section>
+
+                <!-- 玩家模型 -->
                 <section class="h-full min-h-0">
                     <Player
-                        v-if="CurrentProfileName"
-                        :skin-url="CurrentProfileSkin?.[0]"
-                        :type="CurrentProfileSkin?.[1].toLowerCase() || 'slim'"
+                        v-if="CurrentProfile"
+                        :skin-url="CurrentProfileSkin?.url"
+                        :type="CurrentProfileSkin?.variant.toLowerCase() || 'slim'"
                         :cape-url="CurrentProfileCape" />
                 </section>
             </div>
         </div>
 
+        <!-- 创建档案弹窗 -->
         <dialog ref="createModal" class="modal">
             <div class="modal-box">
                 <!-- Step 1 -->
-                <section class="flex flex-col items-center gap-2" v-if="step === 1">
+                <section v-if="step === 1" class="flex flex-col items-center gap-2">
                     <h3 class="text-xl font-bold">{{ $t("Main.r/Profile.Modal.Add.Title") }}</h3>
                     <p class="text-sm opacity-50">{{ $t("Main.r/Profile.Modal.Add.Description") }}</p>
                     <div class="divider w-76 mx-auto my-0"></div>
                     <button class="btn bg-[#2F2F2F] text-white border-black w-66" @click="onCreateNewProfile('msa')">
-                        <svg aria-label="Microsoft logo" width="24" height="24" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+                        <svg aria-label="Microsoft logo" width="24" height="24" viewBox="0 0 512 512">
                             <path d="M96 96H247V247H96" fill="#f24f23"></path>
                             <path d="M265 96V247H416V96" fill="#7eba03"></path>
                             <path d="M96 265H247V416H96" fill="#3ca4ef"></path>
@@ -458,38 +193,16 @@
                         <i class="icon-[material-symbols--safety-check-off-outline-rounded] size-6 mr-1"></i>
                         <span class="text-sm">{{ $t("Main.r/Profile.Modal.Add.Offline") }}</span>
                     </button>
-                    <button class="btn w-66" @click="onCreateNewProfile('yggdrasil')" v-if="Profiles.some((i) => i.Type === 'msa')" disabled>
-                        <i class="icon-[material-symbols--assured-workload-outline-rounded] size-6 mr-1"></i>
-                        <span class="text-sm">{{ $t("Main.r/Profile.Modal.Add.TrdParty") }}</span>
-                    </button>
                     <div class="divider w-76 mx-auto my-0"></div>
                     <form method="dialog" class="w-66">
                         <button class="btn w-full" @click="cleanup">{{ $t("Main.r/Profile.Modal.Add.Cancel") }}</button>
                     </form>
                 </section>
+
                 <!-- Step 2 -->
-                <section v-if="step === 2">
-                    <!-- MSA -->
-                    <section class="flex flex-col items-center gap-2" v-if="type === 'msa'">
-                        <h3 class="text-xl font-bold">{{ $t("Main.r/Profile.Modal.Add.MsLogin") }}</h3>
-                        <div class="divider w-96 mx-auto my-0"></div>
-                        <span class="loading loading-dots loading-xl" v-if="!msaFailure"></span>
-                        <i class="icon-[material-symbols--frame-exclamation-rounded] text-error size-16" v-else></i>
-                        <p class="text-sm" :class="{ 'text-error': msaFailure }">
-                            {{ $t(msaUiText) }}<span v-if="msaFailure">{{ $t("Main.r/Profile.Modal.Step2.Msa.Details") }}</span>
-                        </p>
-                        <p class="text-sm text-error text-center select-text" v-if="msaFailure">
-                            {{ $t(msaFailureText) }}
-                        </p>
-                        <div class="divider w-96 mx-auto my-0"></div>
-                        <form method="dialog" class="w-66">
-                            <button class="btn w-full" @click="cleanup">
-                                {{ $t("Main.r/Profile.Modal.Add.Cancel") }} / {{ $t("Main.r/Profile.Modal.Add.Back") }}
-                            </button>
-                        </form>
-                    </section>
+                <section v-else-if="step === 2">
                     <!-- Legacy -->
-                    <section class="flex flex-col items-center gap-2" v-else-if="type === 'legacy'">
+                    <section v-if="type === 'legacy'" class="flex flex-col items-center gap-2">
                         <h3 class="text-xl font-bold">{{ $t("Main.r/Profile.Modal.Add.Offline") }}</h3>
                         <div class="divider w-96 mx-auto my-0"></div>
                         <input
@@ -500,42 +213,49 @@
                             v-model="offlineUsername" />
                         <select class="select outline-none" v-model="offlineUuidMode">
                             <option disabled selected value="">{{ $t("Main.r/Profile.Modal.Step2.Offline.Uuid.Select.PickOne") }}</option>
-                            <option value="standrad">{{ $t("Main.r/Profile.Modal.Step2.Offline.Uuid.Select.Standrad") }}</option>
+                            <option value="standard">{{ $t("Main.r/Profile.Modal.Step2.Offline.Uuid.Select.Standrad") }}</option>
                             <option value="custom">{{ $t("Main.r/Profile.Modal.Step2.Offline.Uuid.Select.Custom") }}</option>
                         </select>
                         <input
+                            v-if="offlineUuidMode === 'custom'"
                             type="text"
                             class="input outline-none validator"
                             :placeholder="$t('Main.r/Profile.Modal.Step2.Offline.Uuid.Input')"
-                            v-if="offlineUuidMode === 'custom'"
-                            pattern="[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}"
+                            pattern="[0-9a-fA-F\-]{36}"
                             v-model="offlineUuid" />
                         <div class="divider w-96 mx-auto my-0"></div>
                         <section class="w-76 grid grid-cols-2 gap-4">
                             <button class="btn btn-success w-full" @click="createLegacyProfile" :disabled="!offlineValid">
                                 {{ $t("Main.r/Profile.Modal.Add.Create") }}
                             </button>
-                            <button class="btn btn-soft w-full" @click="cleanup">{{ $t("Main.r/Profile.Modal.Add.Back") }}</button>
+                            <button class="btn btn-soft w-full" @click="cleanup">
+                                {{ $t("Main.r/Profile.Modal.Add.Back") }}
+                            </button>
                         </section>
                     </section>
-                    <!-- Yggdrasil -->
-                    <section v-else-if="type === 'yggdrasil'"></section>
+
+                    <!-- MSA -->
+                    <section v-else-if="type === 'msa'" class="flex flex-col items-center gap-2">
+                        <h3 class="text-xl font-bold">{{ $t("Main.r/Profile.Modal.Add.MsLogin") }}</h3>
+                        <div class="divider w-96 mx-auto my-0"></div>
+                        <span class="loading loading-dots loading-xl"></span>
+                    </section>
                 </section>
             </div>
         </dialog>
+
+        <!-- 删除档案弹窗 -->
         <dialog ref="removeModal" class="modal">
             <div class="modal-box">
                 <section class="flex flex-col items-center gap-2">
-                    <h1 class="text-xl font-semibold">
-                        {{ $t("Main.r/Profile.Modal.Remove.Title") }}
-                    </h1>
+                    <h1 class="text-xl font-semibold">{{ $t("Main.r/Profile.Modal.Remove.Title") }}</h1>
                     <div class="divider w-96 mx-auto my-0"></div>
                     <p>{{ $t("Main.r/Profile.Modal.Remove.Content.Line1") }}</p>
                     <p class="mt-4">
                         {{
                             $t("Main.r/Profile.Modal.Remove.Content.Line2", {
-                                name: CurrentProfileName,
-                                type: CurrentProfileType ? $t(`Aside.AccountType.${CurrentProfileType}`) : "",
+                                name: CurrentProfile?.Name,
+                                type: CurrentProfile?.Type ? $t(`Aside.AccountType.${CurrentProfile.Type}`) : "",
                             })
                         }}
                     </p>

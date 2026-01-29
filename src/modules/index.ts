@@ -26,4 +26,3 @@ export { config as TauriConfig } from "./tauri/Config";
 // Minecraft
 export { uuid as McUuid } from "./minecraft/Uuid";
 export * as McMsa from "./minecraft/Msa";
-

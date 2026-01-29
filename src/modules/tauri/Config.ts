@@ -28,8 +28,8 @@ export class Config {
      */
     static async set<T>(key: string, value: T): Promise<T> {
         // 根据需要序列化值
-        const stringValue = typeof value === "string" ? value : JSON.stringify(value);
-        const result = await IpcClient.invoke<string>("set_config", { key: key.split("."), value: stringValue });
+        // const stringValue = typeof value === "string" ? value : JSON.stringify(value);
+        const result = await IpcClient.invoke<string>("set_config", { key: key.split("."), value });
         // 返回原始值或解析后的结果
         return typeof value === "string" ? (result as unknown as T) : value;
     }
