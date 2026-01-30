@@ -26,8 +26,8 @@ pub struct ConfigService {
 }
 
 impl ConfigService {
-    pub fn new(providers: Vec<Arc<dyn crate::services::config::provider::ConfigProvider>>, metadata: ConfigMetadataList) -> Self {
-        let random_key = CryptoContext::generate_random_key();
+    pub fn new(app_handle: AppHandle, providers: Vec<Arc<dyn crate::services::config::provider::ConfigProvider>>, metadata: ConfigMetadataList) -> Self {
+        let random_key = CryptoContext::get_or_generate_random_key(app_handle, "novacl", "config-service");
         let crypto_context = tokio::runtime::Runtime::new().unwrap().block_on(CryptoContext::new(random_key));
 
         Self {
@@ -384,7 +384,7 @@ impl LifecycleService for ConfigService {
         map.insert(
             "set_config".to_string(),
             sync_cmd(move |args: CommandInput| -> Result<CommandOutput, CommandError> {
-                trace!("set_config 命令参数: {:#?}", args);
+                trace!("set_config 命令参数: {:?}", args);
                 if let CommandInput::Args(args) = args {
                     if args.len() < 2 {
                         return Err(CommandError::Text("缺少 path 或 value 参数".to_string()));

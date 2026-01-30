@@ -1,7 +1,7 @@
 import { ref, computed } from "vue";
 import { v7 as uuidv7 } from "uuid";
 import { ITauriTypes } from "@/types";
-import { TauriConfig, TauriHttpServer, McUuid, McMsa } from "@/modules";
+import { TauriConfig, TauriHttpServer, McUuid, McMsa, useProfileStore } from "@/modules";
 import { expiresInToUnix } from "@/utils";
 import { openUrl } from "@tauri-apps/plugin-opener";
 
@@ -17,8 +17,15 @@ export function useProfileManager() {
 
     const profiles = ref<Profile[]>([]);
     const currentGuid = ref<string | undefined>();
+    const profileStore = useProfileStore();
 
     const currentProfile = computed(() => profiles.value.find((p) => p.Guid === currentGuid.value));
+    const currentOtherProfile = computed(() => {
+        if (!currentProfile.value) return [];
+        const currentIdx = profiles.value.findIndex((i) => i.Guid === currentProfile.value!.Guid);
+        if (currentIdx === -1) return profiles.value;
+        return [...profiles.value.slice(0, currentIdx), ...profiles.value.slice(currentIdx + 1)];
+    });
 
     /* -------------------- load -------------------- */
 
@@ -31,6 +38,7 @@ export function useProfileManager() {
         const list: Profile[] = JSON.parse(listStr);
         profiles.value = normalizeProfiles(list);
         currentGuid.value = current;
+        profileStore.setProfile(currentProfile.value);
     }
 
     /* -------------------- switch -------------------- */
@@ -178,6 +186,7 @@ export function useProfileManager() {
         profiles,
         currentGuid,
         currentProfile,
+        currentOtherProfile,
 
         // actions
         load,

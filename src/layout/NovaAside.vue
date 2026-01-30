@@ -1,10 +1,10 @@
 <script setup lang="ts">
     import { Avatar } from "@/components";
-    import { useAccountStore } from "@/modules";
     import { RuntimeCache } from "@/utils";
     import { useTheme } from "@/composables";
+    import { useProfileStore } from "@/modules";
 
-    const accountStore = useAccountStore();
+    const profileStore = useProfileStore();
     const { matchTheme } = useTheme();
 </script>
 
@@ -48,20 +48,23 @@
                 <span class="font-medium">{{ $t("Aside.MenuButton.More") }}</span>
             </button>
         </section>
-        <section class="h-14 mt-auto mb-4 -mx-2 px-2 pl-4 grid grid-cols-5 items-center gap-4 btn btn-ghost" @click="$router.push('/profile')">
+        <section class="h-14 mt-auto mb-4 -mx-2 pl-4 items-center gap-4 btn btn-ghost" @click="$router.push('/profile')">
             <section class="size-10 aspect-square">
-                <img src="/images/barrier.png" class="size-10 -ml-4" v-if="!accountStore.HasAccount" />
-                <Avatar :name="accountStore.AccountName" extra-class="size-10" v-else-if="accountStore.AccountType === 'msa'" />
+                <img src="/images/barrier.png" class="size-10 -ml-4" v-if="!profileStore.currentProfile" />
+                <Avatar
+                    :name="profileStore.currentProfile?.Name"
+                    extra-class="size-10"
+                    v-else-if="profileStore.currentProfile?.Type === 'msa'" />
                 <Avatar name="MHF_Steve" extra-class="size-10" v-else />
             </section>
-            <div class="flex flex-col col-span-4" v-if="!accountStore.HasAccount">
+            <div class="flex flex-col items-start" v-if="!profileStore.currentProfile">
                 <span class="opacity-90">{{ $t("Aside.NoProfile.__Title__") }}</span>
                 <span class="text-xs opacity-50">{{ $t("Aside.NoProfile.__Hint__") }}</span>
             </div>
-            <div class="w-full col-span-4 flex flex-col" v-else>
-                <span class="opacity-90">{{ accountStore.AccountName }}</span>
+            <div class="w-full flex flex-col items-start" v-else>
+                <span class="opacity-90">{{ profileStore.currentProfile?.Name }}</span>
                 <span class="text-xs opacity-50 font-normal">
-                    {{ accountStore.AccountType !== undefined ? $t(`Aside.AccountType.${accountStore.AccountType}`) : "" }}
+                    {{ profileStore.currentProfile?.Type !== undefined ? $t(`Aside.AccountType.${profileStore.currentProfile?.Type}`) : "" }}
                 </span>
             </div>
         </section>

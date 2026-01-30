@@ -26,6 +26,7 @@ pub fn run() {
             let _ = app.get_webview_window("main").expect("no main window").set_focus();
         }))
         .manage(LifecycleManager::new())
+        .plugin(tauri_plugin_keyring::init())
         .invoke_handler(tauri::generate_handler![
             // 日志命令
             log_trace,
@@ -59,7 +60,7 @@ pub fn run() {
             manager.register(Arc::new(HttpService::new()));
             manager.register(Arc::new(SystemService::new()));
             manager.register(Arc::new(HttpServerService::new()));
-            manager.register(Arc::new(ConfigService::new((*CONFIG_PROVIDERS.clone()).to_vec(), &*CONFIG_METADATA)));
+            manager.register(Arc::new(ConfigService::new(app_handle.clone(), (*CONFIG_PROVIDERS.clone()).to_vec(), &*CONFIG_METADATA)));
             // 拉起生命周期管理
             tauri::async_runtime::spawn(async move {
                 manager.startup(&app_handle).await;

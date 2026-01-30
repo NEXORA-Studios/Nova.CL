@@ -14,7 +14,7 @@ pub async fn log_trace(app_handle: AppHandle, request: CallRequest<serde_json::V
     // 从 request 中提取 ID 和 topic
     let id = request.id;
     let topic = request.topic;
-    
+
     // 解析日志参数
     let (category, message) = match request.payload {
         Some(payload) => {
@@ -34,7 +34,7 @@ pub async fn log_trace(app_handle: AppHandle, request: CallRequest<serde_json::V
         },
         None => ("default".to_string(), "".to_string()),
     };
-    
+
     // 构建命令参数
     let args = vec![category.clone(), message.clone()];
 
@@ -65,7 +65,7 @@ pub async fn log_debug(app_handle: AppHandle, request: CallRequest<serde_json::V
     // 从 request 中提取 ID 和 topic
     let id = request.id;
     let topic = request.topic;
-    
+
     // 解析日志参数
     let (category, message) = match request.payload {
         Some(payload) => {
@@ -85,7 +85,7 @@ pub async fn log_debug(app_handle: AppHandle, request: CallRequest<serde_json::V
         },
         None => ("default".to_string(), "".to_string()),
     };
-    
+
     // 构建命令参数
     let args = vec![category.clone(), message.clone()];
 
@@ -116,7 +116,7 @@ pub async fn log_info(app_handle: AppHandle, request: CallRequest<serde_json::Va
     // 从 request 中提取 ID 和 topic
     let id = request.id;
     let topic = request.topic;
-    
+
     // 解析日志参数
     let (category, message) = match request.payload {
         Some(payload) => {
@@ -136,7 +136,7 @@ pub async fn log_info(app_handle: AppHandle, request: CallRequest<serde_json::Va
         },
         None => ("default".to_string(), "".to_string()),
     };
-    
+
     // 构建命令参数
     let args = vec![category.clone(), message.clone()];
 
@@ -167,7 +167,7 @@ pub async fn log_warn(app_handle: AppHandle, request: CallRequest<serde_json::Va
     // 从 request 中提取 ID 和 topic
     let id = request.id;
     let topic = request.topic;
-    
+
     // 解析日志参数
     let (category, message) = match request.payload {
         Some(payload) => {
@@ -187,7 +187,7 @@ pub async fn log_warn(app_handle: AppHandle, request: CallRequest<serde_json::Va
         },
         None => ("default".to_string(), "".to_string()),
     };
-    
+
     // 构建命令参数
     let args = vec![category.clone(), message.clone()];
 
@@ -218,7 +218,7 @@ pub async fn log_error(app_handle: AppHandle, request: CallRequest<serde_json::V
     // 从 request 中提取 ID 和 topic
     let id = request.id;
     let topic = request.topic;
-    
+
     // 解析日志参数
     let (category, message) = match request.payload {
         Some(payload) => {
@@ -238,7 +238,7 @@ pub async fn log_error(app_handle: AppHandle, request: CallRequest<serde_json::V
         },
         None => ("default".to_string(), "".to_string()),
     };
-    
+
     // 构建命令参数
     let args = vec![category.clone(), message.clone()];
 
