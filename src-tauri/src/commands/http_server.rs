@@ -157,7 +157,7 @@ pub async fn http_server_start(app_handle: AppHandle, request: CallRequest<serde
             }
         }
         Err(e) => {
-            error!("执行命令 http_server_start 失败: {:#?}", e);
+            error!("执行命令 http_server_start 失败: {:?}", e);
             let error = IpcError {
                 code: ErrCodes::HttpServerStartInvokeError,
                 module: "http_server".to_string(),
@@ -220,7 +220,7 @@ pub async fn http_server_stop(app_handle: AppHandle, request: CallRequest<serde_
             }
         }
         Err(e) => {
-            error!("执行命令 http_server_stop 失败: {:#?}", e);
+            error!("执行命令 http_server_stop 失败: {:?}", e);
             let error = IpcError {
                 code: ErrCodes::HttpServerStopInvokeError,
                 module: "http_server".to_string(),
@@ -283,7 +283,7 @@ pub async fn http_server_status(app_handle: AppHandle, request: CallRequest<serd
             }
         }
         Err(e) => {
-            error!("执行命令 http_server_status 失败: {:#?}", e);
+            error!("执行命令 http_server_status 失败: {:?}", e);
             let error = IpcError {
                 code: ErrCodes::HttpServerStatusInvokeError,
                 module: "http_server".to_string(),

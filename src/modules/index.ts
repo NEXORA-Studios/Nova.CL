@@ -12,7 +12,7 @@ export { Timer } from "./service/Timer";
 export { EventBus } from "./service/EventBus";
 export { Requester } from "./service/Requster";
 // Pinia Stores
-export { useAccountStore } from "./stores/AccountStore";
+export { useProfileStore } from "./stores/ProfileStore";
 // Tauri
 export {
     /** @deprecated */

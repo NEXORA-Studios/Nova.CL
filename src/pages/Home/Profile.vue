@@ -37,6 +37,7 @@
     // -------------------- Computed --------------------
     const Profiles = computed(() => profileManager.profiles.value);
     const CurrentProfile = computed(() => profileManager.currentProfile.value);
+    const CurrentOtherProfile = computed(() => profileManager.currentOtherProfile.value);
 
     const CurrentProfileSkin = computed(() => {
         if (!CurrentProfile.value || CurrentProfile.value.Type !== "msa") return undefined;
@@ -137,7 +138,11 @@
                 <section class="h-full">
                     <div class="stack w-101.5 h-57.5">
                         <AccountCard
-                            v-for="card in Profiles"
+                            :key="CurrentProfile!.Guid"
+                            :profile="CurrentProfile!"
+                            :style="{ '--bgc-perc': matchTheme('dark') ? '4.23%' : '5.79%' }" />
+                        <AccountCard
+                            v-for="card in CurrentOtherProfile"
                             :key="card.Guid"
                             :profile="card"
                             :style="{ '--bgc-perc': matchTheme('dark') ? '4.23%' : '5.79%' }" />

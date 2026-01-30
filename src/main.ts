@@ -2,7 +2,7 @@ import { createApp } from "vue";
 import { createPinia } from "pinia";
 
 import App from "@/App.vue";
-import { router, i18nModule, EventBus, useAccountStore, TauriLogging, TauriConfig } from "@/modules";
+import { router, i18nModule, EventBus, useProfileStore, TauriLogging, TauriConfig } from "@/modules";
 
 const app = createApp(App);
 
@@ -11,19 +11,20 @@ app.use(router);
 app.use(i18nModule);
 
 import "@/assets/index.css";
+import { Profile } from "./types/tauri/config/Profiles";
 
 // 异步启动钩子
-// (async () => {
-//     // 应用配置
-//     i18nModule.global.locale.value = await TauriConfig.get("UI.Language");
-//     // 应用主题
-//     EventBus.emit("theme:change", await TauriConfig.get("UI.Theme"));
-//     // 应用账户信息
-//     const CurrentProfile = await TauriConfig.get("Profile.Current");
-//     if (CurrentProfile) {
-//         useAccountStore().setAccountState(CurrentProfile.name, CurrentProfile.type);
-//     }
-// })();
+(async () => {
+    // 应用配置
+    // i18nModule.global.locale.value = await TauriConfig.get("UI.Language");
+    // 应用主题
+    // EventBus.emit("theme:change", await TauriConfig.get("UI.Theme"));
+    // 应用账户信息
+    const [listStr, current] = await Promise.all([TauriConfig.get<string>("Profiles.Profile"), TauriConfig.get<string>("Profiles.Current")]);
+    const list = JSON.parse(listStr) as Profile[];
+    const currentProfile = list.find((i) => i.Guid == current);
+    useProfileStore().setProfile(currentProfile);
+})();
 
 // 注入日志系统
 function cleanOutput(output: any) {
@@ -65,4 +66,3 @@ console.tError = (params) => {
 };
 
 app.mount("#app");
-
