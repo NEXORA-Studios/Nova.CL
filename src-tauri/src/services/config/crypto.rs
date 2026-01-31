@@ -66,11 +66,7 @@ impl CryptoContext {
         match key_vec.try_into() {
             Ok(k) => k,
             Err(_) => {
-                error!(
-                    "生成新 Encryption Salt 失败：key 必须是 {} 字节，当前取得 key 长度为 {} 字节",
-                    KEY_LENGTH,
-                    len
-                );
+                error!("生成新 Encryption Salt 失败：从系统读取的 key 长度不合法");
                 panic!("生成新 Encryption Salt 失败：key 必须是 {} 字节", KEY_LENGTH);
             }
         }
