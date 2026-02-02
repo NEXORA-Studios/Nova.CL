@@ -2,15 +2,7 @@
     import { onMounted, ref } from "vue";
     import { useI18n } from "vue-i18n";
     import { modrinthApiAdapter } from "@/modules";
-    import {
-        Hint,
-        Loading,
-        LoadingNoResult,
-        ModrinthProjectItem,
-        ModrinthSearchFilter,
-        ModrinthSearchPage,
-        SearchInput,
-    } from "@/components";
+    import { Hint, Loading, LoadingNoResult, ModrinthProjectItem, ModrinthSearchFilter, ModrinthSearchPage, SearchInput } from "@/components";
     import { useResourceFilters } from "@/composables";
     import { IMrApi } from "@/types";
 
@@ -68,10 +60,7 @@
 
 <template>
     <div class="w-full h-full p-6 overflow-hidden">
-        <SearchInput
-            v-model="searchString"
-            :placeholder="t('Main.Download/Datapack.GlobalSearchPlaceholder')"
-            @click="onSearch" />
+        <SearchInput v-model="searchString" :placeholder="t('Main.Download/Datapack.GlobalSearchPlaceholder')" @click="onSearch" />
 
         <div
             class="w-full grid grid-cols-3 grid-rows-[auto_1fr] gap-2 mt-4 max-h-[calc(100vh-128px-var(--spacing)*29)] rounded-box overflow-auto pr-2 beautiful-scrollbar"

@@ -13,11 +13,7 @@
     div.card {
         background-size: 100% auto;
         background-image:
-            linear-gradient(
-                to right,
-                color-mix(in srgb, black 25%, transparent),
-                color-mix(in srgb, black 25%, transparent)
-            ),
+            linear-gradient(to right, color-mix(in srgb, black 25%, transparent), color-mix(in srgb, black 25%, transparent)),
             var(--nova-background-image);
         background-position-y: var(--nova-background-posY);
     }

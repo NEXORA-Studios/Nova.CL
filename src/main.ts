@@ -2,7 +2,7 @@ import { createApp } from "vue";
 import { createPinia } from "pinia";
 
 import App from "@/App.vue";
-import { router, i18nModule, EventBus, useProfileStore, TauriLogging, TauriConfig } from "@/modules";
+import { router, i18nModule, useProfileStore, TauriLogging, TauriConfig } from "@/modules";
 
 const app = createApp(App);
 

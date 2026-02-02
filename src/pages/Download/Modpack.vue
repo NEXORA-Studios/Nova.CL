@@ -1,15 +1,7 @@
 <script setup lang="ts">
     import { onMounted, ref } from "vue";
     import { useI18n } from "vue-i18n";
-    import {
-        Hint,
-        ModrinthProjectItem,
-        ModrinthSearchFilter,
-        ModrinthSearchPage,
-        SearchInput,
-        Loading,
-        LoadingNoResult,
-    } from "@/components";
+    import { Hint, ModrinthProjectItem, ModrinthSearchFilter, ModrinthSearchPage, SearchInput, Loading, LoadingNoResult } from "@/components";
     import { useResourceFilters } from "@/composables";
     import { modrinthApiAdapter } from "@/modules";
     import { IMrApi } from "@/types";
@@ -22,8 +14,7 @@
     }
 
     // ---------- 导入过滤器功能 ----------
-    const { searchString, VersionsFilter, ModpackCategoriesFilter, ModpackLoadersFilter, ModpackOffsetFilter } =
-        useResourceFilters();
+    const { searchString, VersionsFilter, ModpackCategoriesFilter, ModpackLoadersFilter, ModpackOffsetFilter } = useResourceFilters();
 
     // ---------- 响应式状态 ----------
     const isLoading = ref(true);
@@ -70,10 +61,7 @@
 
 <template>
     <div class="w-full h-full p-6 overflow-hidden">
-        <SearchInput
-            v-model="searchString"
-            :placeholder="t('Main.Download/Modpack.GlobalSearchPlaceholder')"
-            @click="onSearch" />
+        <SearchInput v-model="searchString" :placeholder="t('Main.Download/Modpack.GlobalSearchPlaceholder')" @click="onSearch" />
 
         <div
             class="w-full grid grid-cols-3 grid-rows-[auto_1fr] gap-2 mt-4 max-h-[calc(100vh-128px-var(--spacing)*29)] rounded-box overflow-auto pr-2 beautiful-scrollbar"

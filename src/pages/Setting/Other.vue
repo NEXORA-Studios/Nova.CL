@@ -7,7 +7,6 @@
     import { watchAndSet } from "@/utils";
 
     const { t } = useI18n();
-    const $meta = import.meta.env;
     const route = useRoute();
 
     const refUpdateMethodName = ref<HTMLSpanElement | null>(null);
@@ -67,9 +66,9 @@
     });
 
     // 社区资源
-    // const Source = ref<ITauriTypes.Config.ComponentConfig["Source"]>("offical");
-    // const IgnoreQuilt = ref<ITauriTypes.Config.ComponentConfig["IgnoreQuilt"]>(false);
-    // const DetectClipboard = ref<ITauriTypes.Config.ComponentConfig["DetectClipboard"]>(false);
+    // const Source = ref<ITauriTypes.Config.CompConfig["Source"]>("offical");
+    // const IgnoreQuilt = ref<ITauriTypes.Config.CompConfig["IgnoreQuilt"]>(false);
+    // const DetectClipboard = ref<ITauriTypes.Config.CompConfig["DetectClipboard"]>(false);
 
     // 辅助功能
     // const ReleaseNote = ref<ITauriTypes.TOML.AccessibilityConfig["release_note"]>(false);
@@ -239,7 +238,7 @@
                     </section>
                 </div>
             </div>
-            <!-- 
+            <!--
             <div class="card bg-base-100 outline outline-base-content/25 w-full mt-4">
                 <div class="card-body px-4 py-3 pb-4">
                     <h1 class="card-title">{{ t("Main.Setting/Other.Download.__Title__") }}</h1>

@@ -1,16 +1,14 @@
-export interface PoseNode {
-    name: string;
-    translation?: [number, number, number];
-    rotation?: [number, number, number, number]; // x, y, z, w
-    scale?: [number, number, number];
-}
+import { IGltf } from "@/types";
 
 export class PlayerPose {
-    constructor(public readonly name: string, public readonly nodes: PoseNode[] = []) {}
+    constructor(
+        public readonly name: string,
+        public readonly nodes: IGltf.PoseNode[] = []
+    ) {}
 
     /** 从两个完整的 nodes 数组中自动提取差异姿势 */
     static diff(idleNodes: any[], actionNodes: any[]): PlayerPose {
-        const diff: PoseNode[] = [];
+        const diff: IGltf.PoseNode[] = [];
 
         actionNodes.forEach((actionNode, i) => {
             const idleNode = idleNodes[i];
