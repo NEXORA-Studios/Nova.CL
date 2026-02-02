@@ -11,10 +11,10 @@
         cardDimensions?: { width: number; height: number };
         animationConfig?: { stiffness: number; damping: number };
         sendToBackOnClick?: boolean;
-        profiles: ITauriTypes.TOML.ProfileConfig["profile"];
+        profiles: ITauriTypes.Config.ProfileConfig["Profile"];
     }
 
-    const profiles = defineModel<ITauriTypes.TOML.ProfileConfig["profile"]>("profiles");
+    const profiles = defineModel<ITauriTypes.Config.ProfileConfig["Profile"]>("profiles");
     const topCardIndex = defineModel<number>("top-card-index");
 
     function syncTopCard() {

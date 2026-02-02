@@ -2,7 +2,7 @@
     import { EventBus, TauriConfig } from "@/modules";
     import { ITauriTypes } from "@/types";
     import { watchAndSet } from "@/utils";
-    import { onMounted, ref, watch } from "vue";
+    import { onMounted, ref } from "vue";
     import { useI18n } from "vue-i18n";
 
     const { t, locale } = useI18n();

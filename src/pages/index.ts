@@ -1,4 +1,4 @@
-export { default as HomeIndex } from "./Home/index.vue";
+export { default as HomeIndex } from "./Home/Index.vue";
 export { default as HomeProfile } from "./Home/Profile.vue";
 
 export { default as DownloadMinecraft } from "./Download/Minecraft.vue";

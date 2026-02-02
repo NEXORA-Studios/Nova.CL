@@ -5,9 +5,6 @@
     import { PlayerAnimator, glTFDatasets, PlayerPose, PlayerGltfBuilder, CapeAnimator, CapeGltfBuilder } from "@/modules/gltf";
     import { getCurrentWindow } from "@tauri-apps/api/window";
     import { EventBus } from "@/modules";
-    import { useTheme } from "@/composables";
-
-    const { matchTheme } = useTheme();
 
     const props = withDefaults(
         defineProps<{

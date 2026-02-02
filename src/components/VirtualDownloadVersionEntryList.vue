@@ -25,10 +25,7 @@
     <div v-bind="containerProps" class="overflow-y-auto" :style="{ maxHeight: (maxHeight || 288) + 'px' }">
         <ul v-bind="wrapperProps" class="list bg-base-100 rounded-box shadow-md">
             <li v-for="row in list" :key="row.data.id" :style="{ height: ITEM_HEIGHT + 'px' }">
-                <DownloadVersionEntry
-                    :version="row.data.id"
-                    :version_type="row.data.type"
-                    :date="row.data.releaseTime" />
+                <DownloadVersionEntry :version="row.data.id" :version_type="row.data.type" :date="row.data.releaseTime" />
             </li>
         </ul>
     </div>

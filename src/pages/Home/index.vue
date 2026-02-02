@@ -19,30 +19,20 @@
                 'h-12': !isDefaultHomeContent,
             }">
             <GraphicalButton
-                style="
-                    --nova-background-image: url(&quot;/images/MainCard_Background_1.webp&quot;);
-                    --nova-background-posY: -12px;
-                ">
+                style="--nova-background-image: url(&quot;/images/MainCard_Background_1.webp&quot;); --nova-background-posY: -12px">
                 {{ t("Main.Home.Cards.1") }}
             </GraphicalButton>
             <GraphicalButton
-                style="
-                    --nova-background-image: url(&quot;/images/MainCard_Background_2.webp&quot;);
-                    --nova-background-posY: -24px;
-                ">
+                style="--nova-background-image: url(&quot;/images/MainCard_Background_2.webp&quot;); --nova-background-posY: -24px">
                 {{ t("Main.Home.Cards.2") }}
             </GraphicalButton>
             <GraphicalButton
                 @click="$router.push('/profile')"
-                style="
-                    --nova-background-image: url(&quot;/images/MainCard_Background_3.webp&quot;);
-                    --nova-background-posY: -24px;
-                ">
+                style="--nova-background-image: url(&quot;/images/MainCard_Background_3.webp&quot;); --nova-background-posY: -24px">
                 {{ t("Main.Home.Cards.3") }}
             </GraphicalButton>
         </section>
-        <div
-            class="card w-full bg-base-200 p-4 mt-6 outline outline-base-content/25 rounded-lg flex flex-row! gap-8 relative">
+        <div class="card w-full bg-base-200 p-4 mt-6 outline outline-base-content/25 rounded-lg flex flex-row! gap-8 relative">
             <img src="/images/MainCard_Image_4.webp" class="h-32 rounded-md blur-[1px]" />
             <section class="flex flex-col gap-2">
                 <h1 class="card-title opacity-90">{{ t("Main.Home.Cards.News.Title") }}</h1>

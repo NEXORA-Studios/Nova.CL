@@ -1,6 +1,5 @@
 <script setup lang="ts">
     import { onMounted, ref } from "vue";
-    import { TauriConfig } from "@/modules";
     import { IMrApi } from "@/types";
     import { useI18n } from "vue-i18n";
 

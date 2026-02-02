@@ -2,15 +2,7 @@
     import { onMounted, ref } from "vue";
     import { useI18n } from "vue-i18n";
     import { modrinthApiAdapter } from "@/modules";
-    import {
-        ModrinthProjectItem,
-        ModrinthSearchFilter,
-        ModrinthSearchPage,
-        SearchInput,
-        Hint,
-        Loading,
-        LoadingNoResult,
-    } from "@/components";
+    import { ModrinthProjectItem, ModrinthSearchFilter, ModrinthSearchPage, SearchInput, Hint, Loading, LoadingNoResult } from "@/components";
     import { useResourceFilters } from "@/composables";
     import { IMrApi } from "@/types";
 
@@ -23,8 +15,7 @@
     }
 
     // ---------- 导入过滤器功能 ----------
-    const { searchString, VersionsFilter, ModOffsetFilter, ModCategoriesFilter, ModLoadersFilter } =
-        useResourceFilters();
+    const { searchString, VersionsFilter, ModOffsetFilter, ModCategoriesFilter, ModLoadersFilter } = useResourceFilters();
 
     // ---------- 响应式状态 ----------
     const isLoading = ref(true);
@@ -71,10 +62,7 @@
 
 <template>
     <div class="w-full h-full p-6 overflow-hidden">
-        <SearchInput
-            v-model="searchString"
-            :placeholder="t('Main.Download/Mod.GlobalSearchPlaceholder')"
-            @click="onSearch" />
+        <SearchInput v-model="searchString" :placeholder="t('Main.Download/Mod.GlobalSearchPlaceholder')" @click="onSearch" />
 
         <div
             class="w-full grid grid-cols-3 grid-rows-[auto_1fr] gap-2 mt-4 max-h-[calc(100vh-128px-var(--spacing)*29)] rounded-box overflow-auto pr-2 beautiful-scrollbar"
@@ -128,9 +116,7 @@
                                 type="checkbox"
                                 class="checkbox checkbox-sm rounded-md"
                                 v-model="ModLoadersFilter.showAll.value" />
-                            <label for="modloader-checkbox" class="text-sm">{{
-                                t("Main.Download/Public.Loaders.__ShowAll__")
-                            }}</label>
+                            <label for="modloader-checkbox" class="text-sm">{{ t("Main.Download/Public.Loaders.__ShowAll__") }}</label>
                         </div>
                     </template>
                 </ModrinthSearchFilter>

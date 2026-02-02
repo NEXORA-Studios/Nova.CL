@@ -1,14 +1,7 @@
 import * as THREE from "three";
+import { IGltf } from "@/types";
 
-/**
- * 披风的预定义动画帧（对应 CapeGltfBuilder 中的 NodeMap）
- * 每帧只影响披风根节点的 rotation（其他部分保持不变）
- */
-interface CapeFrame {
-    rotation: [number, number, number, number]; // Quaternion [x, y, z, w]
-}
-
-const CAPE_FRAMES: CapeFrame[] = [
+const CAPE_FRAMES: IGltf.CapeFrame[] = [
     // step 0: 静止下垂
     { rotation: [0, -1, 0, 6.123233995736766e-17] },
     // step 1
