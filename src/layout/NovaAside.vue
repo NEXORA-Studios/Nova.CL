@@ -1,5 +1,5 @@
 <script setup lang="ts">
-    import { Avatar } from "@/components";
+    import { Avatar } from "@/components/NovaUI";
     import { RuntimeCache } from "@/utils";
     import { useTheme } from "@/composables";
     import { useProfileStore } from "@/modules";

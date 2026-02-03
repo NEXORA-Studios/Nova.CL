@@ -4,9 +4,9 @@ use chacha20poly1305::{aead::Aead, AeadCore, ChaCha20Poly1305, Key, KeyInit};
 use log::{debug, error, warn};
 use rand::RngCore;
 use rand_core::OsRng;
+use std::sync::Arc;
 use tauri::AppHandle;
 use tauri_plugin_keyring::KeyringExt;
-use std::sync::Arc;
 use tokio::sync::Mutex;
 
 use crate::services::config::{CryptoError, CryptoResult};
@@ -92,9 +92,6 @@ impl CryptoContext {
     /// 解密配置值
     pub async fn decrypt_value(&self, encrypted_value: &str) -> CryptoResult<String> {
         let encryption_key = self.encryption_key.lock().await;
-
-        let key_preview: String = encryption_key.iter().take(8).map(|b| format!("{:02x}", b)).collect();
-        debug!("Decrypting with key preview: {}", key_preview);
 
         let cipher = ChaCha20Poly1305::new(Key::from_slice(&*encryption_key));
 

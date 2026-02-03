@@ -1,6 +1,6 @@
 <script setup lang="ts">
     import { ref, computed, onMounted } from "vue";
-    import { BankCard, AccountCard, Player } from "@/components";
+    import { BankCard, AccountCard, Player } from "@/components/NovaUI";
     import { useProfileManager } from "@/composables";
     import { useTheme } from "@/composables";
     import { useI18n } from "vue-i18n";

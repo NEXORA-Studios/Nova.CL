@@ -1,5 +1,5 @@
 <script setup lang="ts">
-    import { Avatar, BankCard } from ".";
+    import { Avatar, BankCard } from "@/components/NovaUI";
     import { ITauriTypes } from "@/types";
     import { insertEvery } from "@/utils";
 

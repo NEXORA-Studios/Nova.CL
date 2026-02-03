@@ -1,7 +1,15 @@
 <script setup lang="ts">
     import { onMounted, ref } from "vue";
     import { useI18n } from "vue-i18n";
-    import { Hint, ModrinthProjectItem, ModrinthSearchFilter, ModrinthSearchPage, SearchInput, Loading, LoadingNoResult } from "@/components";
+    import {
+        Hint,
+        ModrinthProjectItem,
+        ModrinthSearchFilter,
+        ModrinthSearchPage,
+        SearchInput,
+        Loading,
+        LoadingNoResult,
+    } from "@/components/NovaUI";
     import { useResourceFilters } from "@/composables";
     import { modrinthApiAdapter } from "@/modules";
     import { IMrApi } from "@/types";

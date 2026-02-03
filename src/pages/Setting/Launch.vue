@@ -4,7 +4,7 @@
     import { ITauriTypes } from "@/types";
     import { TauriSystem, TauriConfig } from "@/modules";
     import { useTimer } from "@/composables";
-    import { DoubleStateProgress } from "@/components";
+    import { DoubleStateProgress } from "@/components/NovaUI";
     import { watchAndSet } from "@/utils";
     const { t } = useI18n();
 

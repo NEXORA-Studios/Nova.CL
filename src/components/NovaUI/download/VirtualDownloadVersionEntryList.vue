@@ -1,6 +1,6 @@
 <script setup lang="ts">
     import { useVirtualList } from "@vueuse/core";
-    import DownloadVersionEntry from "@/components/DownloadVersionEntry.vue";
+    import { DownloadVersionEntry } from "@/components/NovaUI";
     import { toRef } from "vue";
 
     const props = defineProps<{
