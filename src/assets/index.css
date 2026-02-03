@@ -6,6 +6,11 @@
     *:not(.origin-font) {
         font-family: "Inter", sans-serif;
     }
+
+    img,
+    figure {
+        pointer-events: none;
+    }
 }
 
 @layer utilities {

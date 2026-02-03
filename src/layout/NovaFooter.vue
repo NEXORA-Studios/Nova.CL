@@ -45,7 +45,7 @@
                         <i class="divider my-0"></i>
                         <h1 class="text-lg font-bold opacity-90">设置</h1>
                         <section class="join w-full grid grid-cols-2 gap-1">
-                            <button class="btn join-item h-full flex gap-2 py-2">
+                            <button class="btn join-item h-full flex gap-2 py-2" @click="closeMenu(() => $router.push('/setting/global'))">
                                 <i class="icon-[material-symbols--settings-applications-outline-rounded] size-6 -ml-2 mr-2"></i>
                                 <span class="-mr-2">全局设置</span>
                             </button>
@@ -75,10 +75,13 @@
             </Transition>
             <GlassSurface className="w-5/6! h-18! rounded-full! fixed! bottom-6!" :backgroundOpacity="0.75" style="custom-style">
                 <div class="w-full h-full pl-px flex">
-                    <button class="btn h-full rounded-full aspect-square mr-2" @click="showMenu = !showMenu">
+                    <button
+                        class="btn h-full rounded-full aspect-square mr-2"
+                        @click="showMenu = !showMenu"
+                        @contextmenu.prevent="closeMenu(() => $router.push('/'))">
                         <i class="icon-[material-symbols--page-menu-ios-outline-rounded] size-6"></i>
                     </button>
-                    <button class="btn h-full relative px-6" @click="closeMenu(() => $router.push('/profile'))">
+                    <button class="btn h-full relative px-6 rounded-full" @click="closeMenu(() => $router.push('/profile'))">
                         <section class="size-8 aspect-square mr-2 translate-y-px">
                             <img src="/images/barrier.png" class="size-8 -ml-4" v-if="!profileStore.currentProfile" />
                             <Avatar

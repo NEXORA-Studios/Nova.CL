@@ -158,88 +158,80 @@
 </script>
 
 <template>
-    <div class="overflow-hidden">
-        <main class="p-6 pr-5 w-full max-h-[calc(100vh-128px-var(--spacing)*1)] rounded-box overflow-y-auto beautiful-scrollbar">
-            <div class="card bg-base-100 outline outline-base-content/25 w-full">
-                <div class="card-body px-4 py-3 pb-4">
-                    <h1 class="card-title">{{ t("Main.Setting/Other.Download.__Title__") }}</h1>
+    <div class="card bg-base-100 outline outline-base-content/25 w-full">
+        <div class="card-body px-4 py-3 pb-4">
+            <h1 class="card-title">{{ t("Main.Setting/Other.Download.__Title__") }}</h1>
 
-                    <section class="grid grid-cols-[144px_4fr] grid-rows-4 gap-x-8 gap-y-2 items-center">
-                        <span class="text-sm ml-4">{{ t("Main.Setting/Other.Download.DownloadSource.__Name__") }}</span>
-                        <select class="select select-bordered select-sm outline-none w-full" v-model="DownloadSource">
-                            <option value="mirror">{{ t("Main.Setting/Other.Download.DownloadSource.Mirror") }}</option>
-                            <option value="balance">
-                                {{ t("Main.Setting/Other.Download.DownloadSource.Balance") }}
-                            </option>
-                            <option value="offical">
-                                {{ t("Main.Setting/Other.Download.DownloadSource.Offical") }}
-                            </option>
-                        </select>
+            <section class="grid grid-cols-[144px_4fr] grid-rows-4 gap-x-8 gap-y-2 items-center">
+                <span class="text-sm ml-4">{{ t("Main.Setting/Other.Download.DownloadSource.__Name__") }}</span>
+                <select class="select select-bordered select-sm outline-none w-full" v-model="DownloadSource">
+                    <option value="mirror">{{ t("Main.Setting/Other.Download.DownloadSource.Mirror") }}</option>
+                    <option value="balance">
+                        {{ t("Main.Setting/Other.Download.DownloadSource.Balance") }}
+                    </option>
+                    <option value="offical">
+                        {{ t("Main.Setting/Other.Download.DownloadSource.Offical") }}
+                    </option>
+                </select>
 
-                        <span class="text-sm ml-4">{{ t("Main.Setting/Other.Download.VersionSource.__Name__") }}</span>
-                        <select class="select select-bordered select-sm outline-none w-full" v-model="VersionSource">
-                            <option value="mirror">{{ t("Main.Setting/Other.Download.VersionSource.Mirror") }}</option>
-                            <option value="balance">
-                                {{ t("Main.Setting/Other.Download.VersionSource.Balance") }}
-                            </option>
-                            <option value="offical">
-                                {{ t("Main.Setting/Other.Download.VersionSource.Offical") }}
-                            </option>
-                        </select>
+                <span class="text-sm ml-4">{{ t("Main.Setting/Other.Download.VersionSource.__Name__") }}</span>
+                <select class="select select-bordered select-sm outline-none w-full" v-model="VersionSource">
+                    <option value="mirror">{{ t("Main.Setting/Other.Download.VersionSource.Mirror") }}</option>
+                    <option value="balance">
+                        {{ t("Main.Setting/Other.Download.VersionSource.Balance") }}
+                    </option>
+                    <option value="offical">
+                        {{ t("Main.Setting/Other.Download.VersionSource.Offical") }}
+                    </option>
+                </select>
 
-                        <span class="text-sm ml-4">{{ t("Main.Setting/Other.Download.MaxConcurrent.__Name__") }}</span>
-                        <div class="flex items-center gap-4 translate-y-px">
-                            <span
-                                class="w-22 badge badge-soft"
-                                :class="{
-                                    'badge-success': MaxConcurrent <= 128,
-                                    'badge-warning': MaxConcurrent > 128 && MaxConcurrent <= 196,
-                                    'badge-error': MaxConcurrent > 196,
-                                }">
-                                {{ MaxConcurrent }}x
-                            </span>
-                            <input
-                                type="range"
-                                min="8"
-                                max="256"
-                                step="8"
-                                class="range range-xs range-primary w-full"
-                                v-model.number="MaxConcurrent" />
-                        </div>
-
-                        <span class="text-sm ml-4">{{ t("Main.Setting/Other.Download.MaxBandwidth.__Name__") }}</span>
-                        <div class="flex items-center gap-4">
-                            <span class="w-22 badge badge-soft badge-info" v-if="MaxBandwidth !== -1"> {{ MaxBandwidth }} MB/s </span>
-                            <span class="w-22 badge badge-soft badge-success" v-else>
-                                {{ t("Main.Setting/Other.Download.MaxBandwidth.Unlimited") }}
-                            </span>
-                            <input
-                                type="range"
-                                min="1"
-                                max="45"
-                                step="1"
-                                class="range range-xs range-primary w-full translate-y-px"
-                                v-model.number="_MaxBandwidth" />
-                        </div>
-
-                        <span class="text-sm ml-4">
-                            {{ t("Main.Setting/Other.Download.InstallBehavior.__Name__") }}
-                        </span>
-                        <div class="flex gap-4">
-                            <label class="label text-base-content">
-                                <input type="checkbox" class="checkbox checkbox-primary checkbox-sm" v-model="PostSelectInstance" />
-                                {{ t("Main.Setting/Other.Download.InstallBehavior.PostSelectInstance") }}
-                            </label>
-                            <label class="label text-base-content">
-                                <input type="checkbox" class="checkbox checkbox-primary checkbox-sm" v-model="UpdateAuthlib" />
-                                {{ t("Main.Setting/Other.Download.InstallBehavior.UpdateAuthlib") }}
-                            </label>
-                        </div>
-                    </section>
+                <span class="text-sm ml-4">{{ t("Main.Setting/Other.Download.MaxConcurrent.__Name__") }}</span>
+                <div class="flex items-center gap-4 translate-y-px">
+                    <span
+                        class="w-22 badge badge-soft"
+                        :class="{
+                            'badge-success': MaxConcurrent <= 128,
+                            'badge-warning': MaxConcurrent > 128 && MaxConcurrent <= 196,
+                            'badge-error': MaxConcurrent > 196,
+                        }">
+                        {{ MaxConcurrent }}x
+                    </span>
+                    <input type="range" min="8" max="256" step="8" class="range range-xs range-primary w-full" v-model.number="MaxConcurrent" />
                 </div>
-            </div>
-            <!--
-            <div class="card bg-base-100 outline outline-base-content/25 w-full mt-4">
+
+                <span class="text-sm ml-4">{{ t("Main.Setting/Other.Download.MaxBandwidth.__Name__") }}</span>
+                <div class="flex items-center gap-4">
+                    <span class="w-22 badge badge-soft badge-info" v-if="MaxBandwidth !== -1"> {{ MaxBandwidth }} MB/s </span>
+                    <span class="w-22 badge badge-soft badge-success" v-else>
+                        {{ t("Main.Setting/Other.Download.MaxBandwidth.Unlimited") }}
+                    </span>
+                    <input
+                        type="range"
+                        min="1"
+                        max="45"
+                        step="1"
+                        class="range range-xs range-primary w-full translate-y-px"
+                        v-model.number="_MaxBandwidth" />
+                </div>
+
+                <span class="text-sm ml-4">
+                    {{ t("Main.Setting/Other.Download.InstallBehavior.__Name__") }}
+                </span>
+                <div class="flex gap-4">
+                    <label class="label text-base-content">
+                        <input type="checkbox" class="checkbox checkbox-primary checkbox-sm" v-model="PostSelectInstance" />
+                        {{ t("Main.Setting/Other.Download.InstallBehavior.PostSelectInstance") }}
+                    </label>
+                    <label class="label text-base-content">
+                        <input type="checkbox" class="checkbox checkbox-primary checkbox-sm" v-model="UpdateAuthlib" />
+                        {{ t("Main.Setting/Other.Download.InstallBehavior.UpdateAuthlib") }}
+                    </label>
+                </div>
+            </section>
+        </div>
+    </div>
+    <!--
+            <div class="card bg-base-100 outline outline-base-content/25 w-full">
                 <div class="card-body px-4 py-3 pb-4">
                     <h1 class="card-title">{{ t("Main.Setting/Other.Download.__Title__") }}</h1>
 
@@ -264,7 +256,7 @@
                     </section>
                 </div>
             </div>
-            <div class="card bg-base-100 outline outline-base-content/25 w-full mt-4">
+            <div class="card bg-base-100 outline outline-base-content/25 w-full">
                 <div class="card-body px-4 py-3 pb-4">
                     <h1 class="card-title">{{ t("Main.Setting/Other.Accessibility.__Title__") }}</h1>
 
@@ -293,7 +285,7 @@
                     </section>
                 </div>
             </div>
-            <div class="card bg-base-100 outline outline-base-content/25 w-full mt-4">
+            <div class="card bg-base-100 outline outline-base-content/25 w-full">
                 <div class="card-body px-4 py-3 pb-4">
                     <h1 class="card-title">{{ t("Main.Setting/Other.Launcher.__Title__") }}</h1>
 
@@ -354,97 +346,95 @@
                 </div>
             </div>
             -->
-            <div class="card bg-base-100 outline outline-base-content/25 w-full mt-4">
-                <div class="card-body px-4 py-3 pb-4">
-                    <h1 class="card-title">{{ t("Main.Setting/Other.Network.__Title__") }}</h1>
+    <div class="card bg-base-100 outline outline-base-content/25 w-full">
+        <div class="card-body px-4 py-3 pb-4">
+            <h1 class="card-title">{{ t("Main.Setting/Other.Network.__Title__") }}</h1>
 
-                    <label class="label text-base-content ml-4 my-2">
-                        <input type="checkbox" class="checkbox checkbox-primary checkbox-sm" v-model="UseDoH" />
-                        {{ t("Main.Setting/Other.Network.UseDoH") }}
-                    </label>
+            <label class="label text-base-content ml-4 my-2">
+                <input type="checkbox" class="checkbox checkbox-primary checkbox-sm" v-model="UseDoH" />
+                {{ t("Main.Setting/Other.Network.UseDoH") }}
+            </label>
 
-                    <section class="grid grid-cols-[144px_4fr] grid-rows-1 gap-x-8 gap-y-2 items-start">
-                        <span class="text-sm ml-4">{{ t("Main.Setting/Other.Network.Proxy.__Name__") }}</span>
+            <section class="grid grid-cols-[144px_4fr] grid-rows-1 gap-x-8 gap-y-2 items-start">
+                <span class="text-sm ml-4">{{ t("Main.Setting/Other.Network.Proxy.__Name__") }}</span>
 
-                        <section class="flex flex-col gap-2">
-                            <div class="flex gap-16">
-                                <div class="flex gap-2 items-center">
-                                    <input
-                                        type="radio"
-                                        name="radio-3"
-                                        id="radio-3-1"
-                                        class="radio radio-sm radio-primary"
-                                        v-model="_ProxyType"
-                                        value="disable" />
-                                    <label class="label text-base-content" for="radio-3-1">
-                                        {{ t("Main.Setting/Other.Network.Proxy.Disable") }}
-                                    </label>
-                                </div>
-                                <div class="flex gap-2 items-center">
-                                    <input
-                                        type="radio"
-                                        name="radio-3"
-                                        id="radio-3-2"
-                                        class="radio radio-sm radio-primary"
-                                        v-model="_ProxyType"
-                                        value="system" />
-                                    <label class="label text-base-content" for="radio-3-2">
-                                        {{ t("Main.Setting/Other.Network.Proxy.System") }}
-                                    </label>
-                                </div>
-                                <div class="flex gap-2 items-center">
-                                    <input
-                                        type="radio"
-                                        name="radio-3"
-                                        id="radio-3-3"
-                                        class="radio radio-sm radio-primary"
-                                        v-model="_ProxyType"
-                                        value="custom" />
-                                    <label class="label text-base-content" for="radio-3-3">
-                                        {{ t("Main.Setting/Other.Network.Proxy.Custom.__Name__") }}
-                                    </label>
-                                </div>
-                            </div>
+                <section class="flex flex-col gap-2">
+                    <div class="flex gap-16">
+                        <div class="flex gap-2 items-center">
                             <input
-                                type="text"
-                                class="input input-bordered input-sm outline-none w-full"
-                                :placeholder="t('Main.Setting/Other.Network.Proxy.Custom.Placeholder')"
-                                v-model="CustomProxyUri"
-                                v-if="_ProxyType === 'custom'" />
-                            <div class="grid grid-cols-[64px_1fr_64px_1fr] items-center gap-x-2" v-if="_ProxyType === 'custom'">
-                                <span class="text-sm text-right">
-                                    {{ t("Main.Setting/Other.Network.Proxy.Custom.Username.__Name__") }}
-                                </span>
-                                <input
-                                    type="text"
-                                    class="input input-bordered input-sm outline-none w-full"
-                                    :placeholder="t('Main.Setting/Other.Network.Proxy.Custom.Username.Placeholder')"
-                                    v-model="CustomProxyUsername" />
-                                <span class="text-sm text-right">
-                                    {{ t("Main.Setting/Other.Network.Proxy.Custom.Password.__Name__") }}
-                                </span>
-                                <input
-                                    type="password"
-                                    class="input input-bordered input-sm outline-none w-full"
-                                    :placeholder="t('Main.Setting/Other.Network.Proxy.Custom.Password.Placeholder')"
-                                    v-model="CustomProxyPassword" />
-                            </div>
-                        </section>
-                    </section>
-                </div>
-            </div>
-            <div class="collapse collapse-arrow bg-base-100 outline outline-base-content/25 outline-offset-2 w-full mt-4">
-                <input type="checkbox" />
-                <div class="collapse-title font-semibold">{{ t("Main.Setting/Other.Debug.__Title__") }}</div>
-                <div class="collapse-content">
-                    <section class="grid grid-cols-[144px_4fr] grid-rows-1 gap-x-8 gap-y-2 items-start">
-                        <label class="label text-base-content ml-4">
-                            <input type="checkbox" class="checkbox checkbox-primary checkbox-sm" v-model="DebugMode" />
-                            <span class="text-sm">{{ t("Main.Setting/Other.Debug.DebugMode") }}</span>
-                        </label>
-                    </section>
-                </div>
-            </div>
-        </main>
+                                type="radio"
+                                name="radio-3"
+                                id="radio-3-1"
+                                class="radio radio-sm radio-primary"
+                                v-model="_ProxyType"
+                                value="disable" />
+                            <label class="label text-base-content" for="radio-3-1">
+                                {{ t("Main.Setting/Other.Network.Proxy.Disable") }}
+                            </label>
+                        </div>
+                        <div class="flex gap-2 items-center">
+                            <input
+                                type="radio"
+                                name="radio-3"
+                                id="radio-3-2"
+                                class="radio radio-sm radio-primary"
+                                v-model="_ProxyType"
+                                value="system" />
+                            <label class="label text-base-content" for="radio-3-2">
+                                {{ t("Main.Setting/Other.Network.Proxy.System") }}
+                            </label>
+                        </div>
+                        <div class="flex gap-2 items-center">
+                            <input
+                                type="radio"
+                                name="radio-3"
+                                id="radio-3-3"
+                                class="radio radio-sm radio-primary"
+                                v-model="_ProxyType"
+                                value="custom" />
+                            <label class="label text-base-content" for="radio-3-3">
+                                {{ t("Main.Setting/Other.Network.Proxy.Custom.__Name__") }}
+                            </label>
+                        </div>
+                    </div>
+                    <input
+                        type="text"
+                        class="input input-bordered input-sm outline-none w-full"
+                        :placeholder="t('Main.Setting/Other.Network.Proxy.Custom.Placeholder')"
+                        v-model="CustomProxyUri"
+                        v-if="_ProxyType === 'custom'" />
+                    <div class="grid grid-cols-[64px_1fr_64px_1fr] items-center gap-x-2" v-if="_ProxyType === 'custom'">
+                        <span class="text-sm text-right">
+                            {{ t("Main.Setting/Other.Network.Proxy.Custom.Username.__Name__") }}
+                        </span>
+                        <input
+                            type="text"
+                            class="input input-bordered input-sm outline-none w-full"
+                            :placeholder="t('Main.Setting/Other.Network.Proxy.Custom.Username.Placeholder')"
+                            v-model="CustomProxyUsername" />
+                        <span class="text-sm text-right">
+                            {{ t("Main.Setting/Other.Network.Proxy.Custom.Password.__Name__") }}
+                        </span>
+                        <input
+                            type="password"
+                            class="input input-bordered input-sm outline-none w-full"
+                            :placeholder="t('Main.Setting/Other.Network.Proxy.Custom.Password.Placeholder')"
+                            v-model="CustomProxyPassword" />
+                    </div>
+                </section>
+            </section>
+        </div>
+    </div>
+    <div class="collapse collapse-arrow bg-base-100 outline outline-base-content/25 outline-offset-2 w-full">
+        <input type="checkbox" />
+        <div class="collapse-title font-semibold">{{ t("Main.Setting/Other.Debug.__Title__") }}</div>
+        <div class="collapse-content">
+            <section class="grid grid-cols-[144px_4fr] grid-rows-1 gap-x-8 gap-y-2 items-start">
+                <label class="label text-base-content ml-4">
+                    <input type="checkbox" class="checkbox checkbox-primary checkbox-sm" v-model="DebugMode" />
+                    <span class="text-sm">{{ t("Main.Setting/Other.Debug.DebugMode") }}</span>
+                </label>
+            </section>
+        </div>
     </div>
 </template>
