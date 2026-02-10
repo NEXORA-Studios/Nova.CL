@@ -2,7 +2,15 @@
     import { onMounted, ref } from "vue";
     import { useI18n } from "vue-i18n";
     import { modrinthApiAdapter } from "@/modules";
-    import { Hint, Loading, LoadingNoResult, ModrinthProjectItem, ModrinthSearchFilter, ModrinthSearchPage, SearchInput } from "@/components";
+    import {
+        Hint,
+        Loading,
+        LoadingNoResult,
+        ModrinthProjectItem,
+        ModrinthSearchFilter,
+        ModrinthSearchPage,
+        SearchInput,
+    } from "@/components/NovaUI";
     import { useResourceFilters } from "@/composables";
     import { IMrApi } from "@/types";
 

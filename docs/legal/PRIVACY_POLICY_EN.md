@@ -1,6 +1,6 @@
 # Privacy Policy
 
-**Last Updated: December 29, 2025**
+**Last Updated: February 3, 2026**
 
 Welcome to Nova.CL! We take your privacy and personal information protection very seriously. This Privacy Policy aims to inform you about how we collect, use, store, and protect the personal information you provide or generate when using the Nova.CL application (hereinafter referred to as "the Application").
 
@@ -79,7 +79,7 @@ We may update this Privacy Policy from time to time. The updated policy will be 
 
 If you have any questions or suggestions about this Privacy Policy, or need to exercise your rights, please contact us through the following methods:
 
-- Project Address: https://github.com/Org.NEOXRA-Studios/Nova.CL
+- Project Address: https://github.com/NEOXRA-Studios/Nova.CL
 - Email: [Please check the GitHub organization for contact information]
 
 ## 9. Applicable Law

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-    import { NovaAside, NovaFooter, NovaHeader, WindowFrame } from "@/layout";
+    import { NovaFooter, NovaHeader, WindowFrame } from "@/layout";
     import { channelWrapper } from "@/utils";
     import { useI18n } from "vue-i18n";
     import { ThemeController } from "@/components";
@@ -19,14 +19,13 @@
 <template>
     <WindowFrame>
         <NovaHeader />
-        <NovaAside />
-        <main style="grid-area: main" class="border-y border-base-content/25">
-            <div class="w-full h-full ease-in-out overflow-hidden relative">
+        <main style="grid-area: main" class="border-t border-base-content/25">
+            <div class="w-full h-full max-h-[calc(100vh-58px)] ease-in-out overflow-hidden relative">
                 <RouterView v-slot="{ Component }">
                     <Transition name="fade-slide" mode="out-in">
                         <component :is="Component" />
                     </Transition>
-                    <div class="text-right absolute bottom-4 right-4 opacity-50 text-xs z-999">
+                    <div class="text-right absolute top-4 right-4 opacity-50 text-xs z-999">
                         <p>
                             {{
                                 t("InsiderWarning.Line1", {
@@ -61,4 +60,3 @@
         transform: translateX(20px);
     }
 </style>
-

@@ -6,6 +6,11 @@
     *:not(.origin-font) {
         font-family: "Inter", sans-serif;
     }
+
+    img,
+    figure {
+        pointer-events: none;
+    }
 }
 
 @layer utilities {
@@ -59,7 +64,7 @@
     --size-field: 0.25rem;
     --border: 1px;
     --depth: 1;
-    --noise: 0;
+    --noise: 1;
 }
 
 @plugin "daisyui/theme" {
@@ -94,7 +99,7 @@
     --size-field: 0.25rem;
     --border: 1px;
     --depth: 1;
-    --noise: 0;
+    --noise: 1;
 }
 
 @plugin "@iconify/tailwind4";

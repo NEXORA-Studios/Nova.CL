@@ -21,11 +21,11 @@
         background-color: color-mix(in srgb, var(--color-base-300) 75%, transparent);
         backdrop-filter: blur(8px);
         display: grid;
-        grid-template-columns: 240px 1fr;
-        grid-template-rows: 56px 1fr 72px;
+        grid-template-columns: 1fr;
+        grid-template-rows: 56px 1fr;
         grid-template-areas:
-            "aside header"
-            "aside main"
-            "aside footer";
+            "header"
+            "main";
+        position: relative;
     }
 </style>

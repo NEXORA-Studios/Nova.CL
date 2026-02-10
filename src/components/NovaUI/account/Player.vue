@@ -200,7 +200,7 @@
         const totalHeight = window.innerHeight;
 
         // 简单粗暴：右侧占剩余空间
-        const width = totalWidth - (175 + 24 * 2 + 410 + 16 + 72);
+        const width = totalWidth - (175 + 24 * 2 + 16 + 72 + 163);
         const height = totalHeight - (56 + 24 * 2 + 48 + 16 + 64);
 
         camera.aspect = width / height;
@@ -211,7 +211,7 @@
 </script>
 
 <template>
-    <div ref="container" class="w-full h-full" />
+    <div ref="container" class="w-full h-full"></div>
 </template>
 
 <style lang="scss" scoped>

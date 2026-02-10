@@ -1,10 +1,9 @@
 <script setup lang="ts">
     import { computed, onMounted, ref } from "vue";
     import { useI18n } from "vue-i18n";
-    import { SearchInput, DownloadVersionEntry, VirtualDownloadVersionEntryList, Loading } from "@/components";
+    import { SearchInput, DownloadVersionEntry, VirtualDownloadVersionEntryList, Loading, LoadingNoResult } from "@/components/NovaUI";
     import { Requester } from "@/modules";
     import { IOjngApi } from "@/types";
-    import LoadingNoResult from "@/components/LoadingNoResult.vue";
 
     const { t } = useI18n();
 

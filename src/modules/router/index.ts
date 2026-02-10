@@ -24,9 +24,8 @@ const router = createRouter({
         RouteItem("/download/resourcepack", Pages.DownloadResourcepack),
         RouteItem("/download/shader", Pages.DownloadShader),
         // 设置子页面
-        RouteItem("/setting/launch", Pages.SettingLaunch),
-        RouteItem("/setting/customize", Pages.SettingCustomize),
-        RouteItem("/setting/other", Pages.SettingOther),
+        RouteItem("/setting/global", Pages.SettingGlobal),
+        RouteItem("/setting/instance", Pages.SettingInstance),
         // 更多子页面
         RouteItem("/more/about", Pages.MoreAbout),
         RouteItem("/more/tools", Pages.MoreTools),
@@ -34,4 +33,3 @@ const router = createRouter({
 });
 
 export default router;
-

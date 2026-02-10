@@ -1,6 +1,6 @@
 <script setup lang="ts">
     import { ref } from "vue";
-    import ModrinthSearchOption from "./ModrinthSearchOption.vue";
+    import { ModrinthSearchOption } from "@/components/NovaUI";
     import type { IMrFilterItem } from "@/types";
 
     const props = defineProps<{

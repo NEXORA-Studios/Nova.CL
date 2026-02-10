@@ -8,9 +8,8 @@ export { default as DownloadDatapack } from "./Download/Datapack.vue";
 export { default as DownloadResourcepack } from "./Download/Resourcepack.vue";
 export { default as DownloadShader } from "./Download/Shader.vue";
 
-export { default as SettingLaunch } from "./Setting/Launch.vue";
-export { default as SettingCustomize } from "./Setting/Customize.vue";
-export { default as SettingOther } from "./Setting/Other.vue";
+export { default as SettingGlobal } from "./Setting/Global/index.vue";
+export { default as SettingInstance } from "./Setting/Instance.vue";
 
 export { default as MoreAbout } from "./More/About.vue";
 export { default as MoreTools } from "./More/Tools.vue";
